@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+/*
+* Flutter/Dart 기본 라이브러리에 Timer 클래스가 존재해서
+* 충돌 위험 방지로 인해 TimerScreen 으로 클래스 명 변경
+* */
+
 class TimerScreen extends StatefulWidget {
   const TimerScreen({Key? key}) : super(key: key);
 
@@ -40,7 +45,7 @@ class _TimerScreenState extends State<TimerScreen> {
     setState(() {
       _isRunning = false;
       _isFinished = true;
-      _remainingSeconds = 0; // 시간이 0으로 유지되도록 설정
+      _remainingSeconds = 0; // 시간이 0으로 유지 되도록 설정
     });
   }
 
@@ -73,7 +78,7 @@ class _TimerScreenState extends State<TimerScreen> {
     });
   }
 
-  // 시간을 "MM:SS" 형식으로 변환
+  // 시간을 "MM:SS" 형식 으로 변환
   String _formatTime(int seconds) {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
     final remainingSeconds = (seconds % 60).toString().padLeft(2, '0');
@@ -115,11 +120,11 @@ class _TimerScreenState extends State<TimerScreen> {
                   children: [
                     // 빈 원형 타이머
                     SizedBox(
-                      width: 200,
-                      height: 200,
+                      width: 250,
+                      height: 250,
                       child: CircularProgressIndicator(
                         value: 0, // 빈 타이머
-                        strokeWidth: 10,
+                        strokeWidth: 15,  // 원형 타이머 두께 확장
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           Colors.green,
@@ -129,7 +134,7 @@ class _TimerScreenState extends State<TimerScreen> {
                     const Text(
                       "00:00",
                       style: TextStyle(
-                        fontSize: 40,
+                        fontSize: 50,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -168,7 +173,8 @@ class _TimerScreenState extends State<TimerScreen> {
                       icon: const Icon(Icons.play_arrow),
                       label: const Text("실행"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.grey,
+                        foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18), // 실행 버튼 크기 지정
                       ),
                     ),
@@ -180,11 +186,11 @@ class _TimerScreenState extends State<TimerScreen> {
                   alignment: Alignment.center,
                   children: [
                     SizedBox(
-                      width: 200,
-                      height: 200,
+                      width: 250,
+                      height: 250,
                       child: CircularProgressIndicator(
                         value: 0, // 빈 원형 타이머
-                        strokeWidth: 10,
+                        strokeWidth: 15, // 원형 타이머 두께 확장
                         backgroundColor: Colors.red[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           Colors.red, // 빨간색으로 변경
@@ -194,7 +200,7 @@ class _TimerScreenState extends State<TimerScreen> {
                     const Text(
                       "00:00",
                       style: TextStyle(
-                        fontSize: 40,
+                        fontSize: 50,
                         fontWeight: FontWeight.bold,
                         color: Colors.red, // 빨간 텍스트
                       ),
@@ -208,8 +214,10 @@ class _TimerScreenState extends State<TimerScreen> {
                   icon: const Icon(Icons.restart_alt),
                   label: const Text("다시 시작"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),
+                    backgroundColor: Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18), // '다시 시작' 버튼 크기 지정
+
                   ),
                 ),
               ] else ...[
@@ -218,11 +226,11 @@ class _TimerScreenState extends State<TimerScreen> {
                   alignment: Alignment.center,
                   children: [
                     SizedBox(
-                      width: 200,
-                      height: 200,
+                      width: 250,
+                      height: 250,
                       child: CircularProgressIndicator(
                         value: progress, // 진행 비율
-                        strokeWidth: 10,
+                        strokeWidth: 15, // 원형 타이머 두께 확장
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           Colors.green,
@@ -232,7 +240,7 @@ class _TimerScreenState extends State<TimerScreen> {
                     Text(
                       _formatTime(_remainingSeconds),
                       style: const TextStyle(
-                        fontSize: 40,
+                        fontSize: 50,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -249,8 +257,9 @@ class _TimerScreenState extends State<TimerScreen> {
                       icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
                       label: Text(_isRunning ? "멈춤" : "계속"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),
+                        backgroundColor: Colors.grey,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),  // '멈춤', '계속' 버튼 크기 지정
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -259,8 +268,9 @@ class _TimerScreenState extends State<TimerScreen> {
                       icon: const Icon(Icons.restart_alt),
                       label: const Text("초기화"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),
+                        backgroundColor: Colors.grey,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18), // '초기화' 버튼 크기 지정
                       ),
                     ),
                   ],
