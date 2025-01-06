@@ -7,6 +7,8 @@ import 'package:dingdong_flutter_teacher/screen/Timer.dart';
 import 'package:dingdong_flutter_teacher/screen/voting_list.dart';
 import 'package:flutter/material.dart';
 
+import 'Calendar.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -42,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 6:
         page = Vote();
         break;
+      case 7:
+        page = Calendar();
       default:
         page = Notice();
     }
@@ -95,6 +99,12 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text('학생정보'),
               onTap: () {
                 _onItemTapped(2);
+              },
+            ),
+            ListTile(
+              title: Text('캘린더'),
+              onTap: () {
+                _onItemTapped(7);
               },
             ),
             ListTile(
