@@ -4,7 +4,7 @@ import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/Vote.dart';
+import 'package:dingdong_flutter_teacher/screen/voting_list.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 30.0),
                 child: ListTile(
-                  leading: Icon(Icons.check_circle),
+                  leading: Icon(Icons.how_to_vote_rounded),
                   title: Text('투표'),
                   onTap: () {
                     _onItemTapped(6);
