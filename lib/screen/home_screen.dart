@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
         page = Convenience();
         break;
       case 4:
-        page = Timer();
+        page = TimerScreen();
         break;
       case 5:
         page = Seat();
