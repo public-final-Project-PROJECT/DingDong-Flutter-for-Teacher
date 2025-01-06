@@ -2,8 +2,9 @@
 
 import 'package:dingdong_flutter_teacher/screen/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 class MyApp extends StatelessWidget {
