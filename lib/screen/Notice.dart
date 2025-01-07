@@ -35,7 +35,15 @@ class _NoticeState extends State<Notice> {
     return Scaffold(
       appBar: AppBar(
         title: Text("공지사항"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(   // AppBar 밑줄
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: Column(
         children: [
           Padding(
@@ -55,7 +63,12 @@ class _NoticeState extends State<Notice> {
                   icon: Icon(Icons.add),
                   label: Text("작성하기"),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                    backgroundColor: Color(0xff515151), // 버튼 배경색 변경
+                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    shape: RoundedRectangleBorder(  // 버튼 테두리 둥글기 조절 (네모로)
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                 ),
               ],

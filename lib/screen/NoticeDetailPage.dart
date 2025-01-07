@@ -40,8 +40,16 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("공지사항"),
+        title: const Align(
+          alignment: Alignment(-0.3, 0),
+          child: Text(
+            "공지사항",
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        backgroundColor: Color(0xffF4F4F4),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -55,13 +63,20 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
             Text("${notice['noticeCategory']}"),
             Text("${notice['noticeContent']}"),
             if (notice['noticeFile'] != null)
-              ElevatedButton.icon(
-                onPressed: () async {
-                  String fileUrl = "http://112.221.66.174:3013/download${notice['noticeFile']}"; // 변경된 부분: /download 추가
-                  await _downloadFile(fileUrl, context);
-                },
-                icon: const Icon(Icons.download),
-                label: const Text("첨부 파일 다운로드"),
+              Container(
+                margin: const EdgeInsets.only(top: 16.0),
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    String fileUrl = "http://112.221.66.174:3013${notice['noticeFile']}";
+                    await _downloadFile(fileUrl);
+                  },
+                  icon: const Icon(Icons.download),
+                  label: const Text("첨부 파일 다운로드"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // blue -> white 로 변경
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
           ],
         ),
