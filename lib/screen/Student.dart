@@ -34,7 +34,7 @@ class _StudentState extends State<Student> {
     return Scaffold(
       appBar: AppBar(
         title: Text("${_students.isNotEmpty
-            ? '${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
+            ? '${_students[0]['schoolName']} ${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
             : '학생 정보'}"),
       ),
       body: Container(
@@ -51,12 +51,22 @@ class _StudentState extends State<Student> {
                 setState(() {
                   _selectedStudent = student;
                 });
-               Navigator.push(
+                Navigator.push(
                   context,
-                 MaterialPageRoute(
-                     builder: (context) => StudentDetailPage(student: student),
-                ),
-                 );
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => StudentDetailPage(student: student),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOut;
+
+                      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+
+                      return SlideTransition(position: offsetAnimation, child: child);
+                    },
+                  ),
+                );
                },
             );
           },
