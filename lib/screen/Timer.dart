@@ -103,7 +103,6 @@ class _TimerScreenState extends State<TimerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("타이머"),
-        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -173,7 +172,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       icon: const Icon(Icons.play_arrow),
                       label: const Text("실행"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
+                        backgroundColor: Color(0xff515151),
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18), // 실행 버튼 크기 지정
                       ),
@@ -182,7 +181,7 @@ class _TimerScreenState extends State<TimerScreen> {
                 ),
               ] else if (_isFinished) ...[
                 // 타이머 종료 상태
-                Stack(
+                const Stack(
                   alignment: Alignment.center,
                   children: [
                     SizedBox(
@@ -191,7 +190,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       child: CircularProgressIndicator(
                         value: 0, // 빈 원형 타이머
                         strokeWidth: 15, // 원형 타이머 두께 확장
-                        backgroundColor: Colors.red[300],
+                        backgroundColor: Color(0xffFF1F1F),
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           Colors.red, // 빨간색으로 변경
                         ),
@@ -214,7 +213,7 @@ class _TimerScreenState extends State<TimerScreen> {
                   icon: const Icon(Icons.restart_alt),
                   label: const Text("다시 시작"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
+                    backgroundColor: Color(0xff515151),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18), // '다시 시작' 버튼 크기 지정
 
@@ -257,7 +256,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
                       label: Text(_isRunning ? "멈춤" : "계속"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
+                        backgroundColor: Color(0xff515151),
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18),  // '멈춤', '계속' 버튼 크기 지정
                       ),
@@ -268,7 +267,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       icon: const Icon(Icons.restart_alt),
                       label: const Text("초기화"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
+                        backgroundColor: Color(0xff515151),
                         foregroundColor: Colors.white,
                         padding: EdgeInsets.symmetric(horizontal: 15, vertical: 18), // '초기화' 버튼 크기 지정
                       ),
