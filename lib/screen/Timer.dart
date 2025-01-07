@@ -125,9 +125,7 @@ class _TimerScreenState extends State<TimerScreen> {
                         value: 0, // 빈 타이머
                         strokeWidth: 15,  // 원형 타이머 두께 확장
                         backgroundColor: Colors.grey[300],
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.green,
-                        ),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
                       ),
                     ),
                     const Text(
@@ -224,17 +222,26 @@ class _TimerScreenState extends State<TimerScreen> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    SizedBox(
-                      width: 250,
-                      height: 250,
-                      child: CircularProgressIndicator(
-                        value: progress, // 진행 비율
-                        strokeWidth: 15, // 원형 타이머 두께 확장
-                        backgroundColor: Colors.grey[300],
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.green,
-                        ),
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: 1.0, // 시작 비율
+                        end: progress, // 현재 진행 비율
                       ),
+                      duration: const Duration(seconds: 1), // 애니메이션 지속 시간
+                      // Duration 을 사용하여 애니메이션 속도 조절
+                      // seconds 를 1초로 설정하여 매 초 부드럽게 원형 타이머가 감소됨
+                      builder: (context, value, child) {
+                        return SizedBox(
+                          width: 250,
+                          height: 250,
+                          child: CircularProgressIndicator(
+                            value: value, // 애니메이션 값
+                            strokeWidth: 15, // 원형 타이머 두께
+                            backgroundColor: Colors.grey[300],
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                          ),
+                        );
+                      },
                     ),
                     Text(
                       _formatTime(_remainingSeconds),
