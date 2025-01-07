@@ -54,6 +54,7 @@ class _VoteState extends State<Vote> {
           builder: (context, setModalState) {
             return AlertDialog(
               title: Text("제목 입력"),
+              backgroundColor: Colors.white,  // 투표 다이얼 로그 색 변경 (흰색)
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -290,8 +291,18 @@ class _VoteState extends State<Vote> {
     return Scaffold(
       appBar: AppBar(
           title: Row(
-            children: [Text("투표"), Icon(Icons.how_to_vote)],
-          )),
+            children: [Text("투표"),Icon(Icons.how_to_vote),
+            ],
+          ),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1
+          )
+        ),
+      ),
+      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
       body: ListView.builder(
         itemCount: _voteList.length,
         itemBuilder: (context, index) {
@@ -335,6 +346,8 @@ class _VoteState extends State<Vote> {
       ),
       // 투표 추가 부분 버튼
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xff515151), // 버튼 배경색 변경 (어둡게)
+        foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
         onPressed: () {
           _showAddVotingDialog(context);
         },

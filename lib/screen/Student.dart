@@ -36,7 +36,15 @@ class _StudentState extends State<Student> {
         title: Text("${_students.isNotEmpty
             ? '${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
             : '학생 정보'}"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(  // AppBar 밑줄
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: Container(
         child: ListView.builder(
           itemCount: _students.length,

@@ -37,14 +37,16 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Align(
+        title: const Align(
           alignment: Alignment(-0.3, 0),
           child: Text(
             "공지사항",
             style: TextStyle(fontSize: 20),
           ),
         ),
+        backgroundColor: Color(0xffF4F4F4),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -117,7 +119,7 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                   icon: const Icon(Icons.download),
                   label: const Text("첨부 파일 다운로드"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.white, // blue -> white 로 변경
                     textStyle: const TextStyle(fontSize: 16),
                   ),
                 ),

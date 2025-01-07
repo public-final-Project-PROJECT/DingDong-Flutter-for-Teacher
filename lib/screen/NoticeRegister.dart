@@ -116,7 +116,15 @@ class _NoticeRegisterState extends State<NoticeRegister> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("공지사항 작성"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(  // AppBar 밑줄
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -162,6 +170,13 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                 ElevatedButton(
                   onPressed: _pickImage,
                   child: const Text("이미지 선택"),
+                  style: ElevatedButton.styleFrom(  // '이미지 선택' 버튼 스타일 변경
+                    backgroundColor: Color(0xff515151), // 버튼 배경색 변경 (어둡계
+                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
+                    )
+                  ),
                 ),
                 if (_selectedImage != null)
                   Column(
@@ -186,6 +201,13 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                 ElevatedButton(
                   onPressed: _pickFile,
                   child: const Text("파일 선택"),
+                  style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
+                    backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
+                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                    )
+                  ),
                 ),
                 if (_selectedFile != null)
                   Text( _selectedFile!.uri.pathSegments.last, // 파일 이름만 추출
@@ -196,6 +218,13 @@ class _NoticeRegisterState extends State<NoticeRegister> {
             ElevatedButton(
               onPressed: _registerNotice,
               child: const Text("등록하기"),
+              style: ElevatedButton.styleFrom(  // '등록하기' 버튼 스타일 변경
+                backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
+                foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                )
+              ),
             ),
           ],
         ),
