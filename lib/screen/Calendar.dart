@@ -18,8 +18,11 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   List<dynamic> _calendarList = [];
   final CalendarModel _calendarModel = CalendarModel();
-  DateTime _selectedDay = DateTime.now(); // 선택된 날짜
-  DateTime _focusedDay = DateTime.now(); // 현재 보이는 달력의 날짜
+  DateTime? _selectedDay = DateTime.now(); // 선택된 날짜
+  DateTime? _focusedDay = DateTime.now(); // 현재 보이는 달력의 날짜
+  DateTime? _rangeStart;
+  DateTime? _rangeEnd;
+
   @override
   void initState() {
     _loadCalendar();
@@ -45,7 +48,6 @@ class _CalendarState extends State<Calendar> {
         final endDate =
             item["end"] != null ? DateTime.parse(item["end"]) : startDate;
 
-        print("Parsed startDate: $startDate, endDate: $endDate");
 
         // 날짜 범위 처리
         DateTime currentDate = startDate;
@@ -85,17 +87,38 @@ class _CalendarState extends State<Calendar> {
         lastDay: DateTime.utc(2030, 3, 14),
         locale: 'ko_KR',
         // 추가
-        focusedDay: DateTime.now(),
+        focusedDay: _focusedDay ?? DateTime.now(),
+        rangeSelectionMode: RangeSelectionMode.enforced,
+        rangeStartDay: _rangeStart,
+        rangeEndDay: _rangeEnd,
         selectedDayPredicate: (day) {
           // 선택된 날짜를 확인하는 함수
-          return isSameDay(_selectedDay, day);
+          DateTime? day2;
+          if(_rangeStart != null){
+            return isSameDay(_rangeStart, day);
+          }
+          else {
+            return isSameDay(_selectedDay, day);
+          }
         },
+        onRangeSelected: (start, end, focusedDay) {
+          setState(() {
+            _rangeStart = start;
+            _rangeEnd = end;
+            _selectedDay = start;
+            _focusedDay = focusedDay;
+          });
+        },
+
         onDaySelected: (selectedDay, focusedDay) {
           setState(() {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
+            _rangeStart = selectedDay; // 범위 시작을 선택된 날짜로 설정
+            _rangeEnd = null;          // 범위 끝을 초기화
           });
         },
+
         headerStyle: HeaderStyle(
           titleCentered: true,
           titleTextFormatter: (date, locale) =>
