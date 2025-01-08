@@ -131,7 +131,15 @@ class _NoticeRegisterState extends State<NoticeRegister> {
     return Scaffold(
       appBar: AppBar(
         title:  Text("공지사항 작성"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(  // AppBar 밑줄
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: SingleChildScrollView( // 추가된 부분
         child: Padding(
           padding:  EdgeInsets.all(16.0),
@@ -188,6 +196,14 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   ElevatedButton(
                     onPressed: _pickImage,
                     child: const Text("이미지 선택"),
+                    style: ElevatedButton.styleFrom(  // '이미지 선택' 버튼 스타일 변경
+                      backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+                      foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                        borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                      )
+                    ),
                   ),
                 ],
               ),
@@ -205,6 +221,14 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   ElevatedButton(
                     onPressed: _pickFile,
                     child:  Text("파일 선택"),
+                    style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
+                      backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+                      foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                        borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                      )
+                    ),
                   ),
 
                 ],
@@ -213,6 +237,14 @@ class _NoticeRegisterState extends State<NoticeRegister> {
               ElevatedButton(
                 onPressed: _registerNotice,
                 child:  Text("등록하기"),
+                style: ElevatedButton.styleFrom(  // '등록하기' 버튼 스타일 변경
+                  backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+                  foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                  shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                    borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                  )
+                ),
               ),
             ],
           ),

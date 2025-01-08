@@ -104,6 +104,7 @@ class _NoticeState extends State<Notice> {
 
                 return Card(
                   margin: EdgeInsets.all(8.0),
+                  color: Color(0xffFFFFFF),  // 공지사항 네모네모 색 변경 (흰색)
                   elevation: 4.0,
                   child: ListTile(
                     contentPadding: EdgeInsets.all(16.0),
