@@ -36,6 +36,7 @@ class _VoteState extends State<Vote> {
 
   void _loadVoting() async {
     List<dynamic> votingData = await _votingModel.selectVoting(1);
+    print(votingData);
     for(int i=0; i < votingData.length; i++){
       setState(() {
         _contentsList = _votingModel.selectVotingContents(votingData[i].id) as List; // 조회된 투표 id 마다 항목 조회

@@ -67,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: null,
+        backgroundColor: Color(0xffF4F4F4),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
@@ -76,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       drawer: Drawer(
+        backgroundColor: Color(0xffffffff), // 메뉴 창 색상 변경 (흰색)
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
