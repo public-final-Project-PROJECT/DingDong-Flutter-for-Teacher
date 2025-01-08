@@ -54,7 +54,7 @@ class _VoteState extends State<Vote> {
           builder: (context, setModalState) {
             return AlertDialog(
               title: Text("제목 입력"),
-              backgroundColor: Colors.white,  // 투표 다이얼 로그 색 변경 (흰색)
+              backgroundColor: Colors.white,
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dingdong_flutter_teacher/screen/NoticeUpdate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:intl/intl.dart';
@@ -106,7 +107,7 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                 alignment: Alignment.centerRight,
                 padding:  EdgeInsets.all(8.0),
                 child: Text(
-                  "${getFileName(notice['noticeFile'])}",
+                  getFileName("${getFileName(notice['noticeFile'])}") ,
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
                 ),
               ),
@@ -118,11 +119,11 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) =>
-                      //             Noticeupdate(notice:notice)));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Noticeupdate(notice:notice)));
                     },
                     child:  Text('수정'),
                   ),
@@ -180,11 +181,12 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
   }
 
   String getFileName(String filePath) {
-    String fileName = filePath.split('/').last;
+    String fileName = filePath
+        .split('/')
+        .last;
 
     String processedFileName;
     if (fileName.contains('%')) {
-
       processedFileName = Uri.encodeFull(fileName);
     } else {
       processedFileName = fileName;
@@ -197,5 +199,4 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
     } else {
       return processedFileName;
     }
-  }
-}
+ }}

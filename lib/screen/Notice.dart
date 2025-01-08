@@ -58,7 +58,11 @@ class _NoticeState extends State<Notice> {
                       MaterialPageRoute(
                         builder: (context) => NoticeRegister(),
                       ),
-                    );
+                    ).then((result) {
+                      if (result == true) { // 결과가 true이면 (등록 성공)
+                        _loadNotice(); // 공지사항 목록을 다시 로드
+                      }
+                    });
                   },
                   icon: Icon(Icons.add),
                   label: Text("작성하기"),
@@ -84,10 +88,19 @@ class _NoticeState extends State<Notice> {
                 String formattedCreateAt = _formatDate(notice['createdAt']);
                 String formattedUpdatedAt = _formatDate(notice['updatedAt']);
 
-                String displayDate = notice['updatedAt'] != null &&
-                    notice['updatedAt'].isNotEmpty
-                    ? "수정일: $formattedUpdatedAt"
-                    : "작성일: $formattedCreateAt";
+                // String displayDate = notice['updatedAt'] != null &&
+                //     notice['updatedAt'].isNotEmpty
+                //     ? "수정일: $formattedUpdatedAt"
+                //     : "작성일: $formattedCreateAt";
+
+                String displayDate = "";
+                if (notice['updatedAt'] != null && notice['updatedAt'].isNotEmpty && notice['createdAt'] != notice['updatedAt']) { // 추가된 조건
+                  formattedUpdatedAt = _formatDate(notice['updatedAt']);
+                  displayDate = "수정일: $formattedUpdatedAt";
+                } else {
+                  formattedCreateAt = _formatDate(notice['createdAt']);
+                  displayDate = "작성일: $formattedCreateAt";
+                }
 
                 return Card(
                   margin: EdgeInsets.all(8.0),
