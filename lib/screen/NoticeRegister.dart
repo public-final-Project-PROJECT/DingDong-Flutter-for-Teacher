@@ -198,7 +198,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
 
                   if (_selectedFile != null)
                     Text(
-                      _selectedFile!.uri.pathSegments.last,
+                      getFileName(_selectedFile!.path),
                       style: TextStyle(color: Colors.green),
 
                     ),
@@ -219,4 +219,23 @@ class _NoticeRegisterState extends State<NoticeRegister> {
         ),
       ),
     );
-  }}
+  }
+  String getFileName(String filePath) {
+    String fileName = filePath.split('/').last;
+
+    String processedFileName;
+    if (fileName.contains('%')) {
+      processedFileName = Uri.encodeFull(fileName);
+    } else {
+      processedFileName = fileName;
+    }
+
+    // 첫 번째 '_' 뒤부터 자르기
+    int underscoreIndex = processedFileName.lastIndexOf('_');
+    if (underscoreIndex != -1) {
+      return processedFileName.substring(underscoreIndex + 1);
+    } else {
+      return processedFileName;
+    }
+  }
+}

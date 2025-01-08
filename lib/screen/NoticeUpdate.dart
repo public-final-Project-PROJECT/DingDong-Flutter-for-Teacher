@@ -38,7 +38,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
     }
     if (widget.notice['noticeFile'] != null) {
       selectedFileName = getFileName(widget.notice['noticeFile']);
-      _selectedFile = File(widget.notice['noticeFile']);
     }
   }
 
@@ -55,8 +54,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
   // 파일 피커
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'png', 'docx', 'txt'],
+      type: FileType.any,
     );
     if (result != null) {
       setState(() {
@@ -85,11 +83,11 @@ class _NoticeupdateState extends State<Noticeupdate> {
         'classId': 1, // 임시로 고정된 classId 사용
         if (_selectedImage != null)
           'noticeImg': await MultipartFile.fromFile(_selectedImage!.path),
-        if (_selectedFile != null)
+        if (_selectedFile != null && _selectedFile!.path.isNotEmpty)
           'noticeFile': await MultipartFile.fromFile(_selectedFile!.path),
       });
       final response = await _dio.post(
-        'http://112.221.66.174:3013/api/notice/update/$noticeId', // 업데이트 요청
+        'http://112.221.66.174:3013/api/notice/update/$noticeId',
         data: formData,
         options: Options(
           headers: {'Content-Type': 'multipart/form-data'},
@@ -107,6 +105,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
         setState(() {
           _selectedImage = null;
           _selectedFile = null;
+          selectedFileName = null;
           _selectedCategory = categories.first;
         });
         Navigator.pop(context, true);
@@ -226,10 +225,19 @@ class _NoticeupdateState extends State<Noticeupdate> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (_selectedFile != null)
+                  if (_selectedFile == null && selectedFileName != null)
                     Text(
                       selectedFileName!,
                       style: const TextStyle(color: Colors.green),
+                      overflow: TextOverflow.ellipsis, // 너무 긴 텍스트는 생략 부호 추가
+                      maxLines: 1,
+                    ),
+                  if (_selectedFile != null)
+                    Text(
+                      getFileName(_selectedFile!.path), // 파일 이름 가져오기
+                      style: const TextStyle(color: Colors.green), // 스타일 정의
+                      overflow: TextOverflow.ellipsis, // 너무 긴 텍스트는 생략 부호 추가
+                      maxLines: 1,
                     ),
                   ElevatedButton(
                     onPressed: _pickFile,
@@ -261,7 +269,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
     }
 
     // 첫 번째 '_' 뒤부터 자르기
-    int underscoreIndex = processedFileName.indexOf('_');
+    int underscoreIndex = processedFileName.lastIndexOf('_');
     if (underscoreIndex != -1) {
       return processedFileName.substring(underscoreIndex + 1);
     } else {
