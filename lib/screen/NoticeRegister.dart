@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -44,12 +45,25 @@ class _NoticeRegisterState extends State<NoticeRegister> {
   }
 
   //파일 선택
+  // Future<void> _pickFile() async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _selectedFile = File(pickedFile.path);
+  //     });
+  //   }
+  // }
   Future<void> _pickFile() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      // type: FileType.custom,
+      // allowedExtensions: ['pdf', 'jpg', 'png', 'docx' ,'txt'],
+      type: FileType.any,
+    );
+
+    if (result != null) {
       setState(() {
-        _selectedFile = File(pickedFile.path);
+        _selectedFile = File(result.files.single.path!);
       });
     }
   }
@@ -101,6 +115,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
           _selectedFile = null;
           _selectedCategory = categories.first;
         });
+        Navigator.pop(context, true);
       } else {
         throw Exception("등록 실패: ${response.data}");
       }
@@ -178,19 +193,51 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                     )
                   ),
                 ),
-                if (_selectedImage != null)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.file(
-                        _selectedImage!,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text("이미지 선택됨", style: TextStyle(color: Colors.green)),
-                    ],
+              ),
+               SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedCategory,
+                items: categories
+                    .map((category) =>
+                    DropdownMenuItem(value: category, child: Text(category)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value!;
+                  });
+                },
+                decoration:  InputDecoration(
+                  labelText: "카테고리",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+               SizedBox(height: 16),
+              TextField(
+                controller: _contentController,
+                maxLines: 5,
+                decoration:  InputDecoration(
+                  labelText: "내용",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+               SizedBox(height: 16),
+              Row(
+                children: [
+                  // 이미 선택된 이미지가 있으면 왼쪽에 표시
+                  if (_selectedImage != null)
+                    Image.file(
+                      _selectedImage!,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  if (_selectedImage == null)
+                  // 이미지가 없을 때 공간을 차지하지 않음
+                    const SizedBox(width: 100, height: 100),
+                  const Spacer(), // 이미지와 버튼 사이의 공간을 균등하게 채우기
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: const Text("이미지 선택"),
                   ),
               ],
             ),
@@ -230,5 +277,4 @@ class _NoticeRegisterState extends State<NoticeRegister> {
         ),
       ),
     );
-  }
-}
+  }}
