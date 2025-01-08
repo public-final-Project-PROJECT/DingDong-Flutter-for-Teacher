@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -44,12 +45,25 @@ class _NoticeRegisterState extends State<NoticeRegister> {
   }
 
   //파일 선택
+  // Future<void> _pickFile() async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _selectedFile = File(pickedFile.path);
+  //     });
+  //   }
+  // }
   Future<void> _pickFile() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      // type: FileType.custom,
+      // allowedExtensions: ['pdf', 'jpg', 'png', 'docx' ,'txt'],
+      type: FileType.any,
+    );
+
+    if (result != null) {
       setState(() {
-        _selectedFile = File(pickedFile.path);
+        _selectedFile = File(result.files.single.path!);
       });
     }
   }
@@ -101,6 +115,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
           _selectedFile = null;
           _selectedCategory = categories.first;
         });
+        Navigator.pop(context, true);
       } else {
         throw Exception("등록 실패: ${response.data}");
       }
@@ -115,120 +130,112 @@ class _NoticeRegisterState extends State<NoticeRegister> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("공지사항 작성"),
-        backgroundColor: Color(0xffF4F4F4),
-        shape: const Border(  // AppBar 밑줄
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1
-          )
-        ),
+        title:  Text("공지사항 작성"),
       ),
-      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: "제목",
-                border: OutlineInputBorder(),
+      body: SingleChildScrollView( // 추가된 부분
+        child: Padding(
+          padding:  EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration:  InputDecoration(
+                  labelText: "제목",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              items: categories
-                  .map((category) =>
-                  DropdownMenuItem(value: category, child: Text(category)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedCategory = value!;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: "카테고리",
-                border: OutlineInputBorder(),
+              SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedCategory,
+                items: categories
+                    .map((category) =>
+                    DropdownMenuItem(value: category, child: Text(category)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value!;
+                  });
+                },
+                decoration:  InputDecoration(
+                  labelText: "카테고리",
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _contentController,
+              SizedBox(height: 16),
+              TextField(
+                controller: _contentController,
+                maxLines: 5,
+                decoration:  InputDecoration(
+                  labelText: "내용",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16),
+              Row(
+                children: [
+                  // 이미 선택된 이미지가 있으면 왼쪽에 표시
+                  if (_selectedImage != null)
+                    Image.file(
+                      _selectedImage!,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  if (_selectedImage == null)
+                  // 이미지가 없을 때 공간을 차지하지 않음
+                    const SizedBox(width: 100, height: 100),
+                  const Spacer(), // 이미지와 버튼 사이의 공간을 균등하게 채우기
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: const Text("이미지 선택"),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
 
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: "내용",
-                border: OutlineInputBorder(),
+                  if (_selectedFile != null)
+                    Text(
+                      getFileName(_selectedFile!.path),
+                      style: TextStyle(color: Colors.green),
+
+                    ),
+                  ElevatedButton(
+                    onPressed: _pickFile,
+                    child:  Text("파일 선택"),
+                  ),
+
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: _pickImage,
-                  child: const Text("이미지 선택"),
-                  style: ElevatedButton.styleFrom(  // '이미지 선택' 버튼 스타일 변경
-                    backgroundColor: Color(0xff515151), // 버튼 배경색 변경 (어둡계
-                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
-                    )
-                  ),
-                ),
-                if (_selectedImage != null)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.file(
-                        _selectedImage!,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text("이미지 선택됨", style: TextStyle(color: Colors.green)),
-                    ],
-                  ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: _pickFile,
-                  child: const Text("파일 선택"),
-                  style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
-                    backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
-                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
-                    )
-                  ),
-                ),
-                if (_selectedFile != null)
-                  Text( _selectedFile!.uri.pathSegments.last, // 파일 이름만 추출
-                    style: TextStyle(color: Colors.green),),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _registerNotice,
-              child: const Text("등록하기"),
-              style: ElevatedButton.styleFrom(  // '등록하기' 버튼 스타일 변경
-                backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
-                foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
-                )
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _registerNotice,
+                child:  Text("등록하기"),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+  String getFileName(String filePath) {
+    String fileName = filePath.split('/').last;
+
+    String processedFileName;
+    if (fileName.contains('%')) {
+      processedFileName = Uri.encodeFull(fileName);
+    } else {
+      processedFileName = fileName;
+    }
+
+    // 첫 번째 '_' 뒤부터 자르기
+    int underscoreIndex = processedFileName.lastIndexOf('_');
+    if (underscoreIndex != -1) {
+      return processedFileName.substring(underscoreIndex + 1);
+    } else {
+      return processedFileName;
+    }
   }
 }
