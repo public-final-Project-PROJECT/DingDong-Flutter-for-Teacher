@@ -24,17 +24,21 @@ class _NoticeRegisterState extends State<NoticeRegister> {
 
 
   Future<void> _checkPermission(Permission permission) async {
-    final status = await permission.request();
-    if (status.isDenied || status.isPermanentlyDenied) {
+
+    PermissionStatus permissionStatus = await permission.status;
+    if (permissionStatus.isGranted) {
+      return;
+    }else{
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("권한이 필요합니다.")),
-      );
-      throw Exception("권한이 거부되었습니다.");
+          const SnackBar(content: Text("권한이 필요합니다.")));
+      openAppSettings();
     }
+
   }
 
   //이미지 선택
   Future<void> _pickImage() async {
+    await _checkPermission(Permission.storage);
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
