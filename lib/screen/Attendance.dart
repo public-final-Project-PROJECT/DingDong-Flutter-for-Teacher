@@ -1,5 +1,6 @@
 import 'package:dingdong_flutter_teacher/model/attendance_model.dart';
 import 'package:dingdong_flutter_teacher/model/student_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,11 +14,14 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   final StudentModel _studentModel = StudentModel();
   final AttendanceModel _attendanceModel = AttendanceModel();
+  final int classId = 1;
 
   List<dynamic> _students = [];
   List<dynamic> _attendanceList = [];
 
   DateTime? selectedDate;
+
+  bool _canSubmit = false;
 
   // 날짜 선택
   Future<void> _selectDate(BuildContext context) async {
@@ -55,6 +59,9 @@ class _AttendanceState extends State<Attendance> {
     List<dynamic> attendanceData = await _attendanceModel.searchAttendanceDate(attendanceDate);
     setState(() {
       _attendanceList = attendanceData;
+      print("여기데이터");
+      print(_attendanceList);
+      print("여기사이");
     });
   }
 
@@ -70,6 +77,7 @@ class _AttendanceState extends State<Attendance> {
     } else {
       setState(() {
         _attendanceList.add({
+          'attendanceId':'',
           'studentId': studentId,
           'attendanceState': '출석',
           'attendanceDate': _formatDate(selectedDate!),
@@ -84,6 +92,64 @@ class _AttendanceState extends State<Attendance> {
     final nextIndex = (currentIndex + 1) % states.length;
     return states[nextIndex];
   }
+
+  Future<void> registerAttendance(List attendance) async {
+    final dio = Dio();
+    try {
+      // '상태 없음' 확인
+      final hasUnknownAttendance = attendance.any((att) => att['attendanceState'] == "상태 없음");
+      if (hasUnknownAttendance) {
+        final confirmation = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("알림"),
+            content: Text("출석 상태가 '상태 없음'인 학생이 있습니다.\n출석 상태를 확인하고 다시 시도하십시오."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text("취소"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text("확인"),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmation == null || !confirmation) {
+          // 취소 또는 닫기 시 return
+          return;
+        }
+      }
+
+      // 데이터 준비
+      final updatedAttendance = attendance.map((att) {
+        return {
+          'attendanceId': att['attendanceId'] ?? '', // 없으면 빈 값
+          'studentId': att['studentId'],
+          'attendanceDate': att['attendanceDate'],
+          'attendanceState': att['attendanceState'],
+          'classId': classId,
+        };
+      }).toList();
+
+      // 서버로 데이터 전송
+      final response = await dio.post(
+        "http://112.221.66.174:3013/api/attendance/register",
+        data: updatedAttendance,
+      );
+
+      if (response.statusCode == 200) {
+        print("출석 데이터 성공적으로 전송됨");
+      } else {
+        print("서버 응답 에러: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("오류 발생: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +230,7 @@ class _AttendanceState extends State<Attendance> {
               itemBuilder: (context, index) {
                 final student = _students[index];
                 final attendance = _attendanceList.firstWhere(
-                      (att) => att['studentId'] == student['studentId'],
+                      (att) => att['studentId'] == student['studentId'] ,
                   orElse: () => null,
                 );
 
@@ -195,6 +261,7 @@ class _AttendanceState extends State<Attendance> {
             onPressed: () {
               // 데이터를 서버에 전송
               print(_attendanceList);
+              registerAttendance(_attendanceList);
             },
             child: Text('제출/수정'),
           ),
