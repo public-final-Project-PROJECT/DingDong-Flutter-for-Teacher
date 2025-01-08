@@ -6,8 +6,8 @@ class CalendarModel {
     final dio = Dio();
 
     try {
-      final response = await dio.get("http://localhost:3013/calendar/list");
-      print("이게 받아온거? : ${response.data}");
+      final response = await dio.get("http://10.0.2.2:3013/calendar/list");
+
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
       } else {
