@@ -168,6 +168,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   labelText: "카테고리",
                   border: OutlineInputBorder(),
                 ),
+                  dropdownColor: Color(0xffFFFFFF),  // 카테고리 목록 흰색으로 변경
               ),
               SizedBox(height: 16),
               TextField(
