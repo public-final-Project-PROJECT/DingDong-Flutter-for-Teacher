@@ -35,7 +35,15 @@ class _NoticeState extends State<Notice> {
     return Scaffold(
       appBar: AppBar(
         title: Text("공지사항"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(   // AppBar 밑줄
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: Column(
         children: [
           Padding(
@@ -50,12 +58,21 @@ class _NoticeState extends State<Notice> {
                       MaterialPageRoute(
                         builder: (context) => NoticeRegister(),
                       ),
-                    );
+                    ).then((result) {
+                      if (result == true) { // 결과가 true이면 (등록 성공)
+                        _loadNotice(); // 공지사항 목록을 다시 로드
+                      }
+                    });
                   },
                   icon: Icon(Icons.add),
                   label: Text("작성하기"),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                    backgroundColor: Color(0xff515151), // 버튼 배경색 변경
+                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    shape: RoundedRectangleBorder(  // 버튼 테두리 둥글기 조절 (네모로)
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                 ),
               ],
@@ -71,10 +88,19 @@ class _NoticeState extends State<Notice> {
                 String formattedCreateAt = _formatDate(notice['createdAt']);
                 String formattedUpdatedAt = _formatDate(notice['updatedAt']);
 
-                String displayDate = notice['updatedAt'] != null &&
-                    notice['updatedAt'].isNotEmpty
-                    ? "수정일: $formattedUpdatedAt"
-                    : "작성일: $formattedCreateAt";
+                // String displayDate = notice['updatedAt'] != null &&
+                //     notice['updatedAt'].isNotEmpty
+                //     ? "수정일: $formattedUpdatedAt"
+                //     : "작성일: $formattedCreateAt";
+
+                String displayDate = "";
+                if (notice['updatedAt'] != null && notice['updatedAt'].isNotEmpty && notice['createdAt'] != notice['updatedAt']) { // 추가된 조건
+                  formattedUpdatedAt = _formatDate(notice['updatedAt']);
+                  displayDate = "수정일: $formattedUpdatedAt";
+                } else {
+                  formattedCreateAt = _formatDate(notice['createdAt']);
+                  displayDate = "작성일: $formattedCreateAt";
+                }
 
                 return Card(
                   margin: EdgeInsets.all(8.0),

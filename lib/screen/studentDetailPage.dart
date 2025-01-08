@@ -37,7 +37,9 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("${student['studentName']}학생 인적 사항"),
+        backgroundColor: Color(0xffF4F4F4),
       ),
+      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
       body: Container(
         decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
@@ -274,10 +276,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                                   );
                                 },
                                 child: Text("메모 수정", style: TextStyle(fontSize: 16)),
-                                style: ElevatedButton.styleFrom(
+                                style: ElevatedButton.styleFrom(  // '메모 수정' 버튼 스타일 변경
                                   padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+                                  backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
+                                  foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
                                   ),
                                 ),
                               ),

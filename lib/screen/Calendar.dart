@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../model/calendar_model.dart';
+import 'CalendarDetails.dart';
+import 'Calendaradd.dart';
 
 class Calendar extends StatefulWidget {
   const Calendar({super.key});
@@ -15,6 +17,8 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
+
+
   List<dynamic> _calendarList = [];
   CalendarFormat format = CalendarFormat.month;
   final CalendarModel _calendarModel = CalendarModel();
@@ -24,7 +28,7 @@ class _CalendarState extends State<Calendar> {
   DateTime? _rangeEnd;
 
 // 날짜별 이벤트를 저장할 맵
-  Map<DateTime, List<dynamic>> _events = {};
+  final Map<DateTime, List<dynamic>> _events = {};
 
 
 
@@ -47,19 +51,35 @@ class _CalendarState extends State<Calendar> {
 
         // 이벤트 추가
         print("dddd ${date}");
-        _addEvent(date, item['title']);
+        _addEvent(date, item);
       }
     });
   }
 
 // 이벤트 추가 메소드
-  void _addEvent(DateTime date, String event) {
+  void _addEvent(DateTime date, dynamic event) {
     setState(() {
       // Local 시간대 기준으로 이벤트 추가
-      if (_events[date] != null) {
-        _events[date]!.add(event);
-      } else {
-        _events[date] = [event];
+
+      final startDate = event['start'] is String
+          ? DateTime.parse(event['start']).add(const Duration(hours: 9)).toUtc()
+          : event['start']as DateTime;
+      final endDate = event['end'] is String
+          ? DateTime.parse(event['end']).add(const Duration(hours: 9)).toUtc()
+          : event['end']as DateTime;
+
+
+      DateTime currentDate = startDate;
+      while (!currentDate.isAfter(endDate)) {
+        // 해당 날짜에 이벤트 추가
+        if (_events[currentDate] != null) {
+          _events[currentDate]!.add(event); // 기존 리스트에 추가
+        } else {
+          _events[currentDate] = [event]; // 새로운 리스트 생성 후 추가
+        }
+
+        // 다음 날짜로 이동
+        currentDate = currentDate.add(const Duration(days: 1));
       }
     });
     print(_events);
@@ -74,15 +94,26 @@ class _CalendarState extends State<Calendar> {
 
     final events = <dynamic>[];
 
-    if (_events.containsKey(start)) {
-      events.addAll(_events[start]!); // 이벤트 추가
+    // 범위 내의 날짜를 순회
+    DateTime currentDate = start;
+    while (!currentDate.isAfter(end)) {
+      if (_events.containsKey(currentDate)) {
+        events.addAll(_events[currentDate]!); // 해당 날짜의 이벤트 추가
+      }
+      currentDate = currentDate.add(const Duration(days: 1)); // 다음 날짜로 이동
     }
 
     return events;
   }
+  List<dynamic> _getEventsForDay(DateTime day) {
 
+
+    return _events[day] ?? [];
+  }
 
   Widget _buildEventsMarker(DateTime date, List events) {
+
+
     return Positioned(
       right: 5,
       bottom: 5,
@@ -111,33 +142,66 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Flutter Restaurant"),
+          title: const Text("Flutter Restaurant"),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.chevron_left), // 단순하고 깔끔한 화살표 아이콘
             onPressed: () {
-
-
-              if(format == CalendarFormat.week)
-                {
-                  setState(() {
-                    format = CalendarFormat.month;
-                  });
-
-                }
-              else if(format == CalendarFormat.month){
+              if (format == CalendarFormat.week) {
+                setState(() {
+                  format = CalendarFormat.month;
+                });
+              } else if (format == CalendarFormat.month) {
                 Navigator.of(context).pop(); // 이전 화면으로 이동
               }
-
-
             },
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add), // 오른쪽 상단에 추가 버튼
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true, // 모달 창이 전체 화면에 가까워지도록 설정
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (context) {
+                    return CalendarAdd(
+                      onEventAdded: (title, location, description, startDate, endDate) {
+                        // 이벤트 추가 로직
+
+                        final DateTime datestart =
+                        startDate.add(const Duration(hours: 9)).toUtc();
+                        final DateTime dateend =
+                        endDate.add(const Duration(hours: 9)).toUtc();
+                        final event = {
+                          'title': title,
+                          'description': description,
+                          'start': datestart,
+                          'end': dateend,
+                        };
+
+                        // 시작 날짜 기준으로 이벤트 추가
+                        _addEvent(datestart, event);
+
+                        print('Event Added: $event');
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
-        body: Column(
+
+
+    body: Column(
           children: [
             TableCalendar(
               firstDay: DateTime(2021, 10, 16),
               lastDay: DateTime(2030, 3, 14),
               locale: 'ko_KR',
+              eventLoader: _getEventsForDay,
               // 추가
               calendarFormat: format,
               onFormatChanged: (CalendarFormat format) {
@@ -158,22 +222,7 @@ class _CalendarState extends State<Calendar> {
                   return isSameDay(_selectedDay, day);
                 }
               },
-              /*onRangeSelected: (start, end, focusedDay) {
-                setState(() {
-                  _rangeStart = start;
-                  _rangeEnd = end ?? start;
-                  _selectedDay = start;
-                  _focusedDay = focusedDay;
-                });
-                if (start != null) {
-                  for (var date = start;
-                      date.isBefore(end ?? start) ||
-                          date.isAtSameMomentAs(end ?? start);
-                      date = date.add(const Duration(days: 1))) {
 
-                  }
-                }
-              },*/
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay; // 클릭된 날짜
@@ -182,12 +231,12 @@ class _CalendarState extends State<Calendar> {
                   _rangeEnd = selectedDay; // 범위 끝 초기화
                 });
 
-                // 필요한 추가 작업 수행
-                format = CalendarFormat.week;
+
               },
               availableGestures: AvailableGestures.horizontalSwipe, // 스와이프 허용
 
               headerStyle: HeaderStyle(
+
                 formatButtonVisible: true,
                 titleCentered: true,
                 titleTextFormatter: (date, locale) =>
@@ -255,13 +304,68 @@ class _CalendarState extends State<Calendar> {
                       itemBuilder: (context, index) {
                         final events =
                             _getEventsForRange(_rangeStart, _rangeEnd);
-                        return ListTile(
-                          title: Text(events[index]),
+                        final event = events[index];
+                        return Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.blue,
+                            border: Border(bottom: BorderSide(color: Colors.white)),
+                          ),
+                          child: ListTile(
+                            leading: const Icon(Icons.alarm, color: Colors.white),
+                            title: Text(
+                              events[index]['title'],
+                              style: const TextStyle(
+                                fontFamily: 'Raleway',
+                                color: Colors.white,
+                              ),
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Start: ${(events[index]['start'])}',
+                                  style: const TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                                Text(
+                                  'End: ${(events[index]['end'])}',
+                                  style: const TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              print('Clicked Event: $event');
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation, secondaryAnimation) => Calendardetails(event: event),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
+                                    const end = Offset.zero;
+                                    const curve = Curves.easeInOut;
+
+                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                    var offsetAnimation = animation.drive(tween);
+
+                                    return SlideTransition(position: offsetAnimation, child: child);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                         );
                       },
                     ),
             ),
           ],
-        ));
+        )
+
+    );
   }
 }
