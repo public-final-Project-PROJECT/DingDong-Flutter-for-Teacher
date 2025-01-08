@@ -65,11 +65,13 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 15),  // 학생 이름 상단 간격 확장
+                  // 전체적으로 학생 인적 사항 간 간격 확장
                   Row(
                     children: [
                       Container(
                         width: 87, // 텍스트 부분 고정 크기
-                        child: Text("이 름 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("이 름 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -82,12 +84,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("생년월일 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("생년월일 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -100,13 +102,13 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   // 학교
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("학 교 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("학 교 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -119,12 +121,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("성별 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("성별 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -137,12 +139,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("핸드폰 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("핸드폰 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -155,12 +157,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("보호자", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("보호자", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -173,12 +175,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("보호자 번호", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("보호자 번호", style: TextStyle(fontSize: 14), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -191,12 +193,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("주소 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("주소 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -209,13 +211,13 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 15),
                   // 기타
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("특이사항 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("특이사항 ", style: TextStyle(fontSize: 15), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -228,13 +230,13 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   // 메모
                   Row(
                     children: [
                       Container(
                         width: 87,
-                        child: Text("메 모 ", style: TextStyle(fontSize: 18), textAlign: TextAlign.right),
+                        child: Text("메 모 ", style: TextStyle(fontSize: 16), textAlign: TextAlign.center),
                       ),
                       Expanded(
                         child: Container(
@@ -285,6 +287,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: 15)  // '메모 수정' 버튼 밑 간격 확장
                             ],
                           ),
                         ),
