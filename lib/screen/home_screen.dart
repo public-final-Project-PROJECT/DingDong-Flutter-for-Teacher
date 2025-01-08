@@ -4,10 +4,10 @@ import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/voting_list.dart';
 import 'package:flutter/material.dart';
 
 import 'Calendar.dart';
+import 'Vote.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

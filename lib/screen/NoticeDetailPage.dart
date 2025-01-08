@@ -205,11 +205,12 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
   }
 
   String getFileName(String filePath) {
-    String fileName = filePath.split('/').last;
+    String fileName = filePath
+        .split('/')
+        .last;
 
     String processedFileName;
     if (fileName.contains('%')) {
-
       processedFileName = Uri.encodeFull(fileName);
     } else {
       processedFileName = fileName;
@@ -222,5 +223,4 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
     } else {
       return processedFileName;
     }
-  }
-}
+ }}
