@@ -66,7 +66,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 15),  // 학생 이름 상단 간격 확장
-                  // 전체적으로 학생 인적 사항 간 간격 확장
+                  // 전체적으로 학생 인적 사항 간격 확장
                   Row(
                     children: [
                       Container(

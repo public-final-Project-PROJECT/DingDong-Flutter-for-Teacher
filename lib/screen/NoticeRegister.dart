@@ -216,14 +216,14 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   if (_selectedFile != null)
                     Text(
                       getFileName(_selectedFile!.path),
-                      style: TextStyle(color: Colors.green),
+                      style: TextStyle(color: Colors.black),
 
                     ),
                   ElevatedButton(
                     onPressed: _pickFile,
                     child:  Text("파일 선택"),
                     style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
-                      backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+                      backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
                       foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
                       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
                       shape: RoundedRectangleBorder(  // 버튼 테두리 조절
@@ -231,7 +231,6 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                       )
                     ),
                   ),
-
                 ],
               ),
               SizedBox(height: 16),
@@ -239,7 +238,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                 onPressed: _registerNotice,
                 child:  Text("등록하기"),
                 style: ElevatedButton.styleFrom(  // '등록하기' 버튼 스타일 변경
-                  backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+                  backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
                   foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
                   shape: RoundedRectangleBorder(  // 버튼 테두리 조절

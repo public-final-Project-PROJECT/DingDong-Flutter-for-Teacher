@@ -162,6 +162,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
                   labelText: "카테고리",
                   border: OutlineInputBorder(),
                 ),
+                dropdownColor: Colors.white,  //카테고리 목록 흰색으로 변경
               ),
               const SizedBox(height: 16),
               TextField(
