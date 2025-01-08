@@ -3,21 +3,22 @@ import 'package:flutter/material.dart';
 import '../model/voting_model.dart';
 
 void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
-
   final TextEditingController inputTitle = TextEditingController();
   final TextEditingController inputDescription = TextEditingController();
   List<TextEditingController> inputOptions = [TextEditingController()];
 
   final VotingModel _votingModel = VotingModel();
 
-
-  void _addNewVoting(String title, String description, List<dynamic> options, String deadline, bool secretVoting, bool doubleVoting) async {
-    List<dynamic> votingData = await _votingModel.newVoting(title, description, options, deadline, secretVoting, doubleVoting);
+  void _addNewVoting(String title, String description, List<dynamic> options,
+      String? deadline, bool secretVoting, bool doubleVoting) async {
+    if (deadline == null || deadline.isEmpty) {
+      deadline = "no";
+    }
+    List<dynamic> votingData = await _votingModel.newVoting(
+        title, description, options, deadline!, secretVoting, doubleVoting);
     print(votingData);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content:
-      Text("투표가 생성되었습니다 !"))
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("투표가 생성되었습니다 !")));
   }
 
   String selectedDeadlineOption = "user";
@@ -96,7 +97,8 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("투표 마감 설정", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text("투표 마감 설정",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       ListTile(
                         title: Text("날짜 지정"),
                         leading: Radio<String>(
@@ -125,7 +127,8 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                             }
                           },
                           child: Text(selectedDate != null
-                              ? "선택된 날짜: ${selectedDate!.toLocal()}".split(' ')[0]
+                              ? "선택된 날짜: ${selectedDate!.toLocal()}"
+                                  .split(' ')[0]
                               : "날짜를 선택하세요"),
                         ),
                       ListTile(
@@ -148,7 +151,8 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("비밀투표 설정", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text("비밀투표 설정",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       ListTile(
                         title: Text("비밀 투표"),
                         leading: Radio<String>(
@@ -161,7 +165,6 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                           },
                         ),
                       ),
-
                       ListTile(
                         title: Text("공개 투표"),
                         leading: Radio<String>(
@@ -180,7 +183,8 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("중복투표 설정", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text("중복투표 설정",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       ListTile(
                         title: Text("중복 투표"),
                         leading: Radio<String>(
@@ -193,7 +197,6 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                           },
                         ),
                       ),
-
                       ListTile(
                         title: Text("단일 투표"),
                         leading: Radio<String>(
@@ -226,17 +229,16 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                       .map((controller) => controller.text)
                       .toList();
 
-                  dynamic deadline = selectedDeadlineOption == "date" && selectedDate != null
-                      ? selectedDate.toString()
-                      : null; // null을 직접 전달
+                  dynamic deadline =
+                      selectedDeadlineOption == "date" && selectedDate != null
+                          ? selectedDate.toString()
+                          : null; // null을 직접 전달
 
-                  bool secretVoting = selectedSecretVoting == "secret"
-                      ? true
-                      : false;
+                  bool secretVoting =
+                      selectedSecretVoting == "secret" ? true : false;
 
-                  bool doubleVoting = selectedDoubleVoting == "double"
-                      ? true
-                      : false;
+                  bool doubleVoting =
+                      selectedDoubleVoting == "double" ? true : false;
 
                   inputDataList.add(title);
                   inputDataList.add(description);
@@ -249,7 +251,8 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                   print("항목: $options");
                   print("마감 설정: $deadline");
                   print("비밀투표여부: $secretVoting");
-                  _addNewVoting(title, description, options, deadline, secretVoting, doubleVoting);
+                  _addNewVoting(title, description, options, deadline,
+                      secretVoting, doubleVoting);
 
                   Navigator.pop(context);
                 },
