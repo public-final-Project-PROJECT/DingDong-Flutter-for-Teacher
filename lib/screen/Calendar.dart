@@ -55,6 +55,11 @@ class _CalendarState extends State<Calendar> {
       }
     });
   }
+  void _insertCalendar(dynamic eventData) async {
+
+    final response = await _calendarModel.calendarInsert(eventData);
+
+  }
 
 // 이벤트 추가 메소드
   void _addEvent(DateTime date, dynamic event) {
@@ -83,6 +88,17 @@ class _CalendarState extends State<Calendar> {
       }
     });
     print(_events);
+
+    final dynamic eventData = {
+      'title': event['title'],
+      'description': event['description'],
+      'start': event['start'].toString().substring(0, 10),
+      'end': event['end'].toString().substring(0, 10),
+    };
+
+    _insertCalendar(eventData);
+
+
   }
 
   // 범위 내 이벤트를 가져오는 메소드
@@ -167,6 +183,8 @@ class _CalendarState extends State<Calendar> {
                   ),
                   builder: (context) {
                     return CalendarAdd(
+
+                      initialDate: _selectedDay,
                       onEventAdded: (title, location, description, startDate, endDate) {
                         // 이벤트 추가 로직
 

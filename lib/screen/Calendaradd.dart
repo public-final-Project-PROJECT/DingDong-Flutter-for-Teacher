@@ -3,16 +3,20 @@ import 'package:flutter/material.dart';
 class CalendarAdd extends StatelessWidget {
   final Function(String title, String location, String description, DateTime startDate, DateTime endDate) onEventAdded;
 
-  const CalendarAdd({Key? key, required this.onEventAdded}) : super(key: key);
+  final dynamic initialDate;
+
+  const CalendarAdd({super.key, required this.onEventAdded,  this.initialDate});
+
+
 
   @override
   Widget build(BuildContext context) {
-    final _titleController = TextEditingController();
-    final _locationController = TextEditingController();
-    final _descriptionController = TextEditingController();
+    final titleController = TextEditingController();
+    final locationController = TextEditingController();
+    final descriptionController = TextEditingController();
 
-    DateTime? _startDate;
-    DateTime? _endDate;
+    DateTime? startDate = initialDate;
+    DateTime? endDate = initialDate;
 
     Future<void> _pickDate(BuildContext context, bool isStartDate) async {
       final DateTime? picked = await showDatePicker(
@@ -24,9 +28,9 @@ class CalendarAdd extends StatelessWidget {
 
       if (picked != null) {
         if (isStartDate) {
-          _startDate = picked;
+          startDate = picked;
         } else {
-          _endDate = picked;
+          endDate = picked;
         }
       }
     }
@@ -49,7 +53,7 @@ class CalendarAdd extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _titleController,
+              controller: titleController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Enter event title',
@@ -57,7 +61,7 @@ class CalendarAdd extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _locationController,
+              controller: locationController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Enter location',
@@ -65,7 +69,7 @@ class CalendarAdd extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _descriptionController,
+              controller: descriptionController,
               maxLines: 3,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -81,9 +85,9 @@ class CalendarAdd extends StatelessWidget {
             OutlinedButton(
               onPressed: () => _pickDate(context, true),
               child: Text(
-                _startDate == null
+                startDate == null
                     ? 'Select Start Date'
-                    : '${_startDate!.year}-${_startDate!.month}-${_startDate!.day}',
+                    : '${startDate!.year}-${startDate!.month}-${startDate!.day}',
               ),
             ),
             const SizedBox(height: 16),
@@ -95,16 +99,16 @@ class CalendarAdd extends StatelessWidget {
             OutlinedButton(
               onPressed: () => _pickDate(context, false),
               child: Text(
-                _endDate == null
+                endDate == null
                     ? 'Select End Date'
-                    : '${_endDate!.year}-${_endDate!.month}-${_endDate!.day}',
+                    : '${endDate!.year}-${endDate!.month}-${endDate!.day}',
               ),
             ),
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  if (_startDate == null || _endDate == null) {
+                  if (startDate == null || endDate == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Please select both start and end dates'),
@@ -113,11 +117,11 @@ class CalendarAdd extends StatelessWidget {
                     return;
                   }
                   onEventAdded(
-                    _titleController.text,
-                    _locationController.text,
-                    _descriptionController.text,
-                    _startDate!,
-                    _endDate!,
+                    titleController.text,
+                    locationController.text,
+                    descriptionController.text,
+                    startDate!,
+                    endDate!,
                   );
                   Navigator.of(context).pop(); // 모달 닫기
                 },
