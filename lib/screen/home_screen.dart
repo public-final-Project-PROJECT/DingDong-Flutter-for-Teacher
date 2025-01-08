@@ -4,8 +4,10 @@ import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/Vote.dart';
+import 'package:dingdong_flutter_teacher/screen/voting_list.dart';
 import 'package:flutter/material.dart';
+
+import 'Calendar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
         page = Convenience();
         break;
       case 4:
-        page = Timer();
+        page = TimerScreen();
         break;
       case 5:
         page = Seat();
@@ -42,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 6:
         page = Vote();
         break;
+      case 7:
+        page = Calendar();
       default:
         page = Notice();
     }
@@ -63,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: null,
+        backgroundColor: Color(0xffF4F4F4),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
@@ -72,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       drawer: Drawer(
+        backgroundColor: Color(0xffffffff), // 메뉴 창 색상 변경 (흰색)
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -95,6 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text('학생정보'),
               onTap: () {
                 _onItemTapped(2);
+              },
+            ),
+            ListTile(
+              title: Text('캘린더'),
+              onTap: () {
+                _onItemTapped(7);
               },
             ),
             ListTile(
@@ -126,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 30.0),
                 child: ListTile(
-                  leading: Icon(Icons.check_circle),
+                  leading: Icon(Icons.how_to_vote_rounded),
                   title: Text('투표'),
                   onTap: () {
                     _onItemTapped(6);

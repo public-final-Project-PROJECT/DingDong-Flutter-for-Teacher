@@ -107,7 +107,7 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                 alignment: Alignment.centerRight,
                 padding:  EdgeInsets.all(8.0),
                 child: Text(
-                 getFileName( "${getFileName(notice['noticeFile'])}"),
+                 getFileName("${getFileName(notice['noticeFile'])}") ,
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
                 ),
               ),

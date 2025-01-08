@@ -144,7 +144,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   border: OutlineInputBorder(),
                 ),
               ),
-               SizedBox(height: 16),
+              SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 items: categories
@@ -161,7 +161,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   border: OutlineInputBorder(),
                 ),
               ),
-               SizedBox(height: 16),
+              SizedBox(height: 16),
               TextField(
                 controller: _contentController,
                 maxLines: 5,
@@ -170,7 +170,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   border: OutlineInputBorder(),
                 ),
               ),
-               SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 children: [
                   // 이미 선택된 이미지가 있으면 왼쪽에 표시
@@ -191,7 +191,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   ),
                 ],
               ),
-               SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -209,7 +209,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
 
                 ],
               ),
-               SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _registerNotice,
                 child:  Text("등록하기"),

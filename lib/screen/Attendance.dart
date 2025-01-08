@@ -13,7 +13,15 @@ class _AttendanceState extends State<Attendance> {
     return Scaffold(
         appBar: AppBar(
           title: Text("출석부"),
-        )
+          backgroundColor: Color(0xffF4F4F4),
+          shape: const Border(  // AppBar 밑줄
+            bottom: BorderSide(
+              color: Colors.grey,
+              width: 1
+            )
+          ),
+        ),
+      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
     );
   }
 }
