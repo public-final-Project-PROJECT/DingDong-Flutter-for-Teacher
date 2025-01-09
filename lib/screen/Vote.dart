@@ -127,7 +127,9 @@ class _VoteState extends State<Vote> {
         title: Row(
           children: [Text("투표"), SizedBox(width: 15), Icon(Icons.how_to_vote)],
         ),
+        backgroundColor: const Color(0xffF4F4F4),
       ),
+      backgroundColor: const Color(0xffF4F4F4),
       body: ListView.builder(
         itemCount: _voteList.length,
         itemBuilder: (context, index) {
@@ -409,6 +411,8 @@ class _VoteState extends State<Vote> {
             Icon(Icons.how_to_vote),
           ],
         ),
+        backgroundColor: const Color(0xff515151),
+        foregroundColor: Colors.white,
       ),
     );
   }
