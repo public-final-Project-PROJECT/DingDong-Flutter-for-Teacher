@@ -255,6 +255,10 @@ void showAddVotingDialog(BuildContext context, List<dynamic> inputDataList) {
                       secretVoting, doubleVoting);
 
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: 
+                                Text("투표가 생성되었습니다 !"))
+                  );
                 },
                 child: Text("확인"),
               ),

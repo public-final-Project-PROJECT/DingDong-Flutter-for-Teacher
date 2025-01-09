@@ -13,11 +13,9 @@ Future<UserCredential> signInWithGoogle() async {
   } else {
     // Mobile-specific Google Sign-In
     final GoogleSignInAccount? googleUser = await GoogleSignIn(
-      clientId: kIsWeb
-          ? dotenv.env['WEB_CLIENT_ID']
-          : (defaultTargetPlatform == TargetPlatform.iOS
+      clientId: defaultTargetPlatform == TargetPlatform.iOS
           ? dotenv.env['IOS_CLIENT_ID']
-          : dotenv.env['ANDROID_CLIENT_ID']),
+          : dotenv.env['WEB_CLIENT_ID'],
     ).signIn();
 
     final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
