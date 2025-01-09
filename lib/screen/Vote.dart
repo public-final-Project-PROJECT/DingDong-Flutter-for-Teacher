@@ -13,7 +13,8 @@ class _VoteState extends State<Vote> {
   List<dynamic> _voteList = []; // 투표 정보 담기
   Map<int, List<dynamic>> _allVotingData = {}; // 투표 ID별 항목 정보 저장
   List<Map<String, dynamic>> _studentsInfo = []; // 반 학생들의 정보(학생테이블)
-  Map<int, Map<int, List<dynamic>>> _votingStudentsMap = {}; // 투표 항목에 대한 학생들의 정보
+  Map<int, Map<int, List<dynamic>>> _votingStudentsMap =
+      {}; // 투표 항목에 대한 학생들의 정보
 
   int classId = 1;
 
@@ -29,14 +30,13 @@ class _VoteState extends State<Vote> {
   // 학생 정보 api
   void _loadClassStudentsInfo(int classId) async {
     try {
-
-      List<dynamic> studentsList = await _votingModel.findStudentsNameAndImg(classId);
+      List<dynamic> studentsList =
+          await _votingModel.findStudentsNameAndImg(classId);
 
       print('학생인포: $studentsList');
 
       setState(() {
-        _studentsInfo = studentsList
-            .cast<Map<String, dynamic>>();
+        _studentsInfo = studentsList.cast<Map<String, dynamic>>();
       });
 
       print(_studentsInfo);
@@ -44,7 +44,6 @@ class _VoteState extends State<Vote> {
       print("Error 학생 정보 api: $e");
     }
   }
-
 
   // 투표 정보 api
   void _loadVoting() async {
@@ -70,7 +69,8 @@ class _VoteState extends State<Vote> {
   // 항목 api
   void _loadVotingContents(int votingId) async {
     try {
-      List<dynamic> contents = await _votingModel.selectVotingContents(votingId);
+      List<dynamic> contents =
+          await _votingModel.selectVotingContents(votingId);
       setState(() {
         _allVotingData[votingId] = contents;
       });
@@ -78,7 +78,6 @@ class _VoteState extends State<Vote> {
       print("Error 투표 항목 api $votingId: $e");
     }
   }
-
 
   // 투표 삭제 api
   void _votingDelete(int votingId) async {
@@ -92,7 +91,8 @@ class _VoteState extends State<Vote> {
   // 투표 항목에 대한 학생들의 투표 정보 api
   void _voteOptionUsers(int votingId) async {
     try {
-      List<dynamic> userVotingData = await _votingModel.voteOptionUsers(votingId);
+      List<dynamic> userVotingData =
+          await _votingModel.voteOptionUsers(votingId);
       Map<int, List<dynamic>> votingStudents = {};
       print(userVotingData);
       for (var userVote in userVotingData) {
@@ -106,7 +106,6 @@ class _VoteState extends State<Vote> {
         _votingStudentsMap[votingId] = votingStudents;
       });
       print(_votingStudentsMap);
-
     } catch (e) {
       print("Error 학생 투표 정보 api: $e");
     }
@@ -114,9 +113,8 @@ class _VoteState extends State<Vote> {
 
   // 투표 종료 (진행상태 변경)
   void isVoteUpdate(int votingId) async {
-    try{
+    try {
       bool result = (await _votingModel.isVoteUpdate(votingId)) as bool;
-
     } catch (e) {
       print("Error 투표 종료 api : $e");
     }
@@ -127,9 +125,7 @@ class _VoteState extends State<Vote> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: [Text("투표"),
-            SizedBox(width: 15),
-            Icon(Icons.how_to_vote)],
+          children: [Text("투표"), SizedBox(width: 15), Icon(Icons.how_to_vote)],
         ),
       ),
       body: ListView.builder(
@@ -139,7 +135,8 @@ class _VoteState extends State<Vote> {
           final votingId = voting["id"];
           final votingContents = _allVotingData[votingId] ?? [];
           final matchingStudents = _studentsInfo
-              .where((student) => student["studentId"] == _votingStudentsMap["studentId"])
+              .where((student) =>
+                  student["studentId"] == _votingStudentsMap["studentId"])
               .toList();
           print(matchingStudents);
           final Map<int, List<dynamic>> studentsVotedForContents =
@@ -150,6 +147,10 @@ class _VoteState extends State<Vote> {
             child: ListTile(
               title: Row(
                 children: [
+                  Icon(Icons.list_outlined),
+                  SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     voting["votingName"] ?? '',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -189,16 +190,13 @@ class _VoteState extends State<Vote> {
                     },
                     child: Icon(Icons.delete_forever),
                   ),
-
-                  TextButton(onPressed: (){
-                    showDialog(context: context, builder: (BuildContext con) {
-                      return AlertDialog(
-                        content: Container(
-                          child: const Text("투표 안한 학생 리스트 쫘라락"),
-                        ),
-                      );
-                    });
-                  }, child: Text("투표 안한 학생 보기"))
+                  TextButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          Icon(Icons.mark_email_read_sharp),
+                        ],
+                      ))
                 ],
               ),
               subtitle: Column(
@@ -215,52 +213,63 @@ class _VoteState extends State<Vote> {
                     ),
                   Row(
                     children: [
-                      if(voting["votingEnd"] == null)
-                        TextButton(onPressed: (){
-                          showDialog(context: context, builder: (BuildContext con){
-                            return AlertDialog(
-                              content: Container(
-                                child: const Text('정말 투표를 종료하시겠습니까 ? '),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("취소"),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    print(voting["id"]);
-                                    isVoteUpdate(voting["id"]); // 투표 종료
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text("투표가 종료되었습니다 !")));
-                                  },
-                                  child: Text("확인"),
-                                ),
-                              ],
-                            );
-                          });
-                        }, child: Text("투표 종료하기"))
+                      if (voting["votingEnd"] == null && voting["vote"] == true)
+                        TextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext con) {
+                                    return AlertDialog(
+                                      content: Container(
+                                        child: const Text('정말 투표를 종료하시겠습니까 ? '),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("취소"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            print(voting["id"]);
+                                            isVoteUpdate(voting["id"]); // 투표 종료
+                                            Navigator.pop(context);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                                    content:
+                                                        Text("투표가 종료되었습니다 !")));
+                                          },
+                                          child: Text("확인"),
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            },
+                            child: Text("투표 종료하기"))
                       else
-                      Text(
-                        voting["votingEnd"] ?? '',
-                        style: TextStyle(fontSize: 8, color: Colors.red),
-                      ),
+                        Text(
+                          voting["votingEnd"] ?? '',
+                          style: TextStyle(fontSize: 8, color: Colors.red),
+                        ),
                       SizedBox(width: 20),
                       if (voting["vote"] == true)
                         Row(
                           children: [
-                            Icon(Icons.circle, size: 13, color: Colors.red,),
+                            Icon(
+                              Icons.circle,
+                              size: 13,
+                              color: Colors.red,
+                            ),
                             Text(
                               "진행중",
                               style: TextStyle(fontSize: 15, color: Colors.red),
                             ),
                           ],
-                        ) else
-                        Text("종료", style: TextStyle(fontSize: 15, color: Colors.grey))
+                        )
+                      else
+                        Text("종료",
+                            style: TextStyle(fontSize: 15, color: Colors.grey))
                     ],
                   ),
                   SizedBox(height: 10),
@@ -271,19 +280,21 @@ class _VoteState extends State<Vote> {
                         Text(" ${content["votingContents"] ?? '항목 없음'}",
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         SizedBox(height: 20),
-
-                        if (studentsVotedForContents.containsKey(content["contentsId"]))
+                        if (studentsVotedForContents
+                            .containsKey(content["contentsId"]))
                           ...studentsVotedForContents[content["contentsId"]]!
                               .map((student) {
-
                             final matchedStudent = _studentsInfo.firstWhere(
-                                  (info) => info["studentId"].toString() == student["studentId"].toString(),
+                              (info) =>
+                                  info["studentId"].toString() ==
+                                  student["studentId"].toString(),
                               orElse: () => {},
                             );
 
                             print(matchedStudent);
 
-                            final studentName = matchedStudent["studentName"] ?? "";
+                            final studentName =
+                                matchedStudent["studentName"] ?? "";
 
                             return Row(
                               children: [
@@ -292,16 +303,84 @@ class _VoteState extends State<Vote> {
                               ],
                             );
                           }).toList(),
-
-
-
                       ],
                     ),
-                  SizedBox(height: 10),
-                  Text("참여 학생들:", style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  // 미참여 학생 보기 버튼 동작
+                  TextButton(
+                      onPressed: () {
+                        final votingId = voting["id"];
+                        final studentsWhoVoted = _votingStudentsMap[votingId]
+                                ?.values
+                                .expand((votedList) => votedList
+                                    .map((voted) => voted["studentId"]))
+                                .toSet() ??
+                            {};
+
+                        // 투표하지 않은 학생 필터링
+                        final nonParticipatingStudents = _studentsInfo
+                            .where((student) => !studentsWhoVoted
+                                .contains(student["studentId"]))
+                            .toList();
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext con) {
+                            return AlertDialog(
+                              title: Text("미참여 학생"),
+                              content: Container(
+                                width: double.maxFinite,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: nonParticipatingStudents.length,
+                                  itemBuilder: (context, index) {
+                                    final student =
+                                        nonParticipatingStudents[index];
+                                    return ListTile(
+                                        leading: student["studentImg"] != null
+                                            ? CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                    student["studentImg"]),
+                                              )
+                                            : CircleAvatar(
+                                                child: Icon(Icons.person)),
+                                        title: Row(
+                                          children: [
+                                            Text(student["studentName"] ??
+                                                "이름 없음"),
+                                            SizedBox(width: 30),
+                                            Icon(Icons.arrow_right),
+                                            Icon(Icons.add_alert_sharp),
+                                          ],
+                                        ));
+                                  },
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("닫기"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.supervised_user_circle),
+                          Text(
+                            "미참여 학생 보기",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      )),
 
                   for (var student in matchingStudents)
-
                     Row(
                       children: [
                         // if (student["studentImg"] != null)
