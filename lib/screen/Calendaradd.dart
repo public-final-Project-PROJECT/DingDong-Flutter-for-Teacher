@@ -35,9 +35,12 @@ class CalendarAdd extends StatelessWidget {
       }
     }
 
+
     return FractionallySizedBox(
       heightFactor: 0.9, // 화면의 90% 높이
-      child: Padding(
+      child: Container(
+        color: Colors.white, // 흰색으로 바꾸니까 분명 둥글었던 게 네모네모빔 맞아버림 ,,
+        // 곧 다시 둥글게 바꿔놓겠습니다 ㅠ
         padding: EdgeInsets.only(
           left: 16.0,
           right: 16.0,
@@ -89,6 +92,12 @@ class CalendarAdd extends StatelessWidget {
                     ? 'Select Start Date'
                     : '${startDate!.year}-${startDate!.month}-${startDate!.day}',
               ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                )
+              ),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -102,6 +111,12 @@ class CalendarAdd extends StatelessWidget {
                 endDate == null
                     ? 'Select End Date'
                     : '${endDate!.year}-${endDate!.month}-${endDate!.day}',
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                )
               ),
             ),
             const SizedBox(height: 16),
@@ -126,6 +141,13 @@ class CalendarAdd extends StatelessWidget {
                   Navigator.of(context).pop(); // 모달 닫기
                 },
                 child: const Text('Add Event'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xff515151),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  )
+                ),
               ),
             ),
           ],

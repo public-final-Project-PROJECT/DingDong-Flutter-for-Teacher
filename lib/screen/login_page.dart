@@ -32,16 +32,43 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffF4F4F4),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('로고는 여기 위에'),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.login),
-              label: const Text('Sign in with Google'),
+            // ElevatedButton.icon(
+            //   icon: const Icon(Icons.login),
+            //   label: const Text('Sign in with Google'),
+            //   onPressed: () => handleGoogleSignIn(context),
+            // ),
+
+            // 피그마와 유사하게(?) 로그인 버튼 스타일 변경
+            ElevatedButton(
               onPressed: () => handleGoogleSignIn(context),
-            ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Image.asset('assets/google.png'),
+                  Text('Sign in with Google',
+                    style: TextStyle(color: Colors.black,fontSize: 15.0),
+                  ),
+                  Opacity(opacity: 0.0,
+                    child: Image.asset('assets/google.png'),
+                  )
+                ],
+              ),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  fixedSize: const Size(300, 50),
+                  minimumSize: Size.zero,
+                  elevation: 1.0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.0)
+                  )
+              ),
+            )
           ],
         ),
       ),

@@ -157,6 +157,12 @@ class _AttendanceState extends State<Attendance> {
       appBar: AppBar(
         title: Text("출석부"),
         backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          )
+        ),
       ),
       backgroundColor: Color(0xffF4F4F4),
       body: Column(
@@ -172,9 +178,17 @@ class _AttendanceState extends State<Attendance> {
                       ? '날짜 선택'
                       : '${selectedDate?.toLocal()}'.split(' ')[0],
                 ),
+                style: ElevatedButton.styleFrom(  // '날짜 선택' 버튼 스타일 변경
+                  backgroundColor: Color(0xff515151), // 버튼 배경 어둡게 변경
+                  foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                  shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                    borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 네모로 조절
+                  )
+                ),
               ),
               SizedBox(width: 20),
 
+              SizedBox(height: 80),  // AppBar 간 간격 확장
               Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -257,6 +271,7 @@ class _AttendanceState extends State<Attendance> {
               },
             ),
           ),
+          SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               // 데이터를 서버에 전송
@@ -264,6 +279,13 @@ class _AttendanceState extends State<Attendance> {
               registerAttendance(_attendanceList);
             },
             child: Text('제출/수정'),
+            style: ElevatedButton.styleFrom(  // '제출/수정' 버튼 스타일 변경
+              backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+              foregroundColor: Colors.white,  // 버튼 텍스트 흰생으로 변경
+              shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                borderRadius: BorderRadius.circular(8), // 버튼 테두리 네모로!
+              )
+            ),
           ),
         ],
       ),

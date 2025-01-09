@@ -158,7 +158,7 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Flutter Restaurant"),
+          title: const Text("캘린더"),
           leading: IconButton(
             icon: const Icon(Icons.chevron_left), // 단순하고 깔끔한 화살표 아이콘
             onPressed: () {
@@ -170,6 +170,13 @@ class _CalendarState extends State<Calendar> {
                 Navigator.of(context).pop(); // 이전 화면으로 이동
               }
             },
+          ),
+          backgroundColor: const Color(0xffF4F4F4),
+          shape: const Border( // 앱바 하단 경계선 추가
+            bottom: BorderSide(
+              color: Colors.grey,
+              width: 1,
+            ),
           ),
           actions: [
             IconButton(
@@ -211,9 +218,9 @@ class _CalendarState extends State<Calendar> {
             ),
           ],
         ),
+        backgroundColor: const Color(0xffF4F4F4),
 
-
-    body: Column(
+        body: Column(
           children: [
             TableCalendar(
               firstDay: DateTime(2021, 10, 16),
@@ -261,7 +268,7 @@ class _CalendarState extends State<Calendar> {
                     DateFormat.yMMMMd(locale).format(date),
                 formatButtonShowsNext: false,
                 formatButtonDecoration: BoxDecoration(
-                    color: Colors.blue, borderRadius: BorderRadius.circular(5.0)),
+                    color: Colors.black54, borderRadius: BorderRadius.circular(5.0)),
                 formatButtonTextStyle:
                 const TextStyle(fontFamily: 'Raleway', color: Colors.white),
 
@@ -283,11 +290,11 @@ class _CalendarState extends State<Calendar> {
               calendarStyle: CalendarStyle(
                   isTodayHighlighted: true,
                   todayDecoration: BoxDecoration(
-                      color: Colors.pink,
+                      color: Colors.black,
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   selectedDecoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: Color(0xff9E9E9E),
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   weekendDecoration: BoxDecoration(
@@ -325,7 +332,7 @@ class _CalendarState extends State<Calendar> {
                         final event = events[index];
                         return Container(
                           decoration: const BoxDecoration(
-                            color: Colors.blue,
+                            color: Colors.black,
                             border: Border(bottom: BorderSide(color: Colors.white)),
                           ),
                           child: ListTile(
