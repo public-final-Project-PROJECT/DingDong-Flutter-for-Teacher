@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class CalendarAdd extends StatefulWidget {
+class CalendarUpdate extends StatefulWidget {
   final Function(String title, String location, String description, DateTime startDate, DateTime endDate) onEventAdded;
-  final dynamic initialDate;
+  final dynamic setEvent;
   final int updateDate;
-  const CalendarAdd({super.key, required this.onEventAdded, this.initialDate, required this.updateDate});
+  const CalendarUpdate({super.key, required this.onEventAdded, required this.updateDate, required this.setEvent});
 
   @override
-  State<CalendarAdd> createState() => _CalendarAddState();
+  State<CalendarUpdate> createState() => _CalendarUpdateState();
 }
 
-class _CalendarAddState extends State<CalendarAdd> {
+class _CalendarUpdateState extends State<CalendarUpdate> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -26,8 +26,8 @@ class _CalendarAddState extends State<CalendarAdd> {
 
     DateTime defaulttime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     print(defaulttime);
-    startDate = widget.initialDate.subtract(const Duration(hours: 9)).toLocal() ?? defaulttime;
-    endDate = widget.initialDate.subtract(const Duration(hours: 9)).toLocal() ?? defaulttime;
+    startDate = DateTime.parse(widget.setEvent['start']).add(const Duration(hours: 9)).toUtc();
+    endDate = DateTime.parse(widget.setEvent['end']).add(const Duration(hours: 9)).toUtc();
 
 
   }
@@ -52,7 +52,7 @@ class _CalendarAddState extends State<CalendarAdd> {
           startDate = picked;
 
           // Start가 End 이후라면 End도 Start로 동기화
-          if (end != null && start!.isAfter(end!)) {
+          if (end != null && start!.isAfter(end)) {
             endDate = startDate;
           }
         } else {
@@ -60,7 +60,7 @@ class _CalendarAddState extends State<CalendarAdd> {
           endDate = picked;
 
           // End가 Start 이전이면 Start와 동기화
-          if (start != null && start!.isAfter(end!)) {
+          if (start != null && start.isAfter(end!)) {
             endDate = startDate;
           }
         }
@@ -83,32 +83,25 @@ class _CalendarAddState extends State<CalendarAdd> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Add Event',
+              '이벤트 수정',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(
+              decoration:  InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Enter event title',
+                hintText: widget.setEvent['title'],
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: locationController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter location',
-              ),
-            ),
+
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
               maxLines: 3,
-              decoration: const InputDecoration(
+              decoration:  InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Enter description',
+                hintText: widget.setEvent['description'],
               ),
             ),
             const SizedBox(height: 16),
@@ -162,7 +155,7 @@ class _CalendarAddState extends State<CalendarAdd> {
                   );
                   Navigator.of(context).pop(); // 모달 닫기
                 },
-                child: const Text('Add Event'),
+                child: const Text('Change Event'),
               ),
             ),
           ],
