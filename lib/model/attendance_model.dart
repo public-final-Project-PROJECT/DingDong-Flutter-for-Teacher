@@ -17,7 +17,7 @@ class AttendanceModel{
        );
 
        if (response.statusCode == 200) {
-         // print(response.data);
+          print(response.data);
          return response.data as List<dynamic>;
        } else {
          throw Exception("로드 실패");
@@ -30,11 +30,12 @@ class AttendanceModel{
    
    Future<void>registerAttendance(List attendance) async{
      final dio = Dio();
-     
+
+
      try{
        final response = await dio.post(
            "http://112.221.66.174:3013/api/attendance/register",
-
+          data: attendance
        );
      }catch (e){
        throw Exception("Error : $e");
