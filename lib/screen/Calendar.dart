@@ -43,22 +43,48 @@ class _CalendarState extends State<Calendar> {
     List<dynamic> calendarData = await _calendarModel.calendarList();
     setState(() {
       _calendarList = calendarData;
-
+      _events.clear();
       for (var item in calendarData) {
         // 날짜 파싱
         final DateTime date =
             DateTime.parse(item['start']).add(const Duration(hours: 9)).toUtc();
 
-        // 이벤트 추가
-        print("dddd ${date}");
-        _addEvent(date, item);
+        if (_events[date] == null) {
+          _events[date] = [];
+        }
+        _events[date]!.add(item);
       }
     });
   }
   void _insertCalendar(dynamic eventData) async {
+    try {
+      print('Inserting calendar event...');
+      await _calendarModel.calendarInsert(eventData);
+      print('Event inserted successfully.');
+    } catch (e) {
+      print('Error during event insert: $e');
+    } finally {
+      print('Calling _loadCalendar...');
+      _loadCalendar();
+    }
+  }
+  void _deleteEvent(int id) async {
+   try{
+     await _calendarModel.calendarDelete(id);
+   } catch (e) {
 
-    final response = await _calendarModel.calendarInsert(eventData);
+   }finally {
+     _loadCalendar();
+   }
+  }
+  void _updateEvent(dynamic event) async{
+    try{
+      await _calendarModel.calendarUpdate(event);
+    } catch (e) {
 
+    }finally {
+      _loadCalendar();
+    }
   }
 
 // 이벤트 추가 메소드
@@ -192,6 +218,7 @@ class _CalendarState extends State<Calendar> {
                     return CalendarAdd(
 
                       initialDate: _selectedDay,
+                      updateDate: 0,
                       onEventAdded: (title, location, description, startDate, endDate) {
                         // 이벤트 추가 로직
 
@@ -200,6 +227,7 @@ class _CalendarState extends State<Calendar> {
                         final DateTime dateend =
                         endDate.add(const Duration(hours: 9)).toUtc();
                         final event = {
+
                           'title': title,
                           'description': description,
                           'start': datestart,
@@ -349,14 +377,14 @@ class _CalendarState extends State<Calendar> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  'Start: ${(events[index]['start'])}',
+                                  'Start: ${(events[index]['start'].toString().substring(0, 10))}',
                                   style: const TextStyle(
                                     fontSize: 12.0,
                                     color: Colors.white70,
                                   ),
                                 ),
                                 Text(
-                                  'End: ${(events[index]['end'])}',
+                                  'End: ${(events[index]['end'].toString().substring(0, 10))}',
                                   style: const TextStyle(
                                     fontSize: 12.0,
                                     color: Colors.white70,
@@ -369,7 +397,15 @@ class _CalendarState extends State<Calendar> {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Calendardetails(event: event),
+                                  pageBuilder: (context, animation, secondaryAnimation) => Calendardetails(
+                                      event: event,
+                                      DeleteEvent: (id){
+                                        _deleteEvent(id);
+                                       },
+                                      UpdateEvent:(event){
+                                        _updateEvent(event);
+                                      }
+                                  ),
                                   transitionsBuilder: (context, animation, secondaryAnimation, child) {
                                     const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
                                     const end = Offset.zero;
@@ -382,6 +418,7 @@ class _CalendarState extends State<Calendar> {
                                   },
                                 ),
                               );
+
                             },
                           ),
                         );
@@ -394,3 +431,4 @@ class _CalendarState extends State<Calendar> {
     );
   }
 }
+
