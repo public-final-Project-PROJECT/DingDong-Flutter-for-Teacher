@@ -161,9 +161,16 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Text('구글 로그인 완료'),
             Text('이름: ${widget.user.displayName}'),
-            Text('이메일: ${widget.user.email}'),
+            Text('이메일: ${widget.user.email}',),
             ElevatedButton(
               child: const Text('로그아웃'),
+              style: ElevatedButton.styleFrom(  // '로그아웃' 버튼 스타일 변경
+                backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게
+                foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로
+                shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                  borderRadius: BorderRadius.circular(8), // 버튼 테두리 네모로!
+                )
+              ),
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
                 Navigator.pushReplacement(
