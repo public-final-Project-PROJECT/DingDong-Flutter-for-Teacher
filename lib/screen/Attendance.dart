@@ -1,5 +1,6 @@
 import 'package:dingdong_flutter_teacher/model/attendance_model.dart';
 import 'package:dingdong_flutter_teacher/model/student_model.dart';
+import 'package:dingdong_flutter_teacher/screen/studentDetailPage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -151,6 +152,8 @@ class _AttendanceState extends State<Attendance> {
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,27 +250,35 @@ class _AttendanceState extends State<Attendance> {
                       (att) => att['studentId'] == student['studentId'] ,
                   orElse: () => null,
                 );
-
                 final attendanceState = attendance != null
                     ? attendance['attendanceState']
                     : '상태 없음';
 
-                return ListTile(
-                  title: Text(student['studentName'] ?? '이름 없음'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('학번: ${student['studentId']}'),
-                      Text('출석 상태: $attendanceState'),
-                    ],
-                  ),
+                return GestureDetector(
+                    onTap: () {
+                      print("여기는 ${student['studentId']} 입니다");
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                          StudentDetailPage(student: student['studentId'])));
+                },
+                child: ListTile(
+                title: Text(student['studentName'] ?? '이름 없음'),
+                subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                Text('학번: ${student['studentId']}'),
+                Text('출석 상태: $attendanceState'),
+                ],
+                ),
                   trailing: IconButton(
                     icon: Icon(_getAttendanceIcon(attendanceState)),
                     onPressed: () {
                       _toggleAttendanceState(student['studentId']);
                     },
                   ),
-                );
+                ));
               },
             ),
           ),

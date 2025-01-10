@@ -15,15 +15,17 @@ class _NoticeState extends State<Notice> {
 
   List<dynamic> _noticeList = [];
   final NoticeModel _noticeModel = NoticeModel();
+  String? _selectedCategory;
 
   @override
   void initState() {
+    super.initState();
     _loadNotice();
 
   }
 
-  void _loadNotice() async{
-    List<dynamic> noticeData = await _noticeModel.searchNotice();
+  void _loadNotice({String? category}) async {
+    List<dynamic> noticeData = await _noticeModel.searchNotice(category: category);
     setState(() {
       _noticeList = noticeData;
     });
@@ -36,21 +38,34 @@ class _NoticeState extends State<Notice> {
       appBar: AppBar(
         title: Text("공지사항"),
         backgroundColor: Color(0xffF4F4F4),
-        shape: const Border(   // AppBar 밑줄
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1
-          )
+        shape: const Border(
+          bottom: BorderSide(color: Colors.grey, width: 1),
         ),
       ),
-      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
+      backgroundColor: Color(0xffF4F4F4),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Row(
               children: [
-                Spacer(), // 빈 공간 추가
+                DropdownButton<String>(
+                  value: _selectedCategory,
+                  hint: Text("카테고리 선택"),
+                  items: [
+                    DropdownMenuItem(value: null, child: Text("전체")),
+                    DropdownMenuItem(value: "가정통신문", child: Text("가정통신문")),
+                    DropdownMenuItem(value: "알림장", child: Text("알림장")),
+                    DropdownMenuItem(value: "학교생활", child: Text("학교생활")),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                    _loadNotice(category: value);
+                  },
+                ),
+                Spacer(),
                 ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
@@ -59,8 +74,8 @@ class _NoticeState extends State<Notice> {
                         builder: (context) => NoticeRegister(),
                       ),
                     ).then((result) {
-                      if (result == true) { // 결과가 true이면 (등록 성공)
-                        _loadNotice(); // 공지사항 목록을 다시 로드
+                      if (result == true) {
+                        _loadNotice(category: _selectedCategory);
                       }
                     });
                   },
@@ -80,7 +95,12 @@ class _NoticeState extends State<Notice> {
           ),
           Expanded(
             child: _noticeList.isEmpty
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+              child: Text(
+                "공지사항이 존재하지 않습니다.",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
                 : ListView.builder(
               itemCount: _noticeList.length,
               itemBuilder: (context, index) {
@@ -88,13 +108,10 @@ class _NoticeState extends State<Notice> {
                 String formattedCreateAt = _formatDate(notice['createdAt']);
                 String formattedUpdatedAt = _formatDate(notice['updatedAt']);
 
-                // String displayDate = notice['updatedAt'] != null &&
-                //     notice['updatedAt'].isNotEmpty
-                //     ? "수정일: $formattedUpdatedAt"
-                //     : "작성일: $formattedCreateAt";
-
                 String displayDate = "";
-                if (notice['updatedAt'] != null && notice['updatedAt'].isNotEmpty && notice['createdAt'] != notice['updatedAt']) { // 추가된 조건
+                if (notice['updatedAt'] != null &&
+                    notice['updatedAt'].isNotEmpty &&
+                    notice['createdAt'] != notice['updatedAt']) {
                   formattedUpdatedAt = _formatDate(notice['updatedAt']);
                   displayDate = "수정일: $formattedUpdatedAt";
                 } else {
@@ -104,7 +121,7 @@ class _NoticeState extends State<Notice> {
 
                 return Card(
                   margin: EdgeInsets.all(8.0),
-                  color: Color(0xffFFFFFF),  // 공지사항 네모네모 색 변경 (흰색)
+                  color: Color(0xffFFFFFF), // 공지사항 네모네모 색 변경 (흰색)
                   elevation: 4.0,
                   child: ListTile(
                     contentPadding: EdgeInsets.all(16.0),
@@ -126,8 +143,7 @@ class _NoticeState extends State<Notice> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        Text(displayDate,
-                            style: TextStyle(fontSize: 11)),
+                        Text(displayDate, style: TextStyle(fontSize: 11)),
                         SizedBox(height: 8),
                       ],
                     ),

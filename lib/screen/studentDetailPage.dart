@@ -1,11 +1,11 @@
 import 'package:dingdong_flutter_teacher/dialog/student_dialog.dart';
 import 'package:dingdong_flutter_teacher/model/student_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class StudentDetailPage extends StatefulWidget {
   final dynamic student;
-
   const StudentDetailPage({super.key, required this.student});
 
   @override
@@ -13,15 +13,47 @@ class StudentDetailPage extends StatefulWidget {
 }
 
 class _StudentDetailPageState extends State<StudentDetailPage> {
+  Map<String, dynamic> studentDetail = {};
+  bool isLoading = true; // 로딩 상태를 관리하는 변수 추가
 
+  // 학생 상세 정보 조회 함수
+  Future<void> _searchDetailStudent() async {
+    final dio = Dio();
+    try {
+      final response = await dio.get(
+          "http://112.221.66.174:3013/api/students/viewClass/${widget.student}"
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          studentDetail = response.data;
+          isLoading = false;  // 데이터 로딩 완료 후 상태 변경
+        });
+      } else {
+        throw Exception("로드 실패");
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false; // 로딩 완료 처리
+      });
+      print(e);
+      throw Exception("Error : $e");
+    }
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    _searchDetailStudent();
+  }
+
+  // 메모 업데이트 함수
   void _updateMemo(BuildContext context, String newMemo, int studentId) async {
     try {
       final studentModel = StudentModel();
       await studentModel.updateMemo(studentId, newMemo);
 
       setState(() {
-        widget.student['memo'] = newMemo;
+        studentDetail['memo'] = newMemo;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,7 +64,21 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final student = widget.student;
+    // 로딩 상태일 때 로딩 스피너를 표시
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("학생 정보 로딩 중..."),
+          backgroundColor: Color(0xffF4F4F4),
+        ),
+        backgroundColor: Color(0xffF4F4F4),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final student = studentDetail;
 
     return Scaffold(
       appBar: AppBar(
@@ -167,7 +213,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.only(left: 14.0),
-                          child: Text("${student['parentsName']?? '미입력'}", style: TextStyle(fontSize: 15)),
+                          child: Text("${student['parentsName'] ?? '미입력'}", style: TextStyle(fontSize: 15)),
                           decoration: BoxDecoration(
                             border: Border(bottom: BorderSide(color: Colors.grey)),
                           ),
@@ -185,7 +231,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.only(left: 14.0),
-                          child: Text("${student['parentsPhone']?? '번호 미입력'}", style: TextStyle(fontSize: 15)),
+                          child: Text("${student['parentsPhone'] ?? '번호 미입력'}", style: TextStyle(fontSize: 15)),
                           decoration: BoxDecoration(
                             border: Border(bottom: BorderSide(color: Colors.grey)),
                           ),
@@ -293,7 +339,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -302,6 +348,4 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
       ),
     );
   }
-
-
 }
