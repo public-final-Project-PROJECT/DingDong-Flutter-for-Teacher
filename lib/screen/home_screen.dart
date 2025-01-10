@@ -4,13 +4,18 @@ import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/voting_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'Calendar.dart';
+import 'Vote.dart';
+import 'login_page.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+
+  final User user;
+
+  const HomeScreen({super.key, required this.user});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -150,7 +155,33 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: Center(child: Text("메인 화면입니다")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('구글 로그인 완료'),
+            Text('이름: ${widget.user.displayName}'),
+            Text('이메일: ${widget.user.email}',),
+            ElevatedButton(
+              child: const Text('로그아웃'),
+              style: ElevatedButton.styleFrom(  // '로그아웃' 버튼 스타일 변경
+                backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게
+                foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로
+                shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                  borderRadius: BorderRadius.circular(8), // 버튼 테두리 네모로!
+                )
+              ),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
