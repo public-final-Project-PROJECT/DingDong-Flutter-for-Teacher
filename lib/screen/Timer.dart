@@ -1,9 +1,30 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 /*
 * Flutter/Dart 기본 라이브러리에 Timer 클래스가 존재해서
 * 충돌 위험 방지로 인해 TimerScreen 으로 클래스 명 변경
+* */
+
+/*
+* 타이머 문제점
+*  - 타이머 실행 후 작동 시 Drawer 창 클릭 했을 때 초기화 되면서 메인으로 넘어감
+*
+* 수정할 점
+*  - 타이머 화면일 때 Drawer Bar 열면 초기화 X
+*  - 타이머 실행 후 작동 시 Drawer Bar 열고 다른 화면 이동 해도 타이머 실행 유지
+*  - 타이머 화면일 때 뒤로 가기 터치 시 Drawer Bar 로 화면 전환(고정 화면은 타이머)
+*
+* 현재 구현된 기능
+*  - 타이머 실행 기능 (정말 Dog 같이 완벽)
+*  - 타이머 작동 시 background 전환 해도 작동 유지
+*  - background 이동 후 foreground 전환 해도 작동 유지
+*
+* 시도한 수정 방법
+*  - HomeScreen.dart 의 Drawer 위젯 전체 TimerScreen.dart return 로직에 박기 (X)
+*  - yaml 에 'shared_preferences: ^2.2.0' 넣고 initState() 메소드 생성 후 SharedPreferences 에서 상태 불러옴
+*   => 코드 잘못 구현 했던 것 같음 (X)
 * */
 
 class TimerScreen extends StatefulWidget {
@@ -13,44 +34,31 @@ class TimerScreen extends StatefulWidget {
   State<TimerScreen> createState() => _TimerScreenState();
 }
 
-class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
+class _TimerScreenState extends State<TimerScreen> {
   late Timer _timer; // 타이머 객체
   int _totalSeconds = 0; // 총 시간 (초 단위)
   int _remainingSeconds = 0; // 남은 시간
   bool _isRunning = false; // 타이머 실행 상태
+  bool _isFinished = false; //
   final TextEditingController _controller = TextEditingController(); // 입력 필드 컨트롤러
-  bool _isFinished = false; // 타이머 종료 상태
-  DateTime? _pausedTime; // 백그라운드 전환 시점 저장
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this); // 앱 상태 변화 감지
+    _loadTimerState(); // 앱 실행 시 SharedPreferences 에서 상태 불러옴
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      // 앱이 백그라운드로 전환될 때
-      if (_isRunning) {
-        _pauseTimer();  // 타이머 중단
-        _pausedTime = DateTime.now(); // 멈춘 시점 기록
-      }
-    } else if (state == AppLifecycleState.resumed) {
-      // 앱이 포그라운드로 돌아올 때
-      if (_pausedTime != null && !_isRunning) {
-        final int elapsedSeconds =
-            DateTime.now().difference(_pausedTime!).inSeconds;
-        setState(() {
-          _remainingSeconds = (_remainingSeconds - elapsedSeconds).clamp(0, _totalSeconds);
-        });
-        if (_remainingSeconds > 0) {
-          _startTimer(); // 타이머 다시 시작
-        } else {
-          _finishTimer();  // 남은 시간 0이면 타이머 종료
-        }
-        _pausedTime = null;  // 기록 초기화
-      }
+  // 타이머 상태 불러오기
+  Future<void> _loadTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _totalSeconds = prefs.getInt('totalSeconds') ?? 0;
+      _remainingSeconds = prefs.getInt('remainingSeconds') ?? 0;
+      _isRunning = prefs.getBool('isRunning') ?? false;
+    });
+
+    if (_isRunning && _remainingSeconds > 0) {
+      _startTimer();
     }
   }
 
@@ -58,7 +66,6 @@ class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
   void _startTimer() {
     setState(() {
       _isRunning = true;
-      _isFinished = false;
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -66,10 +73,46 @@ class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
         setState(() {
           _remainingSeconds--;
         });
+        _saveTimerState(); // 상태 저장
       } else {
         _finishTimer(); // 남은 시간이 0이 되면 타이머 종료
       }
     });
+  }
+
+  // 타이머 종료 처리
+  // void _finishTimer() {
+  //   _timer.cancel();
+  //   setState(() {
+  //     _isRunning = false;
+  //     _remainingSeconds = 0;
+  //   });
+  //   _saveTimerState(); // 상태 저장
+  // }
+
+  // 타이머 멈춤
+  void _pauseTimer() {
+    if (_timer.isActive) {
+      _timer.cancel();
+    }
+    setState(() {
+      _isRunning = false;
+    });
+    _saveTimerState(); // 상태 저장
+  }
+
+  // 타이머 리셋
+  void _resetTimer() {
+    if (_timer.isActive) {
+      _timer.cancel();
+    }
+    setState(() {
+      _remainingSeconds = 0;
+      _totalSeconds = 0;
+      _controller.clear();
+      _isRunning = false;
+    });
+    _saveTimerState(); // 상태 저장
   }
 
   // 타이머 종료 처리
@@ -80,37 +123,7 @@ class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
       _isFinished = true;
       _remainingSeconds = 0; // 시간이 0으로 유지되도록 설정
     });
-  }
-
-  // 타이머 멈춤
-  void _pauseTimer() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
-    setState(() {
-      _isRunning = false;
-    });
-  }
-
-  // 타이머 정지 및 리소스 정리
-  void _stopTimer() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
-    setState(() {
-      _isRunning = false;
-    });
-  }
-
-  // 타이머 초기화
-  void _resetTimer() {
-    _stopTimer();
-    setState(() {
-      _remainingSeconds = 0;
-      _totalSeconds = 0;
-      _controller.clear();
-      _isFinished = false;
-    });
+    _saveTimerState();
   }
 
   // 시간을 "MM:SS" 형식으로 변환
@@ -120,13 +133,20 @@ class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
     return '$minutes:$remainingSeconds';
   }
 
+  // SharedPreferences에 상태 저장
+  Future<void> _saveTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('totalSeconds', _totalSeconds);
+    prefs.setInt('remainingSeconds', _remainingSeconds);
+    prefs.setBool('isRunning', _isRunning);
+  }
+
   @override
   void dispose() {
     if (_timer.isActive) {
       _timer.cancel();
     }
     _controller.dispose();
-    WidgetsBinding.instance.removeObserver(this); // 옵저버 제거
     super.dispose();
   }
 
@@ -235,131 +255,134 @@ class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
                     ),
                   ],
                 ),
-              ] else if (_isFinished) ...[
-                // 타이머 종료 상태
-                const Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 300,
-                      height: 300,
-                      child: CircularProgressIndicator(
-                        value: 0, // 타이머 종료 상태
-                        strokeWidth: 15,
-                        backgroundColor: Colors.red,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.red,
+              ] else
+                if (_isFinished) ...[
+                  // 타이머 종료 상태
+                  const Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        height: 300,
+                        child: CircularProgressIndicator(
+                          value: 0, // 타이머 종료 상태
+                          strokeWidth: 15,
+                          backgroundColor: Colors.red,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.red,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      "00:00",
-                      style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                      Text(
+                        "00:00",
+                        style: TextStyle(
+                          fontSize: 50,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 50), // 간격
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: _resetTimer, // 초기화 버튼
-                  icon: const Icon(Icons.restart_alt),
-                  label: const Text("다시 시작"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff515151),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 13,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                    ],
+                  ),
+                  const SizedBox(height: 50), // 간격
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _resetTimer, // 초기화 버튼
+                    icon: const Icon(Icons.restart_alt),
+                    label: const Text("다시 시작"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff515151),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 13,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
                   ),
-                ),
-              ] else ...[
-                // 타이머 실행 상태
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 1.0,
-                        end: progress, // 진행 비율
-                      ),
-                      duration: const Duration(seconds: 1), // 애니메이션 지속 시간
-                      builder: (context, value, child) {
-                        return SizedBox(
-                          width: 300,
-                          height: 300,
-                          child: CircularProgressIndicator(
-                            value: value,
-                            strokeWidth: 15,
-                            backgroundColor: Colors.grey[300],
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.black,
+                ] else
+                  ...[
+                    // 타이머 실행 상태
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(
+                            begin: 1.0,
+                            end: progress, // 진행 비율
+                          ),
+                          duration: const Duration(seconds: 1), // 애니메이션 지속 시간
+                          builder: (context, value, child) {
+                            return SizedBox(
+                              width: 300,
+                              height: 300,
+                              child: CircularProgressIndicator(
+                                value: value,
+                                strokeWidth: 15,
+                                backgroundColor: Colors.grey[300],
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.black,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        Text(
+                          _formatTime(_remainingSeconds), // 현재 남은 시간 표시
+                          style: const TextStyle(
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 50),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _isRunning ? _pauseTimer : _startTimer,
+                          icon: Icon(
+                              _isRunning ? Icons.pause : Icons.play_arrow),
+                          label: Text(_isRunning ? "멈춤" : "계속"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff515151),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 13,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                    Text(
-                      _formatTime(_remainingSeconds), // 현재 남은 시간 표시
-                      style: const TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 50),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _isRunning ? _pauseTimer : _startTimer,
-                      icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                      label: Text(_isRunning ? "멈춤" : "계속"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 13,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                        const SizedBox(width: 10),
+                        ElevatedButton.icon(
+                          onPressed: _resetTimer,
+                          icon: const Icon(Icons.restart_alt),
+                          label: const Text("초기화"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xff515151),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 13,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton.icon(
-                      onPressed: _resetTimer,
-                      icon: const Icon(Icons.restart_alt),
-                      label: const Text("초기화"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 13,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
+                      ],
                     ),
                   ],
-                ),
-              ],
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
+        );
+      }
+    }
