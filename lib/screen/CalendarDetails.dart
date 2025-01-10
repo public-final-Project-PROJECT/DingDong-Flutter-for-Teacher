@@ -14,8 +14,12 @@ class Calendardetails extends StatefulWidget {
 
 class _CalendardetailsState extends State<Calendardetails> {
   final CalendarModel _calendarModel = CalendarModel();
-
-
+  dynamic event2;
+  @override
+  void initState() {
+    super.initState();
+    event2 = widget.event; // 여기서 widget에 안전하게 접근 가능
+  }
 
 
   @override
@@ -53,6 +57,12 @@ class _CalendardetailsState extends State<Calendardetails> {
                         'start': datestart.toString().substring(0, 10),
                         'end': dateend.toString().substring(0, 10),
                       };
+                      setState(() {
+                        event2['title'] = title;
+                        event2['description'] = description;
+                        event2['start'] = datestart.toString().substring(0, 10);
+                        event2['end'] = dateend.toString().substring(0, 10);
+                      });
                       widget.UpdateEvent(event);
                       },
                   );
@@ -68,19 +78,45 @@ class _CalendardetailsState extends State<Calendardetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.event['title']}',
+              '${event2['title']}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
 
             Text(
-              'Date: ${widget.event['start'].toString().substring(0, 10)}',
+              '시작일 : ${event2['start'].toString().substring(0, 10)}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
-              'Description: ${widget.event['description']}',
+              '종료일 : ${event2['end'].toString().substring(0, 10)}',
               style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey, // Divider color
+            ),
+            Container(
+              height: 200, // 고정된 높이 설정
+              width: double.infinity, // 전체 너비 사용
+              padding: const EdgeInsets.only(top: 5, left: 5), // 위쪽 여백 최소화
+
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+                children:[ const Text(
+                  '메모',
+                  style: TextStyle(fontSize: 16),
+                ),Text(
+                  '${event2['description']}',
+                  style: const TextStyle(fontSize: 16),
+                ),]
+              ),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey, // Divider color
             ),
           ],
         ),

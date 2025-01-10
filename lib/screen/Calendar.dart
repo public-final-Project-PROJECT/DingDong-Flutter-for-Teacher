@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
@@ -17,8 +16,6 @@ class Calendar extends StatefulWidget {
 }
 
 class _CalendarState extends State<Calendar> {
-
-
   List<dynamic> _calendarList = [];
   CalendarFormat format = CalendarFormat.month;
   final CalendarModel _calendarModel = CalendarModel();
@@ -30,13 +27,16 @@ class _CalendarState extends State<Calendar> {
 // 날짜별 이벤트를 저장할 맵
   final Map<DateTime, List<dynamic>> _events = {};
 
-
-
   @override
   void initState() {
     super.initState();
     _loadCalendar();
     initializeDateFormatting();
+    _selectedDay = DateTime.now();
+    _focusedDay = DateTime.now();
+    final DateTime date = DateTime.now();
+    _rangeStart = DateTime(date.year, date.month, date.day).add(const Duration(hours: 9)).toUtc();
+    _rangeEnd = DateTime(date.year, date.month, date.day).add(const Duration(hours: 9)).toUtc();
   }
 
   void _loadCalendar() async {
@@ -48,14 +48,25 @@ class _CalendarState extends State<Calendar> {
         // 날짜 파싱
         final DateTime date =
             DateTime.parse(item['start']).add(const Duration(hours: 9)).toUtc();
+        final DateTime endDate =
+            DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
 
-        if (_events[date] == null) {
-          _events[date] = [];
+        DateTime currentDate = date;
+        while (!currentDate.isAfter(endDate)) {
+          // 해당 날짜에 이벤트 추가
+          if (_events[currentDate] != null) {
+            _events[currentDate]!.add(item); // 기존 리스트에 추가
+          } else {
+            _events[currentDate] = [item]; // 새로운 리스트 생성 후 추가
+          }
+
+          // 다음 날짜로 이동
+          currentDate = currentDate.add(const Duration(days: 1));
         }
-        _events[date]!.add(item);
       }
     });
   }
+
   void _insertCalendar(dynamic eventData) async {
     try {
       print('Inserting calendar event...');
@@ -68,21 +79,21 @@ class _CalendarState extends State<Calendar> {
       _loadCalendar();
     }
   }
-  void _deleteEvent(int id) async {
-   try{
-     await _calendarModel.calendarDelete(id);
-   } catch (e) {
 
-   }finally {
-     _loadCalendar();
-   }
+  void _deleteEvent(int id) async {
+    try {
+      await _calendarModel.calendarDelete(id);
+    } catch (e) {
+    } finally {
+      _loadCalendar();
+    }
   }
-  void _updateEvent(dynamic event) async{
-    try{
+
+  void _updateEvent(dynamic event) async {
+    try {
       await _calendarModel.calendarUpdate(event);
     } catch (e) {
-
-    }finally {
+    } finally {
       _loadCalendar();
     }
   }
@@ -94,11 +105,10 @@ class _CalendarState extends State<Calendar> {
 
       final startDate = event['start'] is String
           ? DateTime.parse(event['start']).add(const Duration(hours: 9)).toUtc()
-          : event['start']as DateTime;
+          : event['start'] as DateTime;
       final endDate = event['end'] is String
           ? DateTime.parse(event['end']).add(const Duration(hours: 9)).toUtc()
-          : event['end']as DateTime;
-
+          : event['end'] as DateTime;
 
       DateTime currentDate = startDate;
       while (!currentDate.isAfter(endDate)) {
@@ -123,8 +133,6 @@ class _CalendarState extends State<Calendar> {
     };
 
     _insertCalendar(eventData);
-
-
   }
 
   // 범위 내 이벤트를 가져오는 메소드
@@ -147,15 +155,12 @@ class _CalendarState extends State<Calendar> {
 
     return events;
   }
+
   List<dynamic> _getEventsForDay(DateTime day) {
-
-
     return _events[day] ?? [];
   }
 
   Widget _buildEventsMarker(DateTime date, List events) {
-
-
     return Positioned(
       right: 5,
       bottom: 5,
@@ -205,22 +210,22 @@ class _CalendarState extends State<Calendar> {
                   context: context,
                   isScrollControlled: true, // 모달 창이 전체 화면에 가까워지도록 설정
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   builder: (context) {
                     return CalendarAdd(
-
                       initialDate: _selectedDay,
                       updateDate: 0,
-                      onEventAdded: (title, location, description, startDate, endDate) {
+                      onEventAdded:
+                          (title, location, description, startDate, endDate) {
                         // 이벤트 추가 로직
 
                         final DateTime datestart =
-                        startDate.add(const Duration(hours: 9)).toUtc();
+                            startDate.add(const Duration(hours: 9)).toUtc();
                         final DateTime dateend =
-                        endDate.add(const Duration(hours: 9)).toUtc();
+                            endDate.add(const Duration(hours: 9)).toUtc();
                         final event = {
-
                           'title': title,
                           'description': description,
                           'start': datestart,
@@ -239,9 +244,7 @@ class _CalendarState extends State<Calendar> {
             ),
           ],
         ),
-
-
-    body: Column(
+        body: Column(
           children: [
             TableCalendar(
               firstDay: DateTime(2021, 10, 16),
@@ -276,23 +279,21 @@ class _CalendarState extends State<Calendar> {
                   _rangeStart = selectedDay; // 범위 시작 초기화
                   _rangeEnd = selectedDay; // 범위 끝 초기화
                 });
-
-
               },
-              availableGestures: AvailableGestures.horizontalSwipe, // 스와이프 허용
+              availableGestures: AvailableGestures.horizontalSwipe,
+              // 스와이프 허용
 
               headerStyle: HeaderStyle(
-
                 formatButtonVisible: true,
                 titleCentered: true,
                 titleTextFormatter: (date, locale) =>
                     DateFormat.yMMMMd(locale).format(date),
                 formatButtonShowsNext: false,
                 formatButtonDecoration: BoxDecoration(
-                    color: Colors.blue, borderRadius: BorderRadius.circular(5.0)),
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(5.0)),
                 formatButtonTextStyle:
-                const TextStyle(fontFamily: 'Raleway', color: Colors.white),
-
+                    const TextStyle(fontFamily: 'Raleway', color: Colors.white),
                 titleTextStyle: const TextStyle(
                   fontSize: 20.0,
                   color: Colors.blue,
@@ -348,90 +349,102 @@ class _CalendarState extends State<Calendar> {
                 },
                 selectedBuilder: (context, day, focusedDay) {},
               ),
-
-
             ),
             Expanded(
-              child: _rangeStart == null
-                  ? const Text("날짜를 선택하세요.")
-                  : ListView.builder(
-                      itemCount:
-                          _getEventsForRange(_rangeStart, _rangeEnd).length,
-                      itemBuilder: (context, index) {
-                        final events =
-                            _getEventsForRange(_rangeStart, _rangeEnd);
-                        final event = events[index];
-                        return Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.blue,
-                            border: Border(bottom: BorderSide(color: Colors.white)),
-                          ),
-                          child: ListTile(
-                            leading: const Icon(Icons.alarm, color: Colors.white),
-                            title: Text(
-                              events[index]['title'],
-                              style: const TextStyle(
-                                fontFamily: 'Raleway',
-                                color: Colors.white,
+              child: Builder(builder: (context) {
+                final getevents = _getEventsForRange(_rangeStart, _rangeEnd);
+                return getevents.isEmpty
+                    ? const Center(
+                        child: Text(
+                          "이벤트가 없습니다.",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount:
+                        getevents.length,
+                        itemBuilder: (context, index) {
+                          final events =
+                              getevents;
+                          final event = events[index];
+                          return Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.white)),
+                            ),
+                            child: ListTile(
+                              leading:
+                                  const Icon(Icons.alarm, color: Colors.white),
+                              title: Text(
+                                events[index]['title'],
+                                style: const TextStyle(
+                                  fontFamily: 'Raleway',
+                                  color: Colors.white,
+                                ),
                               ),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'Start: ${(events[index]['start'].toString().substring(0, 10))}',
+                                    style: const TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  Text(
+                                    'End: ${(events[index]['end'].toString().substring(0, 10))}',
+                                    style: const TextStyle(
+                                      fontSize: 12.0,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                print('Clicked Event: $event');
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        Calendardetails(
+                                            event: event,
+                                            DeleteEvent: (id) {
+                                              _deleteEvent(id);
+                                            },
+                                            UpdateEvent: (event) {
+                                              _updateEvent(event);
+                                            }),
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      const begin =
+                                          Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
+                                      const end = Offset.zero;
+                                      const curve = Curves.easeInOut;
+
+                                      var tween = Tween(begin: begin, end: end)
+                                          .chain(CurveTween(curve: curve));
+                                      var offsetAnimation =
+                                          animation.drive(tween);
+
+                                      return SlideTransition(
+                                          position: offsetAnimation,
+                                          child: child);
+                                    },
+                                  ),
+                                );
+                              },
                             ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Start: ${(events[index]['start'].toString().substring(0, 10))}',
-                                  style: const TextStyle(
-                                    fontSize: 12.0,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                Text(
-                                  'End: ${(events[index]['end'].toString().substring(0, 10))}',
-                                  style: const TextStyle(
-                                    fontSize: 12.0,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onTap: () {
-                              print('Clicked Event: $event');
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Calendardetails(
-                                      event: event,
-                                      DeleteEvent: (id){
-                                        _deleteEvent(id);
-                                       },
-                                      UpdateEvent:(event){
-                                        _updateEvent(event);
-                                      }
-                                  ),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
-                                    const end = Offset.zero;
-                                    const curve = Curves.easeInOut;
-
-                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                                    var offsetAnimation = animation.drive(tween);
-
-                                    return SlideTransition(position: offsetAnimation, child: child);
-                                  },
-                                ),
-                              );
-
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      );
+              }),
             ),
           ],
-        )
-
-    );
+        ));
   }
 }
-

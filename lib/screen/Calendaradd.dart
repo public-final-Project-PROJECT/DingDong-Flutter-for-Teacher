@@ -43,6 +43,31 @@ class _CalendarAddState extends State<CalendarAdd> {
           : end, // 기본적으로 `end` 사용
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      helpText: '', // 상단의 "Select Date" 제거
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.orange, // 선택된 날짜 배경색
+              onPrimary: Colors.white, // 선택된 날짜 텍스트 색상
+              onSurface: Colors.black, // 기본 텍스트 색상
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.orange, // 확인 및 취소 버튼 색상
+              ),
+            ),
+            dialogTheme: DialogTheme(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero, // 테두리 모서리를 직각으로 설정
+              ),
+            ),
+          ),
+
+        child: child!,
+
+        );
+      },
     );
 
     if (picked != null) {
@@ -82,9 +107,47 @@ class _CalendarAddState extends State<CalendarAdd> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Add Event',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // 취소 버튼 기능
+                  },
+                  child: const Text(
+                    '취소',
+                    style: TextStyle(fontSize: 16, color: Colors.red),
+                  ),
+                ),
+                const Text(
+                  'Add Event',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (startDate == null || endDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please select both start and end dates'),
+                        ),
+                      );
+                      return;
+                    }
+                    widget.onEventAdded(
+                      titleController.text,
+                      locationController.text,
+                      descriptionController.text,
+                      startDate!,
+                      endDate!,
+                    );
+                    Navigator.of(context).pop(); // 모달 닫기
+                  },
+                  child: const Text(
+                    '추가',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             TextField(
@@ -95,13 +158,7 @@ class _CalendarAddState extends State<CalendarAdd> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: locationController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter location',
-              ),
-            ),
+
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
@@ -111,12 +168,20 @@ class _CalendarAddState extends State<CalendarAdd> {
                 hintText: 'Enter description',
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 50),
+            Row(
+            children: [
+              Expanded(
+              child: Column(
+                children: [
+
+
             const Text(
               'Start Date',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
+
             OutlinedButton(
               onPressed: () => _pickDate(context, true, startDate, endDate),
               child: Text(
@@ -125,7 +190,14 @@ class _CalendarAddState extends State<CalendarAdd> {
                     : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
               ),
             ),
-            const SizedBox(height: 16),
+                ],
+              ),
+              ),
+              Expanded(
+                child:
+              Column(
+                children: [
+
             const Text(
               'End Date',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -141,30 +213,13 @@ class _CalendarAddState extends State<CalendarAdd> {
                     : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
               ),
             ),
-            const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  if (startDate == null || endDate == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select both start and end dates'),
-                      ),
-                    );
-                    return;
-                  }
-                  widget.onEventAdded(
-                    titleController.text,
-                    locationController.text,
-                    descriptionController.text,
-                    startDate!,
-                    endDate!,
-                  );
-                  Navigator.of(context).pop(); // 모달 닫기
-                },
-                child: const Text('Add Event'),
+                  ]
               ),
+              ),
+            ],
             ),
+            const SizedBox(height: 16),
+
           ],
         ),
       ),
