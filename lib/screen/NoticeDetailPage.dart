@@ -68,7 +68,7 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                 child: ElevatedButton.icon(
                   onPressed: () async {
                     String fileUrl = "http://112.221.66.174:3013${notice['noticeFile']}";
-                    await _downloadFile(fileUrl);
+                    // await _downloadFile(fileUrl);
                   },
                   icon: const Icon(Icons.download),
                   label: const Text("첨부 파일 다운로드"),
