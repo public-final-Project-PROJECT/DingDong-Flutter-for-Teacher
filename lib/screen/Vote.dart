@@ -1,4 +1,6 @@
+import 'package:dingdong_flutter_teacher/screen/votingAlert.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../model/voting_model.dart';
 import 'voting_modal.dart';
 
@@ -14,11 +16,13 @@ class _VoteState extends State<Vote> {
   Map<int, List<dynamic>> _allVotingData = {}; // 투표 ID별 항목 정보 저장
   List<Map<String, dynamic>> _studentsInfo = []; // 반 학생들의 정보(학생테이블)
   Map<int, Map<int, List<dynamic>>> _votingStudentsMap =
-      {}; // 투표 항목에 대한 학생들의 정보
+  {}; // 투표 항목에 대한 학생들의 정보
 
   int classId = 1;
 
   final VotingModel _votingModel = VotingModel();
+
+  get inputDataList => null;
 
   @override
   void initState() {
@@ -31,7 +35,7 @@ class _VoteState extends State<Vote> {
   void _loadClassStudentsInfo(int classId) async {
     try {
       List<dynamic> studentsList =
-          await _votingModel.findStudentsNameAndImg(classId);
+      await _votingModel.findStudentsNameAndImg(classId);
 
       print('학생인포: $studentsList');
 
@@ -49,16 +53,25 @@ class _VoteState extends State<Vote> {
   void _loadVoting() async {
     try {
       List<dynamic> votingData = await _votingModel.selectVoting(1);
+
+      // 진행중인 투표를 위로 배치
+      votingData.sort((a, b) {
+        if (a["vote"] == true && b["vote"] != true) return -1;
+        if (a["vote"] != true && b["vote"] == true) return 1;
+        return 0;
+      });
+
       setState(() {
         _voteList = votingData;
       });
 
-      // 모든 투표 ID에 대해 selectVotingContents 요청 보내기
+      // 모든 투표에 contents 조회
       for (var voting in votingData) {
         final votingId = voting["id"];
         if (votingId != null) {
           _loadVotingContents(votingId);
-          _voteOptionUsers(votingId); // 학생들의 항목 투표 정보
+          _voteOptionUsers(votingId);
+          // 학생들의 항목 투표 정보
         }
       }
     } catch (e) {
@@ -70,7 +83,7 @@ class _VoteState extends State<Vote> {
   void _loadVotingContents(int votingId) async {
     try {
       List<dynamic> contents =
-          await _votingModel.selectVotingContents(votingId);
+      await _votingModel.selectVotingContents(votingId);
       setState(() {
         _allVotingData[votingId] = contents;
       });
@@ -92,7 +105,7 @@ class _VoteState extends State<Vote> {
   void _voteOptionUsers(int votingId) async {
     try {
       List<dynamic> userVotingData =
-          await _votingModel.voteOptionUsers(votingId);
+      await _votingModel.voteOptionUsers(votingId);
       Map<int, List<dynamic>> votingStudents = {};
       print(userVotingData);
       for (var userVote in userVotingData) {
@@ -120,12 +133,47 @@ class _VoteState extends State<Vote> {
     }
   }
 
+  Map<String, dynamic> _getMostVotedContent(int votingId) {
+    final votingContents = _allVotingData[votingId] ?? [];
+    Map<int, int> voteCounts = {};
+
+    for (var content in votingContents) {
+      final contentId = content["contentsId"];
+      final studentsVotedForContent =
+          _votingStudentsMap[votingId]?[contentId] ?? [];
+      voteCounts[contentId] = studentsVotedForContent.length;
+    }
+
+    int maxVotes = 0;
+    int mostVotedContentId = -1;
+    voteCounts.forEach((contentId, count) {
+      if (count > maxVotes) {
+        maxVotes = count;
+        mostVotedContentId = contentId;
+      }
+    });
+
+    if (mostVotedContentId != -1) {
+      final mostVotedContent = votingContents.firstWhere(
+            (content) => content["contentsId"] == mostVotedContentId,
+        orElse: () => {},
+      );
+      return mostVotedContent;
+    }
+
+    return {};
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: [Text("투표"), SizedBox(width: 15), Icon(Icons.how_to_vote)],
+          children: [
+            Text("투표"),
+            SizedBox(width: 15),
+            Icon(Icons.how_to_vote),
+          ],
         ),
       ),
       body: ListView.builder(
@@ -134,276 +182,247 @@ class _VoteState extends State<Vote> {
           final voting = _voteList[index];
           final votingId = voting["id"];
           final votingContents = _allVotingData[votingId] ?? [];
-          final matchingStudents = _studentsInfo
-              .where((student) =>
-                  student["studentId"] == _votingStudentsMap["studentId"])
-              .toList();
-          print(matchingStudents);
-          final Map<int, List<dynamic>> studentsVotedForContents =
-              _votingStudentsMap[votingId] ?? {};
+          final mostVotedContent = _getMostVotedContent(votingId);
+          final mostVotedContentName = mostVotedContent["votingContents"] ?? "";
+
+          final createdAt = voting["createdAt"] != null
+              ? DateFormat('yyyy-MM-dd').format(
+              DateTime.parse(voting["createdAt"]))
+              : '';
+          final votingEnd = voting["votingEnd"] != null
+              ? DateFormat('yyyy-MM-dd').format(
+              DateTime.parse(voting["votingEnd"]))
+              : '';
 
           return Card(
             margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: ListTile(
               title: Row(
                 children: [
-                  Icon(Icons.list_outlined),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    voting["votingName"] ?? '',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  // 투표 삭제
-                  TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext con) {
-                          return AlertDialog(
-                            content: Container(
-                              child: const Text('정말 삭제하시겠습니까 ? '),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text("취소"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  print(voting["id"]);
-                                  _votingDelete(voting["id"]);
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text("투표가 삭제되었습니다 !")));
-                                },
-                                child: Text("확인"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: Icon(Icons.delete_forever),
-                  ),
-                  TextButton(
-                      onPressed: () {},
-                      child: Row(
-                        children: [
-                          Icon(Icons.mark_email_read_sharp),
-                        ],
-                      ))
-                ],
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 5),
-                  Text(voting["votingDetail"] ?? ''),
-                  SizedBox(height: 20),
-                  if (voting["createdAt"] != null &&
-                      voting["createdAt"]!.isNotEmpty)
-                    Text(
-                      voting["createdAt"]!,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  Row(
-                    children: [
-                      if (voting["votingEnd"] == null && voting["vote"] == true)
-                        TextButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext con) {
-                                    return AlertDialog(
-                                      content: Container(
-                                        child: const Text('정말 투표를 종료하시겠습니까 ? '),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text("취소"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            print(voting["id"]);
-                                            isVoteUpdate(voting["id"]); // 투표 종료
-                                            Navigator.pop(context);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(const SnackBar(
-                                                    content:
-                                                        Text("투표가 종료되었습니다 !")));
-                                          },
-                                          child: Text("확인"),
-                                        ),
-                                      ],
-                                    );
-                                  });
-                            },
-                            child: Text("투표 종료하기"))
-                      else
-                        Text(
-                          voting["votingEnd"] ?? '',
-                          style: TextStyle(fontSize: 8, color: Colors.red),
-                        ),
-                      SizedBox(width: 20),
-                      if (voting["vote"] == true)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
                           children: [
                             Icon(
                               Icons.circle,
                               size: 13,
-                              color: Colors.red,
+                              color: voting["vote"] == true
+                                  ? Colors.red
+                                  : Colors.grey,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              voting["vote"] == true ? "진행중" : "종료",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: voting["vote"] == true
+                                    ? Colors.red
+                                    : Colors.grey,
+                              ),
+                            ),
+                            if (voting["votingEnd"] != null &&
+                                voting["vote"] == true)
+                              Row(
+                                children: [
+                                  Icon(Icons.hourglass_bottom,
+                                      color: Colors.redAccent),
+                                  Text(
+                                    votingEnd,
+                                    style: TextStyle(
+                                        fontSize: 12, color: Colors.red),
+                                  ),
+                                  Text(
+                                    " 에 자동으로 종료됩니다!",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.list_outlined),
+                            SizedBox(width: 5),
+                            Text(
+                              voting["votingName"] ?? '',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext con) {
+                              return AlertDialog(
+                                content: const Text('정말 삭제하시겠습니까?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text("취소"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _votingDelete(votingId);
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text("투표가 삭제되었습니다!")),
+                                      );
+                                    },
+                                    child: Text("확인"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        icon: Icon(Icons.delete_forever),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: Text("투표 결과 알림보내기"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10),
+                  Text(voting["votingDetail"] ?? ''),
+                  if (mostVotedContentName.isNotEmpty) SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Icon(Icons.how_to_vote_rounded),
+                      SizedBox(width: 5),
+                      if (voting["vote"] == false)
+                        Row(
+                          children: [
+                            Text(
+                              "투표 결과: ",
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              "진행중",
-                              style: TextStyle(fontSize: 15, color: Colors.red),
+                              mostVotedContentName,
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
                             ),
                           ],
                         )
                       else
-                        Text("종료",
-                            style: TextStyle(fontSize: 15, color: Colors.grey))
+                        Row(
+                          children: [
+                            Text(
+                              "투표 현황: ",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              mostVotedContentName,
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  for (var content in votingContents)
-                    Row(
-                      children: [
-                        Icon(Icons.check_circle_outline, size: 15),
-                        Text(" ${content["votingContents"] ?? '항목 없음'}",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 20),
-                        if (studentsVotedForContents
-                            .containsKey(content["contentsId"]))
-                          ...studentsVotedForContents[content["contentsId"]]!
-                              .map((student) {
-                            final matchedStudent = _studentsInfo.firstWhere(
-                              (info) =>
-                                  info["studentId"].toString() ==
-                                  student["studentId"].toString(),
-                              orElse: () => {},
-                            );
-
-                            print(matchedStudent);
-
-                            final studentName =
-                                matchedStudent["studentName"] ?? "";
-
-                            return Row(
-                              children: [
-                                SizedBox(width: 10),
-                                Text(studentName),
-                              ],
-                            );
-                          }).toList(),
-                      ],
+                  // TextButton(onPressed:
+                  //   VotingAlert(),
+                  //  child: Row(
+                  //   children: [
+                  //     Icon(Icons.person_off_sharp),
+                  //     Text("투표 안한 학생 보기"),
+                  //   ],
+                  // )),
+                  SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      createdAt,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                  SizedBox(
-                    height: 30,
                   ),
-                  // 미참여 학생 보기 버튼 동작
-                  TextButton(
-                      onPressed: () {
-                        final votingId = voting["id"];
-                        final studentsWhoVoted = _votingStudentsMap[votingId]
-                                ?.values
-                                .expand((votedList) => votedList
-                                    .map((voted) => voted["studentId"]))
-                                .toSet() ??
-                            {};
-
-                        // 투표하지 않은 학생 필터링
-                        final nonParticipatingStudents = _studentsInfo
-                            .where((student) => !studentsWhoVoted
-                                .contains(student["studentId"]))
-                            .toList();
-
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext con) {
-                            return AlertDialog(
-                              title: Text("미참여 학생"),
-                              content: Container(
-                                width: double.maxFinite,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: nonParticipatingStudents.length,
-                                  itemBuilder: (context, index) {
-                                    final student =
-                                        nonParticipatingStudents[index];
-                                    return ListTile(
-                                        leading: student["studentImg"] != null
-                                            ? CircleAvatar(
-                                                backgroundImage: NetworkImage(
-                                                    student["studentImg"]),
-                                              )
-                                            : CircleAvatar(
-                                                child: Icon(Icons.person)),
-                                        title: Row(
-                                          children: [
-                                            Text(student["studentName"] ??
-                                                "이름 없음"),
-                                            SizedBox(width: 30),
-                                            Icon(Icons.arrow_right),
-                                            Icon(Icons.add_alert_sharp),
-                                          ],
-                                        ));
-                                  },
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("닫기"),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          Icon(Icons.supervised_user_circle),
-                          Text(
-                            "미참여 학생 보기",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      )),
-
-                  for (var student in matchingStudents)
-                    Row(
-                      children: [
-                        // if (student["studentImg"] != null)
-                        //   CircleAvatar(
-                        //     backgroundImage: NetworkImage(student["studentImg"]),
-                        //     radius: 15,
-                        //   ),
-                        SizedBox(width: 10),
-                        Text(student["studentName"] ?? '이름 없음'),
-                      ],
-                    ),
                 ],
               ),
               isThreeLine: true,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) =>
+                      VotingAlert(
+                        votingName: voting["votingName"] ?? '',
+                        votingContents: votingContents,
+                        studentsVotedForContents: _votingStudentsMap[votingId] ??
+                            {},
+                        studentsInfo: _studentsInfo,
+                      ),
+                );
+              },
+              trailing: voting["votingEnd"] == null && voting["vote"] == true
+                  ? TextButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext con) {
+                      return AlertDialog(
+                        content: const Text('정말 투표를 종료하시겠습니까?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text("취소"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              isVoteUpdate(votingId); // 투표 종료
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("투표가 종료되었습니다!")),
+                              );
+                            },
+                            child: Text("확인"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Text("투표 종료하기"),
+              )
+                  : null,
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showAddVotingDialog(context, []);
+          List<dynamic> inputDataList = [];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddVotingPage(inputDataList: inputDataList),
+            ),
+          ).then((_) {
+            Navigator.pop(context);
+          });
         },
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.add),
             Icon(Icons.how_to_vote),

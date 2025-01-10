@@ -8,7 +8,7 @@ class seatModel {
 
     try {
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/seat/findAllSeat",
+          "http://localhost:3013/api/seat/findAllSeat",
           data: {'classId': 1});
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
@@ -31,7 +31,7 @@ class seatModel {
 
     try {
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/students/viewClass",
+          "http://localhost::3013/api/students/viewClass",
           data: {'classId': 1});
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
@@ -50,7 +50,7 @@ class seatModel {
 
     try {
       final response = await dio.post(
-        "http://112.221.66.174:3013/api/seat/saveSeat",
+        "http://localhost:3013/api/seat/saveSeat",
         data: {'studentList': seatsToSave},
       );
 
@@ -87,7 +87,7 @@ class seatModel {
 
     try{
       final response = await dio.post(
-        "http://112.221.66.174:3013/api/seat/findName",
+        "http://localhost:3013/api/seat/findName",
         data: {'classId': 1},
       );
       if (response.statusCode == 200) {

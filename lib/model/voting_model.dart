@@ -7,7 +7,7 @@ class VotingModel {
 
     try {
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/voting/findVoting",
+          "http://localhost:3013/api/voting/findVoting",
           data: {'classId': 2});
 
       if (response.statusCode == 200) {
@@ -27,7 +27,7 @@ class VotingModel {
 
     try {
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/voting/findContents",
+          "http://localhost:3013/api/voting/findContents",
           data: {'votingId': votingId});
 
       if (response.statusCode == 200) {
@@ -58,7 +58,7 @@ class VotingModel {
       }
 
       final response = await dio.post(
-        "http://112.221.66.174:3013/api/voting/newvoting",
+        "http://localhost:3013/api/voting/newvoting",
         data: {
           'classId': 2,
           'votingName': title,
@@ -91,7 +91,7 @@ class VotingModel {
 
         try{
           final response = await dio.post(
-            "http://112.221.66.174:3013/api/voting/findStudentsName",
+            "http://localhost:3013/api/voting/findStudentsName",
             data: {'classId' : 1},
           );
           if(response.statusCode == 200){
@@ -111,7 +111,7 @@ class VotingModel {
 
       try{
         final response = await dio.post(
-          "http://112.221.66.174:3013/api/voting/VoteOptionUsers",
+          "http://localhost:3013/api/voting/VoteOptionUsers",
           data: {'votingId' : voteId}
         );
         if(response.statusCode == 200){
@@ -133,7 +133,7 @@ class VotingModel {
 
     try{
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/voting/isVoteUpdate",
+          "http://localhost:3013/api/voting/isVoteUpdate",
           data: {'votingId' : voteId}
       );
       if(response.statusCode == 200){
@@ -153,7 +153,7 @@ class VotingModel {
 
     try{
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/voting/deleteVoting",
+          "http://localhost:3013/api/voting/deleteVoting",
           data: {'votingId' : voteId}
       );
       if(response.statusCode == 200){
@@ -173,7 +173,7 @@ class VotingModel {
 
     try{
       final response = await dio.post(
-          "http://112.221.66.174:3013/api/voting/findByVotingIdForStdInfoTest",
+          "http://localhost:3013/api/voting/findByVotingIdForStdInfoTest",
           data: {'votingId' : voteId}
       );
       if(response.statusCode == 200){
