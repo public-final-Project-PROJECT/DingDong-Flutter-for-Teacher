@@ -326,13 +326,23 @@ class _CalendarState extends State<Calendar> {
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   weekendDecoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(5.0)),
+                    color: Colors.transparent, // Transparent background
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      color: Colors.amber, // Border color
+                      width: 2.0, // Border width
+                    ),
+                  ),
                   holidayDecoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(5.0)),
+                    color: Colors.transparent, // Transparent background
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      color: Colors.amber, // Border color
+                      width: 2.0, // Border width
+                    ),
+                  ),
                   defaultDecoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.rectangle,
