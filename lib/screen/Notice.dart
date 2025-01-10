@@ -1,3 +1,4 @@
+import 'package:dingdong_flutter_teacher/dialog/noticeDelete_dialog.dart';
 import 'package:dingdong_flutter_teacher/model/notice_model.dart';
 import 'package:dingdong_flutter_teacher/screen/NoticeDetailPage.dart';
 import 'package:dingdong_flutter_teacher/screen/NoticeRegister.dart';
@@ -12,7 +13,6 @@ class Notice extends StatefulWidget {
 }
 
 class _NoticeState extends State<Notice> {
-
   List<dynamic> _noticeList = [];
   final NoticeModel _noticeModel = NoticeModel();
   String? _selectedCategory;
@@ -21,7 +21,6 @@ class _NoticeState extends State<Notice> {
   void initState() {
     super.initState();
     _loadNotice();
-
   }
 
   void _loadNotice({String? category}) async {
@@ -31,18 +30,17 @@ class _NoticeState extends State<Notice> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("공지사항"),
-        backgroundColor: Color(0xffF4F4F4),
+        title: const Text("공지사항"),
+        backgroundColor: const Color(0xffF4F4F4),
         shape: const Border(
           bottom: BorderSide(color: Colors.grey, width: 1),
         ),
       ),
-      backgroundColor: Color(0xffF4F4F4),
+      backgroundColor: const Color(0xffF4F4F4),
       body: Column(
         children: [
           Padding(
@@ -51,8 +49,8 @@ class _NoticeState extends State<Notice> {
               children: [
                 DropdownButton<String>(
                   value: _selectedCategory,
-                  hint: Text("카테고리 선택"),
-                  items: [
+                  hint: const Text("카테고리 선택"),
+                  items: const [
                     DropdownMenuItem(value: null, child: Text("전체")),
                     DropdownMenuItem(value: "가정통신문", child: Text("가정통신문")),
                     DropdownMenuItem(value: "알림장", child: Text("알림장")),
@@ -65,13 +63,13 @@ class _NoticeState extends State<Notice> {
                     _loadNotice(category: value);
                   },
                 ),
-                Spacer(),
+                const Spacer(),
                 ElevatedButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NoticeRegister(),
+                        builder: (context) => const NoticeRegister(),
                       ),
                     ).then((result) {
                       if (result == true) {
@@ -79,13 +77,13 @@ class _NoticeState extends State<Notice> {
                       }
                     });
                   },
-                  icon: Icon(Icons.add),
-                  label: Text("작성하기"),
+                  icon: const Icon(Icons.add),
+                  label: const Text("작성하기"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff515151), // 버튼 배경색 변경
-                    foregroundColor: Colors.white,  // 버튼 텍스트 색 변경
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                    shape: RoundedRectangleBorder(  // 버튼 테두리 둥글기 조절 (네모로)
+                    backgroundColor: const Color(0xff515151), // 버튼 배경색 변경
+                    foregroundColor: Colors.white, // 버튼 텍스트 색 변경
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
@@ -95,7 +93,7 @@ class _NoticeState extends State<Notice> {
           ),
           Expanded(
             child: _noticeList.isEmpty
-                ? Center(
+                ? const Center(
               child: Text(
                 "공지사항이 존재하지 않습니다.",
                 style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -120,31 +118,56 @@ class _NoticeState extends State<Notice> {
                 }
 
                 return Card(
-                  margin: EdgeInsets.all(8.0),
-                  color: Color(0xffFFFFFF), // 공지사항 네모네모 색 변경 (흰색)
+                  margin: const EdgeInsets.all(8.0),
+                  color: const Color(0xffFFFFFF),
                   elevation: 4.0,
                   child: ListTile(
-                    contentPadding: EdgeInsets.all(16.0),
-                    title: Text(notice['noticeTitle'],
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    contentPadding: const EdgeInsets.all(16.0),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notice['noticeTitle'],
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return NoticedeleteDialog(
+                                  noticeId: notice['noticeId'],
+                                  onDeleteSuccess: () {
+                                    _loadNotice(); // 삭제 후 목록 새로고침
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "카테고리: ${notice['noticeCategory']}",
-                          style:
-                          TextStyle(fontSize: 14, color: Colors.grey),
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           "내용: ${notice['noticeContent']}",
-                          style: TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        Text(displayDate, style: TextStyle(fontSize: 11)),
-                        SizedBox(height: 8),
+                        Text(displayDate, style: const TextStyle(fontSize: 11)),
+                        const SizedBox(height: 8),
                       ],
                     ),
                     onTap: () {
@@ -164,12 +187,9 @@ class _NoticeState extends State<Notice> {
     );
   }
 
-
   String _formatDate(String dateString) {
     DateTime dateTime = DateTime.parse(dateString);
-
     String formattedDate = DateFormat('yyyy.MM.dd').format(dateTime);
-
     return formattedDate;
   }
 }

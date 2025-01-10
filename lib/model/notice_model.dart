@@ -49,5 +49,14 @@ class NoticeModel{
     }
   }
 
+  Future<void> deleteNotice(int noticeId) async{
+    final dio = Dio();
+    try{
+      final response = await dio.post("http://112.221.66.174:3013/api/notice/delete/$noticeId");
+    }catch (e){
+      throw Exception("Error $e");
+    }
+  }
+
 
 }
