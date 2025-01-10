@@ -302,7 +302,7 @@ class _CalendarState extends State<Calendar> {
 
                 titleTextStyle: const TextStyle(
                   fontSize: 20.0,
-                  color: Colors.blue,
+                  color: Colors.black, // 날짜 보여지는 것 검정으로 변경 (색 전부 탈바꿈 중 ,,)
                 ),
                 headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
                 leftChevronIcon: const Icon(
@@ -326,11 +326,11 @@ class _CalendarState extends State<Calendar> {
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   weekendDecoration: BoxDecoration(
-                      color: Colors.amber,
+                      color: Colors.white,
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   holidayDecoration: BoxDecoration(
-                      color: Colors.amber,
+                      color: Colors.white,
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   defaultDecoration: BoxDecoration(
@@ -380,14 +380,14 @@ class _CalendarState extends State<Calendar> {
                                   'Start: ${(events[index]['start'].toString().substring(0, 10))}',
                                   style: const TextStyle(
                                     fontSize: 12.0,
-                                    color: Colors.white70,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 Text(
                                   'End: ${(events[index]['end'].toString().substring(0, 10))}',
                                   style: const TextStyle(
                                     fontSize: 12.0,
-                                    color: Colors.white70,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],
