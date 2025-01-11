@@ -47,6 +47,7 @@ class _NoticeState extends State<Notice> {
             padding: const EdgeInsets.all(4.0),
             child: Row(
               children: [
+                SizedBox(width: 10),  // 공지사항 카테고리 좌측 공간 확보
                 DropdownButton<String>(
                   value: _selectedCategory,
                   hint: const Text("카테고리 선택"),
@@ -62,6 +63,7 @@ class _NoticeState extends State<Notice> {
                     });
                     _loadNotice(category: value);
                   },
+                  dropdownColor: Color(0xffFFFFFF),
                 ),
                 const Spacer(),
                 ElevatedButton.icon(

@@ -102,8 +102,18 @@ class VotingAlert extends StatelessWidget {
             Navigator.pop(context);
           },
           child: Text("닫기"),
+          style: TextButton.styleFrom(
+            shadowColor: Colors.black,
+            elevation: 7.5,
+            backgroundColor: Colors.white60,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            )
+          ),
         ),
       ],
+      backgroundColor: Colors.white,
     );
   }
 }
