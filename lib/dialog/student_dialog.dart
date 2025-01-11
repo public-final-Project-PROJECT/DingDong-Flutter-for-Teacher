@@ -30,6 +30,7 @@ class _StudentDialogState extends State<StudentDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text("메모 수정"),
+      backgroundColor: Color(0xffFFFFFF),
       content: TextField(
         controller: _memoController,
         maxLines: 5,
@@ -46,6 +47,13 @@ class _StudentDialogState extends State<StudentDialog> {
             Navigator.of(context).pop(); // 모달 닫기
           },
           child: Text("취소"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
+            foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
+            shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+              borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+            )
+          ),
         ),
         ElevatedButton(
           onPressed: () {
@@ -53,6 +61,13 @@ class _StudentDialogState extends State<StudentDialog> {
             Navigator.of(context).pop(); // 모달 닫기
           },
           child: Text("확인"),
+          style: ElevatedButton.styleFrom(  // '확인' 버튼 스타일 변경
+            backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+            foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+            shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+              borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
+            )
+          ),
         ),
       ],
     );

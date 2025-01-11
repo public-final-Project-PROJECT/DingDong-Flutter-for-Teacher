@@ -189,7 +189,7 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Flutter Restaurant"),
+          title: const Text("캘린더"),
           leading: IconButton(
             icon: const Icon(Icons.chevron_left), // 단순하고 깔끔한 화살표 아이콘
             onPressed: () {
@@ -201,6 +201,13 @@ class _CalendarState extends State<Calendar> {
                 Navigator.of(context).pop(); // 이전 화면으로 이동
               }
             },
+          ),
+          backgroundColor: const Color(0xffF4F4F4),
+          shape: const Border( // 앱바 하단 경계선 추가
+            bottom: BorderSide(
+              color: Colors.grey,
+              width: 1,
+            ),
           ),
           actions: [
             IconButton(
@@ -244,6 +251,7 @@ class _CalendarState extends State<Calendar> {
             ),
           ],
         ),
+
         body: Column(
           children: [
             TableCalendar(
@@ -290,13 +298,15 @@ class _CalendarState extends State<Calendar> {
                     DateFormat.yMMMMd(locale).format(date),
                 formatButtonShowsNext: false,
                 formatButtonDecoration: BoxDecoration(
+
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(5.0)),
+
                 formatButtonTextStyle:
                     const TextStyle(fontFamily: 'Raleway', color: Colors.white),
                 titleTextStyle: const TextStyle(
                   fontSize: 20.0,
-                  color: Colors.blue,
+                  color: Colors.black, // 날짜 보여지는 것 검정으로 변경 (색 전부 탈바꿈 중 ,,)
                 ),
                 headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
                 leftChevronIcon: const Icon(
@@ -312,11 +322,11 @@ class _CalendarState extends State<Calendar> {
               calendarStyle: CalendarStyle(
                   isTodayHighlighted: true,
                   todayDecoration: BoxDecoration(
-                      color: Colors.pink,
+                      color: Colors.black,
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   selectedDecoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: Color(0xff9E9E9E),
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   weekendDecoration: BoxDecoration(
@@ -351,6 +361,7 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
             Expanded(
+
               child: Builder(builder: (context) {
                 final getevents = _getEventsForRange(_rangeStart, _rangeEnd);
                 return getevents.isEmpty
@@ -383,6 +394,7 @@ class _CalendarState extends State<Calendar> {
                                   fontFamily: 'Raleway',
                                   color: Colors.white,
                                 ),
+
                               ),
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -439,10 +451,12 @@ class _CalendarState extends State<Calendar> {
                                 );
                               },
                             ),
+
                           );
                         },
                       );
               }),
+
             ),
           ],
         ));

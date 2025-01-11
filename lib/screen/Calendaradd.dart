@@ -97,7 +97,9 @@ class _CalendarAddState extends State<CalendarAdd> {
   Widget build(BuildContext context) {
     return FractionallySizedBox(
       heightFactor: 0.9, // 화면의 90% 높이
-      child: Padding(
+      child: Container(
+        color: Colors.white, // 흰색으로 바꾸니까 분명 둥글었던 게 네모네모빔 맞아버림 ,,
+        // 곧 다시 둥글게 바꿔놓겠습니다 ㅠ
         padding: EdgeInsets.only(
           left: 16.0,
           right: 16.0,
@@ -189,6 +191,12 @@ class _CalendarAddState extends State<CalendarAdd> {
                     ? 'Select Start Date'
                     : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
               ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                )
+              ),
             ),
                 ],
               ),
@@ -212,8 +220,16 @@ class _CalendarAddState extends State<CalendarAdd> {
                     ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}'
                     : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
               ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                )
+              ),
             ),
+
                   ]
+
               ),
               ),
             ],

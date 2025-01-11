@@ -24,17 +24,21 @@ class _NoticeRegisterState extends State<NoticeRegister> {
 
 
   Future<void> _checkPermission(Permission permission) async {
-    final status = await permission.request();
-    if (status.isDenied || status.isPermanentlyDenied) {
+
+    PermissionStatus permissionStatus = await permission.status;
+    if (permissionStatus.isGranted) {
+      return;
+    }else{
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("권한이 필요합니다.")),
-      );
-      throw Exception("권한이 거부되었습니다.");
+          const SnackBar(content: Text("권한이 필요합니다.")));
+      openAppSettings();
     }
+
   }
 
   //이미지 선택
   Future<void> _pickImage() async {
+    await _checkPermission(Permission.storage);
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -115,6 +119,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
           _selectedFile = null;
           _selectedCategory = categories.first;
         });
+        //등록 성공 시 alert 테이블에 등록
         Navigator.pop(context, true);
       } else {
         throw Exception("등록 실패: ${response.data}");
@@ -131,7 +136,15 @@ class _NoticeRegisterState extends State<NoticeRegister> {
     return Scaffold(
       appBar: AppBar(
         title:  Text("공지사항 작성"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(  // AppBar 밑줄
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
       body: SingleChildScrollView( // 추가된 부분
         child: Padding(
           padding:  EdgeInsets.all(16.0),
@@ -160,6 +173,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   labelText: "카테고리",
                   border: OutlineInputBorder(),
                 ),
+                  dropdownColor: Color(0xffFFFFFF),  // 카테고리 목록 흰색으로 변경
               ),
               SizedBox(height: 16),
               TextField(
@@ -188,6 +202,14 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   ElevatedButton(
                     onPressed: _pickImage,
                     child: const Text("이미지 선택"),
+                    style: ElevatedButton.styleFrom(  // '이미지 선택' 버튼 스타일 변경
+                      backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+                      foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                        borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                      )
+                    ),
                   ),
                 ],
               ),
@@ -199,20 +221,35 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   if (_selectedFile != null)
                     Text(
                       getFileName(_selectedFile!.path),
-                      style: TextStyle(color: Colors.green),
+                      style: TextStyle(color: Colors.black),
 
                     ),
                   ElevatedButton(
                     onPressed: _pickFile,
                     child:  Text("파일 선택"),
+                    style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
+                      backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+                      foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                        borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                      )
+                    ),
                   ),
-
                 ],
               ),
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _registerNotice,
                 child:  Text("등록하기"),
+                style: ElevatedButton.styleFrom(  // '등록하기' 버튼 스타일 변경
+                  backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+                  foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                  shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                    borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                  )
+                ),
               ),
             ],
           ),

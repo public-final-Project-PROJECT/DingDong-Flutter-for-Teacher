@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +109,10 @@ class _NoticeupdateState extends State<Noticeupdate> {
           selectedFileName = null;
           _selectedCategory = categories.first;
         });
-        Navigator.pop(context, true);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Notice()),
+        );
       } else {
         throw Exception("업데이트 실패: ${response.data}");
       }
@@ -124,7 +128,15 @@ class _NoticeupdateState extends State<Noticeupdate> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("공지사항 수정"),
+        backgroundColor: Color(0xffF4F4F4),
+        shape: const Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          )
+        ),
       ),
+      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -154,6 +166,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
                   labelText: "카테고리",
                   border: OutlineInputBorder(),
                 ),
+                dropdownColor: Colors.white,  //카테고리 목록 흰색으로 변경
               ),
               const SizedBox(height: 16),
               TextField(
@@ -182,6 +195,13 @@ class _NoticeupdateState extends State<Noticeupdate> {
                         ElevatedButton(
                           onPressed: _pickImage,
                           child: const Text("이미지 선택"),
+                          style: ElevatedButton.styleFrom(  // '이미지 선택' 버튼 스타일 변경
+                            backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+                            foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                            shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                              borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                            )
+                          ),
                         ),
                       ],
                     ),
@@ -204,6 +224,13 @@ class _NoticeupdateState extends State<Noticeupdate> {
                         ElevatedButton(
                           onPressed: _pickImage,
                           child: const Text("이미지 변경하기"),
+                          style: ElevatedButton.styleFrom(  // '이미지 변경하기' 버튼 스타일 변경
+                            backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+                            foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                            shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                              borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
+                            )
+                          ),
                         ),
                       ],
                     ),
@@ -217,6 +244,13 @@ class _NoticeupdateState extends State<Noticeupdate> {
                     ElevatedButton(
                       onPressed: _pickImage,
                       child: const Text("이미지 선택"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff515151),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        )
+                      ),
                     ),
                   ],
                 ),
@@ -228,20 +262,27 @@ class _NoticeupdateState extends State<Noticeupdate> {
                   if (_selectedFile == null && selectedFileName != null)
                     Text(
                       selectedFileName!,
-                      style: const TextStyle(color: Colors.green),
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
                       overflow: TextOverflow.ellipsis, // 너무 긴 텍스트는 생략 부호 추가
                       maxLines: 1,
                     ),
                   if (_selectedFile != null)
                     Text(
                       getFileName(_selectedFile!.path), // 파일 이름 가져오기
-                      style: const TextStyle(color: Colors.green), // 스타일 정의
+                      style: const TextStyle(color: Colors.black, fontSize: 12), // 스타일 정의
                       overflow: TextOverflow.ellipsis, // 너무 긴 텍스트는 생략 부호 추가
                       maxLines: 1,
                     ),
                   ElevatedButton(
                     onPressed: _pickFile,
                     child: const Text("파일 선택"),
+                    style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
+                      backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+                      foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                        borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
+                      )
+                    ),
                   ),
                 ],
               ),
@@ -250,6 +291,13 @@ class _NoticeupdateState extends State<Noticeupdate> {
               ElevatedButton(
                 onPressed: _updateNotice,
                 child: const Text("수정하기"),
+                style: ElevatedButton.styleFrom(  // '수정하기' 버튼 스타일 변경
+                  backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
+                  foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+                  shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                    borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                  )
+                ),
               ),
             ],
           ),
