@@ -223,4 +223,5 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
     } else {
       return processedFileName;
     }
-  }}
+  }
+}
