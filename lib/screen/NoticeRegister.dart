@@ -119,6 +119,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
           _selectedFile = null;
           _selectedCategory = categories.first;
         });
+        //등록 성공 시 alert 테이블에 등록
         Navigator.pop(context, true);
       } else {
         throw Exception("등록 실패: ${response.data}");

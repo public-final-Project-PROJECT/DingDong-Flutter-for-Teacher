@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -108,7 +109,10 @@ class _NoticeupdateState extends State<Noticeupdate> {
           selectedFileName = null;
           _selectedCategory = categories.first;
         });
-        Navigator.pop(context, true);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Notice()),
+        );
       } else {
         throw Exception("업데이트 실패: ${response.data}");
       }

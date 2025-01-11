@@ -6,7 +6,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
+
 
 class NoticeDetailpage extends StatefulWidget {
   final dynamic notice;
@@ -49,10 +49,10 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
         title:  Text("공지사항"),
         backgroundColor: Color(0xffF4F4F4),
         shape: const Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1,
-          )
+            bottom: BorderSide(
+              color: Colors.grey,
+              width: 1,
+            )
         ),
       ),
       backgroundColor: Color(0xffF4F4F4),
@@ -78,12 +78,12 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                     icon:  Icon(Icons.file_download),
                     label:  Text("첨부 파일"),
                     style: ElevatedButton.styleFrom(  // '첨부 파일' 버튼 스타일 변경
-                      backgroundColor: Color(0xff515151), // 버튼 배경색 변경 (어둡게)
-                      foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
-                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                        borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
-                      )
+                        backgroundColor: Color(0xff515151), // 버튼 배경색 변경 (어둡게)
+                        foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13), // 버튼 크기 지정
+                        shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                          borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
+                        )
                     ),
                   ),
               ],
@@ -143,12 +143,12 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                     },
                     child:  Text('수정'),
                     style: ElevatedButton.styleFrom(  // '수정' 버튼 스타일 변경
-                      backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
-                      foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13),  // 버튼 크기 지정
-                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                        borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
-                      )
+                        backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
+                        foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13),  // 버튼 크기 지정
+                        shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                          borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
+                        )
                     ),
                   ),
                 ],
@@ -223,4 +223,4 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
     } else {
       return processedFileName;
     }
- }}
+  }}
