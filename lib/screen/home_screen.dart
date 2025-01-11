@@ -172,6 +172,13 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             child: const Text('로그아웃'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xff515151),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              )
+            ),
           ),
         ],
       ),

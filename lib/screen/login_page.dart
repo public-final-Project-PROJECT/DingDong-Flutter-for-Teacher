@@ -64,6 +64,7 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('로고는 여기 위에'),
+            SizedBox(height: 100),
             ElevatedButton(
               onPressed: () => handleGoogleSignIn(context),
               style: ElevatedButton.styleFrom(
@@ -80,7 +81,9 @@ class LoginPage extends StatelessWidget {
                   Image.asset('assets/google.png'),
                   const Text(
                     'Sign in with Google',
-                    style: TextStyle(color: Colors.black, fontSize: 15.0),
+                    style: TextStyle(
+                        color: Colors.black, fontSize: 15.0,
+                    ),
                   ),
                   Opacity(
                     opacity: 0.0,
@@ -113,8 +116,15 @@ class LoginPage extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('확인'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              )
+            ),
           ),
         ],
+        backgroundColor: Colors.white,
       ),
     );
   }
