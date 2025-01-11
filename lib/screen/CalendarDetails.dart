@@ -28,6 +28,20 @@ class _CalendardetailsState extends State<Calendardetails> {
       appBar: AppBar(
         title: const Text('Event Details'),
         centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 10.0), // 왼쪽 여백 추가
+          child: Center(
+            child: Text(
+              '${event2['start'].toString().substring(0, 10)}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white, // 원하는 색상 설정
+              ),
+            ),
+          ),
+        ),
+
         actions: [
           IconButton(
             icon: const Icon(Icons.add), // 오른쪽 상단에 추가 버튼

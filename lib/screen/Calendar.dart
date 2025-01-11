@@ -35,8 +35,12 @@ class _CalendarState extends State<Calendar> {
     _selectedDay = DateTime.now();
     _focusedDay = DateTime.now();
     final DateTime date = DateTime.now();
-    _rangeStart = DateTime(date.year, date.month, date.day).add(const Duration(hours: 9)).toUtc();
-    _rangeEnd = DateTime(date.year, date.month, date.day).add(const Duration(hours: 9)).toUtc();
+    _rangeStart = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+    _rangeEnd = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
   }
 
   void _loadCalendar() async {
@@ -203,7 +207,8 @@ class _CalendarState extends State<Calendar> {
             },
           ),
           backgroundColor: const Color(0xffF4F4F4),
-          shape: const Border( // 앱바 하단 경계선 추가
+          shape: const Border(
+            // 앱바 하단 경계선 추가
             bottom: BorderSide(
               color: Colors.grey,
               width: 1,
@@ -251,7 +256,6 @@ class _CalendarState extends State<Calendar> {
             ),
           ],
         ),
-
         body: Column(
           children: [
             TableCalendar(
@@ -270,6 +274,7 @@ class _CalendarState extends State<Calendar> {
               rangeSelectionMode: RangeSelectionMode.enforced,
               rangeStartDay: _rangeStart,
               rangeEndDay: _rangeStart,
+
               selectedDayPredicate: (day) {
                 // 선택된 날짜를 확인하는 함수
 
@@ -279,7 +284,11 @@ class _CalendarState extends State<Calendar> {
                   return isSameDay(_selectedDay, day);
                 }
               },
-
+              onPageChanged: (focusedDay) {
+                setState(() {
+                  _focusedDay = focusedDay; // 현재 포커스된 날짜 업데이트
+                });
+              },
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay; // 클릭된 날짜
@@ -291,6 +300,8 @@ class _CalendarState extends State<Calendar> {
               availableGestures: AvailableGestures.horizontalSwipe,
               // 스와이프 허용
 
+
+
               headerStyle: HeaderStyle(
                 formatButtonVisible: true,
                 titleCentered: true,
@@ -298,10 +309,8 @@ class _CalendarState extends State<Calendar> {
                     DateFormat.yMMMMd(locale).format(date),
                 formatButtonShowsNext: false,
                 formatButtonDecoration: BoxDecoration(
-
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(5.0)),
-
                 formatButtonTextStyle:
                     const TextStyle(fontFamily: 'Raleway', color: Colors.white),
                 titleTextStyle: const TextStyle(
@@ -321,6 +330,7 @@ class _CalendarState extends State<Calendar> {
 
               calendarStyle: CalendarStyle(
                   isTodayHighlighted: true,
+                  outsideDaysVisible: false,
                   todayDecoration: BoxDecoration(
                       color: Colors.black,
                       shape: BoxShape.rectangle,
@@ -361,23 +371,22 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
             Expanded(
-
               child: Builder(builder: (context) {
                 final getevents = _getEventsForRange(_rangeStart, _rangeEnd);
                 return getevents.isEmpty
                     ? const Center(
                         child: Text(
-                          "이벤트가 없습니다.",
+                          "이벤트 없음",
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 30, fontWeight: FontWeight.bold,
+                            color: Colors.grey, // 텍스트 색상 지정
+                          ),
                         ),
                       )
                     : ListView.builder(
-                        itemCount:
-                        getevents.length,
+                        itemCount: getevents.length,
                         itemBuilder: (context, index) {
-                          final events =
-                              getevents;
+                          final events = getevents;
                           final event = events[index];
                           return Container(
                             decoration: const BoxDecoration(
@@ -394,7 +403,6 @@ class _CalendarState extends State<Calendar> {
                                   fontFamily: 'Raleway',
                                   color: Colors.white,
                                 ),
-
                               ),
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -451,12 +459,10 @@ class _CalendarState extends State<Calendar> {
                                 );
                               },
                             ),
-
                           );
                         },
                       );
               }),
-
             ),
           ],
         ));
