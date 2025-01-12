@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.user,
-    required this.teacherId,
+    this.teacherId = 0,
   });
 
   @override
@@ -171,14 +171,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => LoginPage()),
               );
             },
-            child: const Text('로그아웃'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff515151),
+              backgroundColor: const Color(0xff515151),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               )
             ),
+            child: const Text('로그아웃'),
           ),
         ],
       ),
