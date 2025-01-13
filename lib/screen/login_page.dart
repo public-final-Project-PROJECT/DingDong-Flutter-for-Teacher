@@ -1,8 +1,8 @@
 import 'package:dingdong_flutter_teacher/screen/home_screen.dart';
 import 'package:dingdong_flutter_teacher/screen/sign_in_with_google.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginPage extends StatelessWidget {
@@ -11,52 +11,76 @@ class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
   Future<int> _fetchTeacherId(User user) async {
-    var serverURL = dotenv.env['FETCH_SERVER_URL'];
+    final serverURL = dotenv.env['FETCH_SERVER_URL'];
+
     try {
       final response = await dio.get('$serverURL/user/${user.email}');
+
       if (response.statusCode == 200) {
         final data = response.data;
         return data is int ? data : int.tryParse(data.toString()) ?? 0;
       } else {
-        throw Exception("Failed to fetch teacherId: ${response.statusCode}");
+        throw Exception('Failed to fetch teacher ID: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception("Error fetching teacherId: $e");
+      throw Exception('Error fetching teacher ID: $e');
     }
   }
 
   Future<void> handleGoogleSignIn(BuildContext context) async {
-    // Show the loading indicator
-    _showLoadingIndicator(context);
+    bool dialogShown = false;
 
     try {
+      // Show loading dialog
+      dialogShown = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Sign in with Google
       UserCredential userCredential = await signInWithGoogle();
       User? user = userCredential.user;
 
       if (user != null) {
-        // Fetch teacherId
+        // Fetch teacher ID
         final teacherId = await _fetchTeacherId(user);
 
-        // Navigate to HomeScreen
-        Navigator.pop(context); // Dismiss loading indicator
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(
-              user: user,
-              teacherId: teacherId,
-            ),
-          ),
-        );
-      } else {
-        // Dismiss loading indicator and show error
+        if (!context.mounted) return; // Ensure the context is still valid
+
+        // Dismiss loading dialog
         Navigator.pop(context);
-        _showErrorDialog(context, '로그인 실패', '유저 정보가 없습니다.');
+        dialogShown = false;
+
+        if (teacherId > 0) {
+          // Navigate to HomeScreen if ID is valid
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => HomeScreen(
+                user: user,
+                teacherId: teacherId,
+              ),
+            ),
+          );
+        } else {
+          // Show error if ID is invalid
+          _showErrorDialog(context, '로그인 실패', '웹에서 회원가입 후 다시 이용해주세요.');
+        }
+      } else {
+        throw Exception('User is null after Google sign-in');
       }
     } catch (e) {
-      // Dismiss loading indicator and show error
-      Navigator.pop(context);
-      _showErrorDialog(context, '로그인 실패', e.toString());
+      // Ensure loading dialog is dismissed
+      if (dialogShown && context.mounted) {
+        Navigator.pop(context);
+      }
+
+      // Show error dialog
+      if (context.mounted) {
+        _showErrorDialog(context, '로그인 실패', e.toString());
+      }
     }
   }
 
@@ -88,7 +112,7 @@ class LoginPage extends StatelessWidget {
                     'Sign in with Google',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 15.0,
+                      fontSize: 14.0,
                     ),
                   ),
                   Opacity(
@@ -101,14 +125,6 @@ class LoginPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showLoadingIndicator(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
   }
 
