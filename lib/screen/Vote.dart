@@ -186,13 +186,21 @@ class _VoteState extends State<Vote> {
           final mostVotedContentName = mostVotedContent["votingContents"] ?? "";
 
           final createdAt = voting["createdAt"] != null
-              ? DateFormat('yyyy-MM-dd').format(
-              DateTime.parse(voting["createdAt"]))
+              ? DateFormat('yyyy-MM-dd').format(DateTime.parse(voting["createdAt"]))
               : '';
           final votingEnd = voting["votingEnd"] != null
-              ? DateFormat('yyyy-MM-dd').format(
-              DateTime.parse(voting["votingEnd"]))
+              ? DateFormat('yyyy-MM-dd').format(DateTime.parse(voting["votingEnd"]))
               : '';
+
+          // 투표 안한 학생 리스트 만들기
+          List<Map<String, dynamic>> studentsNotVoted = [];
+          final studentsVotedForThisVoting = _votingStudentsMap[votingId] ?? {};
+          for (var student in _studentsInfo) {
+            final studentId = student["studentId"];
+            if (!studentsVotedForThisVoting.containsKey(studentId)) {
+              studentsNotVoted.add(student);
+            }
+          }
 
           return Card(
             margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -208,35 +216,27 @@ class _VoteState extends State<Vote> {
                             Icon(
                               Icons.circle,
                               size: 13,
-                              color: voting["vote"] == true
-                                  ? Colors.red
-                                  : Colors.grey,
+                              color: voting["vote"] == true ? Colors.red : Colors.grey,
                             ),
                             SizedBox(width: 5),
                             Text(
                               voting["vote"] == true ? "진행중" : "종료",
                               style: TextStyle(
                                 fontSize: 15,
-                                color: voting["vote"] == true
-                                    ? Colors.red
-                                    : Colors.grey,
+                                color: voting["vote"] == true ? Colors.red : Colors.grey,
                               ),
                             ),
-                            if (voting["votingEnd"] != null &&
-                                voting["vote"] == true)
+                            if (voting["votingEnd"] != null && voting["vote"] == true)
                               Row(
                                 children: [
-                                  Icon(Icons.hourglass_bottom,
-                                      color: Colors.redAccent),
+                                  Icon(Icons.hourglass_bottom, color: Colors.redAccent),
                                   Text(
                                     votingEnd,
-                                    style: TextStyle(
-                                        fontSize: 12, color: Colors.red),
+                                    style: TextStyle(fontSize: 12, color: Colors.red),
                                   ),
                                   Text(
                                     " 에 자동으로 종료됩니다!",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.red),
+                                    style: TextStyle(fontSize: 14, color: Colors.red),
                                   ),
                                 ],
                               ),
@@ -259,6 +259,7 @@ class _VoteState extends State<Vote> {
                     children: [
                       IconButton(
                         onPressed: () {
+                          SizedBox(width: 10,);
                           showDialog(
                             context: context,
                             builder: (BuildContext con) {
@@ -273,10 +274,8 @@ class _VoteState extends State<Vote> {
                                     onPressed: () {
                                       _votingDelete(votingId);
                                       Navigator.pop(context);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text("투표가 삭제되었습니다!")),
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("투표가 삭제되었습니다!")),
                                       );
                                     },
                                     child: Text("확인"),
@@ -292,6 +291,52 @@ class _VoteState extends State<Vote> {
                         onPressed: () {},
                         child: Text("투표 결과 알림보내기"),
                       ),
+                      TextButton(
+                        onPressed: () {
+                          // 투표 안한 학생 보기
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("투표 안한 학생들"),
+                              content: SizedBox(
+                                width: double.maxFinite,
+                                child: ListView.builder(
+                                  itemCount: studentsNotVoted.length,
+                                  itemBuilder: (context, index) {
+                                    final student = studentsNotVoted[index];
+                                    return ListTile(
+                                      title: Row(
+                                        children: [
+                                          student["img"] != null
+                                              ? Image(image: NetworkImage(student["img"]))
+                                              : Icon(Icons.person_pin),
+                                          SizedBox(width: 10),
+                                          Text(student["studentName"] ?? "학생 없음"),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("닫기"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Icon(Icons.supervised_user_circle_outlined),
+                            Text("미투표 학생 보기"),
+                          ],
+                        ),
+                      )
+
                     ],
                   ),
                 ],
@@ -342,14 +387,6 @@ class _VoteState extends State<Vote> {
                         ),
                     ],
                   ),
-                  // TextButton(onPressed:
-                  //   VotingAlert(),
-                  //  child: Row(
-                  //   children: [
-                  //     Icon(Icons.person_off_sharp),
-                  //     Text("투표 안한 학생 보기"),
-                  //   ],
-                  // )),
                   SizedBox(height: 20),
                   Align(
                     alignment: Alignment.bottomRight,
@@ -364,14 +401,12 @@ class _VoteState extends State<Vote> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) =>
-                      VotingAlert(
-                        votingName: voting["votingName"] ?? '',
-                        votingContents: votingContents,
-                        studentsVotedForContents: _votingStudentsMap[votingId] ??
-                            {},
-                        studentsInfo: _studentsInfo,
-                      ),
+                  builder: (context) => VotingAlert(
+                    votingName: voting["votingName"] ?? '',
+                    votingContents: votingContents,
+                    studentsVotedForContents: _votingStudentsMap[votingId] ?? {},
+                    studentsInfo: _studentsInfo,
+                  ),
                 );
               },
               trailing: voting["votingEnd"] == null && voting["vote"] == true
@@ -431,4 +466,5 @@ class _VoteState extends State<Vote> {
       ),
     );
   }
+
 }

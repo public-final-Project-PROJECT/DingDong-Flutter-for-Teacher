@@ -65,7 +65,7 @@ class _SeatState extends State<Seat> {
 // seatTable 이 null 이면 studentsTable 조회 api
   Future<void> loadStudentsFromTable(int classId) async {
     List<dynamic> result =
-        await _seatModel.selectStudentsTable(classId) as List;
+    await _seatModel.selectStudentsTable(classId) as List;
     setState(() {
       nameList = result;
     });
@@ -83,7 +83,7 @@ class _SeatState extends State<Seat> {
 // name 와 studentId 매칭
   String getStudentNameByStudentId(int studentId) {
     var student = nameList.firstWhere(
-      (student) => student['studentId'] == studentId,
+          (student) => student['studentId'] == studentId,
       orElse: () => {'studentName': ''},
     );
     return student['studentName'];
@@ -99,11 +99,11 @@ class _SeatState extends State<Seat> {
         int firstIndex = loadedSeats
             .indexWhere((s) => s['seatId'] == firstSelectedSeat!['seatId']);
         int secondIndex =
-            loadedSeats.indexWhere((s) => s['seatId'] == seat['seatId']);
+        loadedSeats.indexWhere((s) => s['seatId'] == seat['seatId']);
         if (firstIndex != -1 && secondIndex != -1) {
           int tempStudentId = loadedSeats[firstIndex]['studentId'];
           loadedSeats[firstIndex]['studentId'] =
-              loadedSeats[secondIndex]['studentId'];
+          loadedSeats[secondIndex]['studentId'];
           loadedSeats[secondIndex]['studentId'] = tempStudentId;
           firstSelectedSeat = null;
         } else {
@@ -144,13 +144,16 @@ class _SeatState extends State<Seat> {
 
   @override
   Widget build(BuildContext context) {
-    int maxColumn = loadedSeats.fold<int>(0, (max, seat) {
-      return seat['columnId'] > max ? seat['columnId'] : max;
-    });
-    maxColumn = maxColumn > 0 ? maxColumn : 1;
-    int maxRow = loadedSeats.fold<int>(0, (max, seat) {
-      return seat['rowId'] > max ? seat['rowId'] : max;
-    });
+    // Maximum columns and rows dynamically calculated or fixed
+    int maxColumn = loadedSeats.isNotEmpty
+        ? loadedSeats.fold<int>(
+        0, (max, seat) => seat['columnId'] > max ? seat['columnId'] : max)
+        : 5; // Fixed 5 columns for `nameList`
+    int maxRow = loadedSeats.isNotEmpty
+        ? loadedSeats.fold<int>(
+        0, (max, seat) => seat['rowId'] > max ? seat['rowId'] : max)
+        : (nameList.length / maxColumn).ceil(); // Dynamic rows for `nameList`
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -184,9 +187,7 @@ class _SeatState extends State<Seat> {
                   onPressed: cancelChanges,
                   child: Text("취소"),
                 ),
-                SizedBox(
-                  height: 30,
-                ),
+                SizedBox(height: 30),
               ],
             ),
             Text(
@@ -194,10 +195,7 @@ class _SeatState extends State<Seat> {
               style: TextStyle(fontSize: 13, color: Colors.red),
             )
           ],
-          ElevatedButton(onPressed: () {}, child: Icon(Icons.save)),
-          SizedBox(
-            height: 30,
-          ),
+          SizedBox(height: 30),
           Center(
             child: Container(
               height: 50,
@@ -221,53 +219,78 @@ class _SeatState extends State<Seat> {
                 crossAxisSpacing: 4,
               ),
               itemCount: maxColumn * maxRow,
-              itemBuilder: (context, index) {
-                int rowId = (index / maxColumn).floor() + 1;
-                int columnId = index % maxColumn + 1;
-                var seat = loadedSeats.firstWhere(
-                  (seat) =>
-                      seat['rowId'] == rowId && seat['columnId'] == columnId,
-                  orElse: () => {
-                    'rowId': -1,
-                    'columnId': -1,
-                    'studentId': -1,
-                    'studentName': 'Unknown'
-                  },
-                );
-                if (seat == null) {
-                  return Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: Colors.white70, borderRadius: BorderRadius.circular(50)),
-                    child: SizedBox(height: 30, width: 30),
-                  );
-                }
-                return GestureDetector(
-                  onTap: () => handleSeatClick(seat),
-                  child: Container(
-                    height: 10,
-                    width: 50,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      color: Colors.yellow,
-                      border: Border.all(
-                        color: (firstSelectedSeat == seat)
-                            ? Colors.red
-                            : Colors.white70,
+                itemBuilder: (context, index) {
+                  if (loadedSeats.isNotEmpty) {
+                    // Render loadedSeats
+                    int rowId = (index / maxColumn).floor() + 1;
+                    int columnId = index % maxColumn + 1;
+                    var seat = loadedSeats.firstWhere(
+                          (seat) => seat['rowId'] == rowId && seat['columnId'] == columnId,
+                      orElse: () => {
+                        'rowId': -1,
+                        'columnId': -1,
+                        'studentId': -1,
+                        'studentName': 'Unknown',
+                      },
+                    );
+                    return buildSeatWidget(seat, isEditing);
+                  } else {
+                    // Render nameList sequentially
+                    if (index >= nameList.length) return SizedBox();
+                    var student = nameList[index];
+                    return Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: Colors.yellow,
                       ),
-                    ),
-                    child: Text(
-                      getStudentNameByStudentId(seat['studentId']),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                );
-              },
+                      child: Text(
+                        student['studentName'],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    );
+                  }
+                }
             ),
           ),
         ],
       ),
     );
   }
+
+
+  Widget buildSeatWidget(Map<String, dynamic>? seat, bool isEditing) {
+    if (seat == null) {
+      return Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white70,
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: SizedBox(height: 30, width: 30),
+      );
+    }
+    return GestureDetector(
+      onTap: isEditing ? () => handleSeatClick(seat) : null,
+      child: Container(
+        height: 10,
+        width: 50,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          color: Colors.yellow,
+          border: Border.all(
+            color: (firstSelectedSeat == seat) ? Colors.red : Colors.white70,
+          ),
+        ),
+        child: Text(
+          getStudentNameByStudentId(seat['studentId']),
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+
 }
