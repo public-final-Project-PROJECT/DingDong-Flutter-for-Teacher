@@ -82,10 +82,50 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '이벤트 수정',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // 취소 버튼 기능
+                  },
+                  child: const Text(
+                    '취소',
+                    style: TextStyle(fontSize: 16, color: Colors.red),
+                  ),
+                ),
+                const Text(
+                  '이벤트 수정',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (startDate == null || endDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please select both start and end dates'),
+                        ),
+                      );
+                      return;
+                    }
+                    widget.onEventAdded(
+                      titleController.text,
+                      locationController.text,
+                      descriptionController.text,
+                      startDate!,
+                      endDate!,
+                    );
+                    Navigator.of(context).pop(); // 모달 닫기
+                  },
+                  child: const Text(
+                    '수정',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  ),
+                ),
+              ],
             ),
+
             const SizedBox(height: 16),
             TextField(
               controller: titleController,
@@ -104,60 +144,60 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
                 hintText: widget.setEvent['description'],
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Start Date',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              onPressed: () => _pickDate(context, true, startDate, endDate),
-              child: Text(
-                startDate == null
-                    ? 'Select Start Date'
-                    : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'End Date',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              onPressed: () => _pickDate(context, false, startDate,endDate),
-              child: Text(
-                endDate == null
-                    ? 'Select End Date'
-                    : (endDate!.isBefore(startDate!)
-                    ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}'
-                    : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  if (startDate == null || endDate == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select both start and end dates'),
+
+
+            const SizedBox(height: 50),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+
+
+                      const Text(
+                        'Start Date',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                    );
-                    return;
-                  }
-                  widget.onEventAdded(
-                    titleController.text,
-                    locationController.text,
-                    descriptionController.text,
-                    startDate!,
-                    endDate!,
-                  );
-                  Navigator.of(context).pop(); // 모달 닫기
-                },
-                child: const Text('Change Event'),
-              ),
+                      const SizedBox(height: 8),
+
+                      OutlinedButton(
+                        onPressed: () => _pickDate(context, true, startDate, endDate),
+                        child: Text(
+                          startDate == null
+                              ? 'Select Start Date'
+                              : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child:
+                  Column(
+                      children: [
+
+                        const Text(
+                          'End Date',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: () => _pickDate(context, false, startDate,endDate),
+                          child: Text(
+                            endDate == null
+                                ? 'Select End Date'
+                                : (endDate!.isBefore(startDate!)
+                                ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}'
+                                : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
+                          ),
+                        ),
+                      ]
+                  ),
+                ),
+              ],
             ),
+            const SizedBox(height: 16),
+
           ],
         ),
       ),
