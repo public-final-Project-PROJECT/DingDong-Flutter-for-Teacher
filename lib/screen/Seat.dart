@@ -17,9 +17,11 @@ class _SeatState extends State<Seat> {
   bool showSaveButton = false;
   bool isEditing = false;
   String randomSpinLabel = "start !";
-  int classId = 1;
+  int classId = 2;
   Map<String, dynamic>? firstSelectedSeat;
   List<dynamic> originalSeats = [];
+  List<Map<String, dynamic>> newSeats = [];
+  List<dynamic> insertSeats = []; // 담아서 보내는
 
   @override
   void initState() {
@@ -28,50 +30,82 @@ class _SeatState extends State<Seat> {
     loadStudentNames();
   }
 
-// 기존 좌석 조회 api
+  // 기존 좌석 조회 api
   Future<void> loadSeatTable(int classId) async {
     List<dynamic> result = await _seatModel.selectSeatTable(classId) as List;
     setState(() {
-      loadedSeats =
-          result.map((seat) => Map<String, dynamic>.from(seat)).toList();
+      loadedSeats = result.map((seat) => Map<String, dynamic>.from(seat)).toList();
       originalSeats = List.from(loadedSeats);
     });
-    if (loadedSeats.isEmpty) {
-      loadStudentsFromTable(classId);
-    }
+   if(result.isEmpty){
+     loadSeatTable(classId);
+   }
   }
 
-// 좌석 저장 api
+  // 좌석 저장 api
   Future<void> insertSeatTable() async {
-    List<Map<String, dynamic>> seatsToSave = loadedSeats.map((seat) {
+    print('저장 api 호출 ~!');
+    if(!newSeats.isEmpty){
+      insertSeats = newSeats;
+      print("newSeats");
+    }else{
+      insertSeats = loadedSeats;
+      print("loadedSeats");
+    }
+
+    List<Map<String, dynamic>> seatsToSave = insertSeats.map((seat) {
       return {
         'studentId': seat['studentId'],
         'rowId': seat['rowId'],
         'columnId': seat['columnId'],
-        'classId': 1
+        'classId': 2
       };
     }).toList();
     try {
       await _seatModel.saveStudentsSeat(seatsToSave);
       loadSeatTable(classId);
       loadStudentNames();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("자리를 저장했습니다 !")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("자리를 저장했습니다 !")));
     } catch (e) {
       print("Failed to save the seat data: $e");
     }
   }
 
-// seatTable 이 null 이면 studentsTable 조회 api
-  Future<void> loadStudentsFromTable(int classId) async {
-    List<dynamic> result =
-    await _seatModel.selectStudentsTable(classId) as List;
-    setState(() {
-      nameList = result;
-    });
-  }
+  // // seatTable이 null이면 studentsTable 조회 api
+  // Future<void> loadStudentsFromTable(int classId) async {
+  //   List<dynamic> result = await _seatModel.selectStudentsTable(classId) as List;
+  //   setState(() {
+  //     nameList = result;
+  //     // 학생 데이터를 순차적으로 행/열에 배치
+  //
+  //     int row = 1;
+  //     int column = 1;
+  //
+  //     for (var student in nameList) {
+  //       // 각 학생의 좌석을 배치
+  //       newSeats.add({
+  //         'studentId': student['studentId'],
+  //         'rowId': row,
+  //         'columnId': column,
+  //       });
+  //
+  //       // 열의 끝에 도달하면 다음 행으로 넘어가도록 설정
+  //       column++;
+  //       if (column > 5) {
+  //         column = 1;
+  //         row++;
+  //       }
+  //     }
+  //     print('새로운 좌석 :: $newSeats');
+  //     // loadedSeats = newSeats; // 자동 배치된 좌석을 설정
+  //     loadSeatTable(classId);
+  //   });
+  //
+  //   // 좌석 배치 후, 좌석을 저장하는 API 호출
+  //   insertSeatTable();
+  // }
 
-// 이름 조회  api
+  // 이름 조회 api
   Future<void> loadStudentNames() async {
     List<dynamic> result = await _seatModel.studentNameAPI() as List;
     setState(() {
@@ -80,7 +114,7 @@ class _SeatState extends State<Seat> {
     });
   }
 
-// name 와 studentId 매칭
+  // name과 studentId 매칭
   String getStudentNameByStudentId(int studentId) {
     var student = nameList.firstWhere(
           (student) => student['studentId'] == studentId,
@@ -89,21 +123,19 @@ class _SeatState extends State<Seat> {
     return student['studentName'];
   }
 
-// 좌석 수정 handler
+  // 좌석 수정 handler
   void handleSeatClick(Map<String, dynamic> seat) {
+    print('seat :: $seat');
     if (!isEditing) return;
     setState(() {
       if (firstSelectedSeat == null) {
         firstSelectedSeat = seat;
       } else {
-        int firstIndex = loadedSeats
-            .indexWhere((s) => s['seatId'] == firstSelectedSeat!['seatId']);
-        int secondIndex =
-        loadedSeats.indexWhere((s) => s['seatId'] == seat['seatId']);
+        int firstIndex = loadedSeats.indexWhere((s) => s['seatId'] == firstSelectedSeat!['seatId']);
+        int secondIndex = loadedSeats.indexWhere((s) => s['seatId'] == seat['seatId']);
         if (firstIndex != -1 && secondIndex != -1) {
           int tempStudentId = loadedSeats[firstIndex]['studentId'];
-          loadedSeats[firstIndex]['studentId'] =
-          loadedSeats[secondIndex]['studentId'];
+          loadedSeats[firstIndex]['studentId'] = loadedSeats[secondIndex]['studentId'];
           loadedSeats[secondIndex]['studentId'] = tempStudentId;
           firstSelectedSeat = null;
         } else {
@@ -162,14 +194,14 @@ class _SeatState extends State<Seat> {
             Text("좌석표"),
           ],
         ),
-          backgroundColor: const Color(0xffF4F4F4),
+        backgroundColor: const Color(0xffF4F4F4),
         shape: Border(
           bottom: BorderSide(
             color: Colors.grey,
-          )
+          ),
         ),
       ),
-        backgroundColor: const Color(0xffF4F4F4), // 배경색 변경
+      backgroundColor: const Color(0xffF4F4F4),
       body: Column(
         children: [
           SizedBox(height: 10),
@@ -180,11 +212,11 @@ class _SeatState extends State<Seat> {
               style: TextStyle(fontSize: 15),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
-              foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
-              shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 네모로.
-              )
+              backgroundColor: Color(0xff515151),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
             ),
           ),
           if (isEditing) ...[
@@ -194,24 +226,24 @@ class _SeatState extends State<Seat> {
                 ElevatedButton(
                   onPressed: saveChanges,
                   child: Text("저장"),
-                  style: ElevatedButton.styleFrom(  // '좌석 수정' 버튼과 동일 하게 스타일 변경
-                    backgroundColor: Color(0xff515151),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    )
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: cancelChanges,
-                  child: Text("취소"),  // '좌석 수정' 버튼과 동일 하게 스타일 변경
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xff515151),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                    )
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: cancelChanges,
+                  child: Text("취소"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff515151),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                 ),
                 SizedBox(height: 30),
@@ -223,12 +255,12 @@ class _SeatState extends State<Seat> {
             )
           ],
           ElevatedButton(onPressed: () {}, child: Icon(Icons.save),
-            style: ElevatedButton.styleFrom(  // '좌석 수정' 버튼과 동일 하게 스타일 변경
-              backgroundColor: Color(0xff515151),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              )
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff515151),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                )
             ),
           ),
           SizedBox(
@@ -250,16 +282,15 @@ class _SeatState extends State<Seat> {
           SizedBox(height: 10),
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.fromLTRB(30, 30, 30, 30),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: maxColumn,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-              ),
-              itemCount: maxColumn * maxRow,
+                padding: EdgeInsets.fromLTRB(30, 30, 30, 30),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: maxColumn,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
+                ),
+                itemCount: maxColumn * maxRow,
                 itemBuilder: (context, index) {
                   if (loadedSeats.isNotEmpty) {
-                    // Render loadedSeats
                     int rowId = (index / maxColumn).floor() + 1;
                     int columnId = index % maxColumn + 1;
                     var seat = loadedSeats.firstWhere(
@@ -273,7 +304,6 @@ class _SeatState extends State<Seat> {
                     );
                     return buildSeatWidget(seat, isEditing);
                   } else {
-                    // Render nameList sequentially
                     if (index >= nameList.length) return SizedBox();
                     var student = nameList[index];
                     return Container(
@@ -295,7 +325,6 @@ class _SeatState extends State<Seat> {
       ),
     );
   }
-
 
   Widget buildSeatWidget(Map<String, dynamic>? seat, bool isEditing) {
     if (seat == null) {
@@ -329,6 +358,4 @@ class _SeatState extends State<Seat> {
       ),
     );
   }
-
-
 }
