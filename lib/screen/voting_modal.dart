@@ -284,7 +284,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
 
           Navigator.pop(context);
         },
-        child: const Icon(Icons.check),
+        child: Text("확인"),
         backgroundColor: const Color(0xff515151),
         foregroundColor: Colors.white,
       ),

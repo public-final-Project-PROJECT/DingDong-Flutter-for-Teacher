@@ -92,9 +92,10 @@ class VotingModel {
         try{
           final response = await dio.post(
             "http://112.221.66.174:3013/api/voting/findStudentsName",
-            data: {'classId' : 1},
+            data: {'classId' : 2},
           );
           if(response.statusCode == 200){
+            print(response.data);
             return response.data as List<dynamic>;
           }else{
             throw Exception("로드 실패");
