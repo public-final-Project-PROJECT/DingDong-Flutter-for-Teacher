@@ -3,14 +3,15 @@ import 'package:dingdong_flutter_teacher/screen/sign_in_with_google.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginPage extends StatelessWidget {
-  final Dio dio = Dio(); // Use Dio for API calls
+  final Dio dio = Dio();
 
   LoginPage({super.key});
 
   Future<int> _fetchTeacherId(User user) async {
-    const serverURL = 'YOUR_FETCH_SERVER_URL_HERE'; // Replace with actual URL
+    var serverURL = dotenv.env['FETCH_SERVER_URL'];
     try {
       final response = await dio.get('$serverURL/user/${user.email}');
       if (response.statusCode == 200) {
@@ -25,17 +26,19 @@ class LoginPage extends StatelessWidget {
   }
 
   Future<void> handleGoogleSignIn(BuildContext context) async {
-    try {
-      _showLoadingIndicator(context);
+    // Show the loading indicator
+    _showLoadingIndicator(context);
 
+    try {
       UserCredential userCredential = await signInWithGoogle();
       User? user = userCredential.user;
 
       if (user != null) {
-        // Fetch teacherId after login
+        // Fetch teacherId
         final teacherId = await _fetchTeacherId(user);
 
-        Navigator.pop(context); // Remove loading indicator
+        // Navigate to HomeScreen
+        Navigator.pop(context); // Dismiss loading indicator
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -46,11 +49,13 @@ class LoginPage extends StatelessWidget {
           ),
         );
       } else {
-        Navigator.pop(context); // Remove loading indicator
+        // Dismiss loading indicator and show error
+        Navigator.pop(context);
         _showErrorDialog(context, '로그인 실패', '유저 정보가 없습니다.');
       }
     } catch (e) {
-      Navigator.pop(context); // Remove loading indicator
+      // Dismiss loading indicator and show error
+      Navigator.pop(context);
       _showErrorDialog(context, '로그인 실패', e.toString());
     }
   }
@@ -64,6 +69,7 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('로고는 여기 위에'),
+            const SizedBox(height: 100),
             ElevatedButton(
               onPressed: () => handleGoogleSignIn(context),
               style: ElevatedButton.styleFrom(
@@ -80,7 +86,10 @@ class LoginPage extends StatelessWidget {
                   Image.asset('assets/google.png'),
                   const Text(
                     'Sign in with Google',
-                    style: TextStyle(color: Colors.black, fontSize: 15.0),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15.0,
+                    ),
                   ),
                   Opacity(
                     opacity: 0.0,
@@ -106,7 +115,7 @@ class LoginPage extends StatelessWidget {
   void _showErrorDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: Text(title),
         content: Text(message),
         actions: [

@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.user,
-    required this.teacherId,
+    this.teacherId = 0,
   });
 
   @override
@@ -53,9 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 6:
         page = const Vote();
         break;
-      case 7:
-        page = const Calendar();
-        break;
+
+
       default:
         page = const Notice();
     }
@@ -102,9 +101,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 80.0),
             child: ListTile(
-              title: const Text('공지사항'),
-              onTap: () => _onItemTapped(0),
+              title: const Text('홈'),
+              onTap: () => Navigator.pop(context),
             ),
+          ),
+          ListTile(
+            title: const Text('공지사항'),
+            onTap: () => _onItemTapped(0),
           ),
           ListTile(
             title: const Text('출석부'),
@@ -116,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             title: const Text('캘린더'),
-            onTap: () => _onItemTapped(7),
+            onTap: () => _onItemTapped(2),
           ),
           ListTile(
             leading: const Icon(Icons.people),
@@ -171,6 +174,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => LoginPage()),
               );
             },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff515151),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                )),
             child: const Text('로그아웃'),
           ),
         ],

@@ -103,8 +103,11 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
 
   @override
   Widget build(BuildContext context) {
+
     return FractionallySizedBox(
+
       heightFactor: 0.9, // 화면의 90% 높이
+
       child: Padding(
         padding: EdgeInsets.only(
           left: 16.0,
@@ -121,7 +124,16 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // 취소 버튼 기능
+                    if (titleController.text != widget.setEvent['title'] || descriptionController.text != widget.setEvent['description']
+                    || startDate != DateTime.parse(widget.setEvent['start']).add(const Duration(hours: 9)).toUtc()
+                    || endDate != DateTime.parse(widget.setEvent['end']).add(const Duration(hours: 9)).toUtc()) {
+                      _showDeleteModal(context);
+                    }
+                    else
+                      {
+                        Navigator.pop(context);
+                      }
+
                   },
                   child: const Text(
                     '취소',
@@ -248,6 +260,109 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
           ],
         ),
       ),
+
+    );
+  }
+
+
+  void _showDeleteModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(16), // Rounded top corners
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Grouped container for the confirmation text and delete button
+              Container(
+                margin: const EdgeInsets.fromLTRB(16,16,16,8),
+                decoration: BoxDecoration(
+                  color: Colors.white70, // Button background
+                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Confirmation text
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        '이 새로운 이벤트를 폐기하겠습니까?', // Confirmation text
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black, // Text color
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    // Divider
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Colors.grey, // Divider color
+                    ),
+                    // Delete button
+                    InkWell(
+                      onTap: () {
+
+
+                        Navigator.pop(context); // Close modal
+                        Navigator.pop(context);
+
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: const Text(
+                          '변경 사항 폐기', // Delete text
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red, // Red text color
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Cancel button (independent)
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context); // Close modal
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Button background
+                    borderRadius: BorderRadius.circular(12), // Rounded corners
+                  ),
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: const Text(
+                    '계속 편집하기', // Cancel text
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black, // Text color
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+      },
     );
   }
 }
