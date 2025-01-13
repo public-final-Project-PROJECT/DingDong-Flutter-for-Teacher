@@ -14,7 +14,7 @@ class _CalendarAddState extends State<CalendarAdd> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-
+  late FocusNode focusNode;
   DateTime? startDate;
   DateTime? endDate;
 
@@ -25,11 +25,17 @@ class _CalendarAddState extends State<CalendarAdd> {
     int Id = widget.updateDate;
 
     DateTime defaulttime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    print(defaulttime);
+
     startDate = widget.initialDate.subtract(const Duration(hours: 9)).toLocal() ?? defaulttime;
     endDate = widget.initialDate.subtract(const Duration(hours: 9)).toLocal() ?? defaulttime;
+    focusNode = FocusNode();
 
-
+    // FocusNode 리스너 추가
+    focusNode.addListener(() {
+      setState(() {
+        // 포커스 상태가 바뀔 때마다 UI 갱신
+      });
+    });
   }
 
   Future<void> _pickDate(
@@ -153,22 +159,42 @@ class _CalendarAddState extends State<CalendarAdd> {
             ),
             const SizedBox(height: 16),
             TextField(
+              focusNode: focusNode,
               controller: titleController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 hintText: 'Enter event title',
+                suffixIcon: (focusNode.hasFocus  && titleController.text.isNotEmpty)
+                    ?IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+
+                      titleController.clear(); // 텍스트 초기화
+                      setState(() {});
+                  },
+                )
+                    : null, // 포커스가 없으면 X 버튼 숨김
               ),
+              onChanged: (value) {
+                setState(() {}); // 텍스트가 변경될 때 UI 갱신
+              },
             ),
+
+
+
             const SizedBox(height: 16),
 
             const SizedBox(height: 16),
             TextField(
+              focusNode: focusNode,
               controller: descriptionController,
               maxLines: 3,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Enter description',
+
               ),
+
             ),
             const SizedBox(height: 50),
             Row(

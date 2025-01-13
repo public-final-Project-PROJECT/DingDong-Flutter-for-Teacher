@@ -28,18 +28,32 @@ class _CalendardetailsState extends State<Calendardetails> {
       appBar: AppBar(
         title: const Text('Event Details'),
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 10.0), // 왼쪽 여백 추가
-          child: Center(
-            child: Text(
-              '${event2['start'].toString().substring(0, 10)}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white, // 원하는 색상 설정
+        leading: Row(
+          mainAxisSize: MainAxisSize.min, // Row 크기를 최소화하여 공간 초과 방지
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back), // 뒤로가기 화살표
+              onPressed: () {
+                Navigator.pop(context); // 뒤로 가기 동작
+              },
+            ),
+            Flexible( // 텍스트 길이 제어
+              child: Padding(
+                padding: const EdgeInsets.only(left: 5.0), // 화살표와 텍스트 간격 조정
+                child: Text(
+                  event2 != null && event2['start'] != null // 유효성 검사
+                      ? event2['start'].toString().substring(0, 10) // 날짜 출력
+                      : 'No Date',
+                  style: const TextStyle(
+                    fontSize: 12, // 텍스트 크기 줄이기
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black12,
+                  ),
+                  overflow: TextOverflow.ellipsis, // 텍스트 초과 시 "..."로 표시
+                ),
               ),
             ),
-          ),
+          ],
         ),
 
         actions: [

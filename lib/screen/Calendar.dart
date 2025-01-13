@@ -21,10 +21,8 @@ class _CalendarState extends State<Calendar> {
   final CalendarModel _calendarModel = CalendarModel();
   DateTime? _selectedDay = DateTime.now(); // 선택된 날짜
   DateTime? _focusedDay = DateTime.now(); // 현재 보이는 달력의 날짜
-  DateTime? _rangeStart;
-  DateTime? _rangeEnd;
-
-// 날짜별 이벤트를 저장할 맵
+  DateTime? _rangeStart= DateTime.now();
+  DateTime? _rangeEnd= DateTime.now();
   final Map<DateTime, List<dynamic>> _events = {};
 
   @override
@@ -166,22 +164,22 @@ class _CalendarState extends State<Calendar> {
 
   Widget _buildEventsMarker(DateTime date, List events) {
     return Positioned(
-      right: 5,
-      bottom: 5,
+      right: 3,
+      bottom: 3,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.redAccent,
+          color: Colors.grey,
         ),
-        width: 16.0,
-        height: 16.0,
+        width: 12.0,
+        height: 12.0,
         child: Center(
           child: Text(
             '${events.length}',
             style: const TextStyle().copyWith(
               color: Colors.white,
-              fontSize: 12.0,
+              fontSize: 8.0,
             ),
           ),
         ),
@@ -309,7 +307,7 @@ class _CalendarState extends State<Calendar> {
                     DateFormat.yMMMMd(locale).format(date),
                 formatButtonShowsNext: false,
                 formatButtonDecoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.orangeAccent,
                     borderRadius: BorderRadius.circular(5.0)),
                 formatButtonTextStyle:
                     const TextStyle(fontFamily: 'Raleway', color: Colors.white),
@@ -331,10 +329,25 @@ class _CalendarState extends State<Calendar> {
               calendarStyle: CalendarStyle(
                   isTodayHighlighted: true,
                   outsideDaysVisible: false,
-                  todayDecoration: BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(5.0)),
+                todayDecoration: BoxDecoration(
+                  color: Colors.white, // 오늘 날짜 배경색
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(5.0),
+                  border: Border.all(
+                    color: Colors.redAccent, // Border color
+                    width: 1.0, // Border width
+                  ),// 모서리 둥글기
+                ),
+                todayTextStyle: TextStyle(
+                  color: Colors.redAccent, // 텍스트 색상
+
+
+                ),
+                  selectedTextStyle: TextStyle(
+                    color: _selectedDay != null && isSameDay(_selectedDay, DateTime.now())
+                        ? Colors.redAccent // 선택된 날짜가 오늘이면 빨간색
+                        : Colors.white, // 선택된 날짜가 오늘이 아니면 기본 색상
+                  ),
                   selectedDecoration: BoxDecoration(
                       color: Color(0xff9E9E9E),
                       shape: BoxShape.rectangle,
@@ -390,7 +403,7 @@ class _CalendarState extends State<Calendar> {
                           final event = events[index];
                           return Container(
                             decoration: const BoxDecoration(
-                              color: Colors.blue,
+                              color: Colors.grey,
                               border: Border(
                                   bottom: BorderSide(color: Colors.white)),
                             ),

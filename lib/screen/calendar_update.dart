@@ -11,10 +11,10 @@ class CalendarUpdate extends StatefulWidget {
 }
 
 class _CalendarUpdateState extends State<CalendarUpdate> {
-  final TextEditingController titleController = TextEditingController();
+  late TextEditingController titleController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
+  late TextEditingController descriptionController = TextEditingController();
+  late FocusNode focusNode;
   DateTime? startDate;
   DateTime? endDate;
 
@@ -23,12 +23,20 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
     super.initState();
 
     int Id = widget.updateDate;
-
+    titleController = TextEditingController(text: widget.setEvent['title']);
+    descriptionController = TextEditingController(text: widget.setEvent['description']);
     DateTime defaulttime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     print(defaulttime);
     startDate = DateTime.parse(widget.setEvent['start']).add(const Duration(hours: 9)).toUtc();
     endDate = DateTime.parse(widget.setEvent['end']).add(const Duration(hours: 9)).toUtc();
+    focusNode = FocusNode();
 
+    // FocusNode 리스너 추가
+    focusNode.addListener(() {
+      setState(() {
+        // 포커스 상태가 바뀔 때마다 UI 갱신
+      });
+    });
 
   }
 
@@ -43,6 +51,31 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
           : end, // 기본적으로 `end` 사용
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
+      helpText: '', // 상단의 "Select Date" 제거
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.orange, // 선택된 날짜 배경색
+              onPrimary: Colors.white, // 선택된 날짜 텍스트 색상
+              onSurface: Colors.black, // 기본 텍스트 색상
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.orange, // 확인 및 취소 버튼 색상
+              ),
+            ),
+            dialogTheme: DialogTheme(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero, // 테두리 모서리를 직각으로 설정
+              ),
+            ),
+          ),
+
+          child: child!,
+
+        );
+      },
     );
 
     if (picked != null) {
@@ -128,11 +161,25 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
 
             const SizedBox(height: 16),
             TextField(
+              focusNode: focusNode,
               controller: titleController,
-              decoration:  InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: widget.setEvent['title'],
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: 'Enter event title',
+                suffixIcon: (focusNode.hasFocus  && titleController.text.isNotEmpty)
+                    ?IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+
+                    titleController.clear(); // 텍스트 초기화
+                    setState(() {});
+                  },
+                )
+                    : null, // 포커스가 없으면 X 버튼 숨김
               ),
+              onChanged: (value) {
+                setState(() {}); // 텍스트가 변경될 때 UI 갱신
+              },
             ),
 
             const SizedBox(height: 16),
@@ -141,7 +188,7 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
               maxLines: 3,
               decoration:  InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: widget.setEvent['description'],
+                labelText: '내용', // 필드에 라벨 추가
               ),
             ),
 
