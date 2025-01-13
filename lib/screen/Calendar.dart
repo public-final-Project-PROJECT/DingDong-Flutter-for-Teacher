@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -35,8 +34,12 @@ class _CalendarState extends State<Calendar> {
     _selectedDay = DateTime.now();
     _focusedDay = DateTime.now();
     final DateTime date = DateTime.now();
-    _rangeStart = DateTime(date.year, date.month, date.day).add(const Duration(hours: 9)).toUtc();
-    _rangeEnd = DateTime(date.year, date.month, date.day).add(const Duration(hours: 9)).toUtc();
+    _rangeStart = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+    _rangeEnd = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
   }
 
   void _loadCalendar() async {
@@ -203,7 +206,8 @@ class _CalendarState extends State<Calendar> {
             },
           ),
           backgroundColor: const Color(0xffF4F4F4),
-          shape: const Border( // 앱바 하단 경계선 추가
+          shape: const Border(
+            // 앱바 하단 경계선 추가
             bottom: BorderSide(
               color: Colors.grey,
               width: 1,
@@ -215,7 +219,8 @@ class _CalendarState extends State<Calendar> {
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
-                  isScrollControlled: true, // 모달 창이 전체 화면에 가까워지도록 설정
+                  isScrollControlled: true,
+                  // 모달 창이 전체 화면에 가까워지도록 설정
                   shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(20)),
@@ -252,7 +257,6 @@ class _CalendarState extends State<Calendar> {
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
-
         body: Column(
           children: [
             TableCalendar(
@@ -299,7 +303,8 @@ class _CalendarState extends State<Calendar> {
                     DateFormat.yMMMMd(locale).format(date),
                 formatButtonShowsNext: false,
                 formatButtonDecoration: BoxDecoration(
-                    color: Colors.black54, borderRadius: BorderRadius.circular(5.0)),
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(5.0)),
                 formatButtonTextStyle:
                     const TextStyle(fontFamily: 'Raleway', color: Colors.white),
                 titleTextStyle: const TextStyle(
@@ -328,7 +333,8 @@ class _CalendarState extends State<Calendar> {
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(5.0)),
                   weekendDecoration: BoxDecoration(
-                    color: Colors.transparent, // Transparent background
+                    color: Colors.transparent,
+                    // Transparent background
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.circular(5.0),
                     border: Border.all(
@@ -337,7 +343,8 @@ class _CalendarState extends State<Calendar> {
                     ),
                   ),
                   holidayDecoration: BoxDecoration(
-                    color: Colors.transparent, // Transparent background
+                    color: Colors.transparent,
+                    // Transparent background
                     shape: BoxShape.rectangle,
                     borderRadius: BorderRadius.circular(5.0),
                     border: Border.all(
@@ -359,38 +366,27 @@ class _CalendarState extends State<Calendar> {
               ),
             ),
             Expanded(
-              child: Builder(builder: (context) {
-                final getevents = _getEventsForRange(_rangeStart, _rangeEnd);
-                return getevents.isEmpty
-                    ? const Center(
-                        child: Text(
-                          "이벤트가 없습니다.",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount:
-                        getevents.length,
-                        itemBuilder: (context, index) {
-                          final events =
-                              getevents;
-                          final event = events[index];
-                          return Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
-                              border: Border(
-                                  bottom: BorderSide(color: Colors.white)),
-                            ),
-                            child: ListTile(
-                              leading:
-                                  const Icon(Icons.alarm, color: Colors.white),
-                              title: Text(
-                                events[index]['title'],
-                                style: const TextStyle(
-                                  fontFamily: 'Raleway',
-                                  color: Colors.white,
-                                ),
+              child: Builder(
+                builder: (context) {
+                  final getevents = _getEventsForRange(_rangeStart, _rangeEnd);
+                  return getevents.isEmpty
+                      ? const Center(
+                          child: Text(
+                            "이벤트가 없습니다.",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: getevents.length,
+                          itemBuilder: (context, index) {
+                            final events = getevents;
+                            final event = events[index];
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                border: Border(
+                                    bottom: BorderSide(color: Colors.white)),
                               ),
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -400,14 +396,14 @@ class _CalendarState extends State<Calendar> {
                                     'Start: ${(events[index]['start'].toString().substring(0, 10))}',
                                     style: const TextStyle(
                                       fontSize: 12.0,
-                                      color: Colors.white70,
+                                      color: Colors.white,
                                     ),
                                   ),
                                   Text(
                                     'End: ${(events[index]['end'].toString().substring(0, 10))}',
                                     style: const TextStyle(
                                       fontSize: 12.0,
-                                      color: Colors.white70,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
@@ -446,59 +442,76 @@ class _CalendarState extends State<Calendar> {
                                   ),
                                 );
                               },
-                            ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Start: ${(events[index]['start'].toString().substring(0, 10))}',
+                              child: ListTile(
+                                leading: const Icon(Icons.alarm,
+                                    color: Colors.white),
+                                title: Text(
+                                  events[index]['title'],
                                   style: const TextStyle(
-                                    fontSize: 12.0,
+                                    fontFamily: 'Raleway',
                                     color: Colors.white,
                                   ),
                                 ),
-                                Text(
-                                  'End: ${(events[index]['end'].toString().substring(0, 10))}',
-                                  style: const TextStyle(
-                                    fontSize: 12.0,
-                                    color: Colors.white,
-                                  ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'Start: ${(events[index]['start'].toString().substring(0, 10))}',
+                                      style: const TextStyle(
+                                        fontSize: 12.0,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                    Text(
+                                      'End: ${(events[index]['end'].toString().substring(0, 10))}',
+                                      style: const TextStyle(
+                                        fontSize: 12.0,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            onTap: () {
-                              print('Clicked Event: $event');
-                              Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation, secondaryAnimation) => Calendardetails(
-                                      event: event,
-                                      DeleteEvent: (id){
-                                        _deleteEvent(id);
-                                       },
-                                      UpdateEvent:(event){
-                                        _updateEvent(event);
-                                      }
-                                  ),
-                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                    const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
-                                    const end = Offset.zero;
-                                    const curve = Curves.easeInOut;
+                                onTap: () {
+                                  print('Clicked Event: $event');
+                                  Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                          Calendardetails(
+                                              event: event,
+                                              DeleteEvent: (id) {
+                                                _deleteEvent(id);
+                                              },
+                                              UpdateEvent: (event) {
+                                                _updateEvent(event);
+                                              }),
+                                      transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) {
+                                        const begin =
+                                            Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
+                                        const end = Offset.zero;
+                                        const curve = Curves.easeInOut;
 
-                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                                    var offsetAnimation = animation.drive(tween);
+                                        var tween = Tween(
+                                                begin: begin, end: end)
+                                            .chain(CurveTween(curve: curve));
+                                        var offsetAnimation =
+                                            animation.drive(tween);
 
-                                    return SlideTransition(position: offsetAnimation, child: child);
-                                  },
-                                ),
-                              );
-
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                                        return SlideTransition(
+                                            position: offsetAnimation,
+                                            child: child);
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          });
+                },
+              ),
             ),
           ],
         ));
