@@ -357,39 +357,6 @@ class _VoteState extends State<Vote> {
                     ),
                   ),
                 ],
-                // Positioned(
-                //   top: 5,
-                //   right: 5,
-                //   child: IconButton(
-                //     onPressed: () {
-                //       showDialog(
-                //         context: context,
-                //         builder: (BuildContext con) {
-                //           return AlertDialog(
-                //             content: const Text('정말 삭제하시겠습니까?'),
-                //             actions: [
-                //               TextButton(
-                //                 onPressed: () => Navigator.pop(context),
-                //                 child: Text("취소"),
-                //               ),
-                //               TextButton(
-                //                 onPressed: () {
-                //                   _votingDelete(votingId);
-                //                   Navigator.pop(context);
-                //                   ScaffoldMessenger.of(context).showSnackBar(
-                //                     const SnackBar(content: Text("투표가 삭제되었습니다!")),
-                //                   );
-                //                 },
-                //                 child: Text("확인"),
-                //               ),
-                //             ],
-                //           );
-                //         },
-                //       );
-                //     },
-                //     icon: Icon(Icons.delete_forever),
-                //   ),
-                // ),
               ),
             ),
           );
