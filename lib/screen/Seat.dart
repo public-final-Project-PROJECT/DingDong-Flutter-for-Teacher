@@ -144,15 +144,14 @@ class _SeatState extends State<Seat> {
 
   @override
   Widget build(BuildContext context) {
-    // Maximum columns and rows dynamically calculated or fixed
     int maxColumn = loadedSeats.isNotEmpty
         ? loadedSeats.fold<int>(
         0, (max, seat) => seat['columnId'] > max ? seat['columnId'] : max)
-        : 5; // Fixed 5 columns for `nameList`
+        : 5;
     int maxRow = loadedSeats.isNotEmpty
         ? loadedSeats.fold<int>(
         0, (max, seat) => seat['rowId'] > max ? seat['rowId'] : max)
-        : (nameList.length / maxColumn).ceil(); // Dynamic rows for `nameList`
+        : (nameList.length / maxColumn).ceil();
 
     return Scaffold(
       appBar: AppBar(
@@ -163,7 +162,14 @@ class _SeatState extends State<Seat> {
             Text("좌석표"),
           ],
         ),
+          backgroundColor: const Color(0xffF4F4F4),
+        shape: Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+          )
+        ),
       ),
+        backgroundColor: const Color(0xffF4F4F4), // 배경색 변경
       body: Column(
         children: [
           SizedBox(height: 10),
@@ -173,6 +179,13 @@ class _SeatState extends State<Seat> {
               isEditing ? "수정중 ..." : "좌석 수정",
               style: TextStyle(fontSize: 15),
             ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xff515151),  // 버튼 배경색 어둡게 변경
+              foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
+              shape: RoundedRectangleBorder(  // 버튼 테두리 조절
+                borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 네모로.
+              )
+            ),
           ),
           if (isEditing) ...[
             Row(
@@ -181,11 +194,25 @@ class _SeatState extends State<Seat> {
                 ElevatedButton(
                   onPressed: saveChanges,
                   child: Text("저장"),
+                  style: ElevatedButton.styleFrom(  // '좌석 수정' 버튼과 동일 하게 스타일 변경
+                    backgroundColor: Color(0xff515151),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    )
+                  ),
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: cancelChanges,
-                  child: Text("취소"),
+                  child: Text("취소"),  // '좌석 수정' 버튼과 동일 하게 스타일 변경
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff515151),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    )
+                  ),
                 ),
                 SizedBox(height: 30),
               ],
@@ -195,7 +222,18 @@ class _SeatState extends State<Seat> {
               style: TextStyle(fontSize: 13, color: Colors.red),
             )
           ],
-          SizedBox(height: 30),
+          ElevatedButton(onPressed: () {}, child: Icon(Icons.save),
+            style: ElevatedButton.styleFrom(  // '좌석 수정' 버튼과 동일 하게 스타일 변경
+              backgroundColor: Color(0xff515151),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              )
+            ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
           Center(
             child: Container(
               height: 50,

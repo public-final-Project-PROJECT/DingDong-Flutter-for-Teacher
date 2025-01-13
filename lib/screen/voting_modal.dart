@@ -39,7 +39,14 @@ class _AddVotingPageState extends State<AddVotingPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("새 투표 생성"),
+        backgroundColor: Colors.white,
+        shape: Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+          )
+        ),
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -278,6 +285,8 @@ class _AddVotingPageState extends State<AddVotingPage> {
           Navigator.pop(context);
         },
         child: const Icon(Icons.check),
+        backgroundColor: const Color(0xff515151),
+        foregroundColor: Colors.white,
       ),
     );
   }

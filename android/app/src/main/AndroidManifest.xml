@@ -2,7 +2,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="dingdong_flutter_teacher"
+        android:label="dingdong"
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         android:name="${applicationName}"

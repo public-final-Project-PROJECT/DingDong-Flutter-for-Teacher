@@ -23,15 +23,17 @@ class MyApp extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
-            return HomeScreen(user: snapshot.data!);
+            return HomeScreen(
+              user: snapshot.data!,
+              teacherId: 0
+            );
           } else {
-            return const LoginPage();
+            return LoginPage();
           }
         },
       ),
     );
   }
 }
-

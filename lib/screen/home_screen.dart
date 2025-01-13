@@ -4,55 +4,60 @@ import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
+import 'package:dingdong_flutter_teacher/screen/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'Calendar.dart';
 import 'Vote.dart';
-import 'login_page.dart';
 
 class HomeScreen extends StatefulWidget {
-
   final User user;
+  final int teacherId;
 
-  const HomeScreen({super.key, required this.user});
+  const HomeScreen({
+    super.key,
+    required this.user,
+    this.teacherId = 0,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _showConvenienceItems = false; // 편의기능 항목 전체 표시 여부
+  bool _showConvenienceItems = false; // Show/hide convenience features
 
   void _onItemTapped(int index) {
     Widget page;
 
     switch (index) {
       case 0:
-        page = Notice();
+        page = const Notice();
         break;
       case 1:
-        page = Attendance();
+        page = const Attendance();
         break;
       case 2:
-        page = Student();
+        page = const Student();
         break;
       case 3:
-        page = Convenience();
+        page = const Convenience();
         break;
       case 4:
-        page = TimerScreen();
+        page = const TimerScreen();
         break;
       case 5:
-        page = Seat();
+        page = const Seat();
         break;
       case 6:
-        page = Vote();
+        page = const Vote();
         break;
       case 7:
-        page = Calendar();
+        page = const Calendar();
+        break;
       default:
-        page = Notice();
+        page = const Notice();
     }
 
     Navigator.push(
@@ -71,116 +76,111 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: null,
-        backgroundColor: Color(0xffF4F4F4),
+        title: const Text('Home'),
+        backgroundColor: const Color(0xffF4F4F4),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
             onPressed: () {
-              print('알림 아이콘 클릭됨');
+              print('Notification icon clicked');
             },
           ),
         ],
       ),
-      backgroundColor: Color(0xffF4F4F4), // 배경색 변경
-      drawer: Drawer(
-        backgroundColor: Color(0xffffffff), // 메뉴 창 색상 변경 (흰색)
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
+      backgroundColor: const Color(0xffF4F4F4),
+      drawer: _buildDrawer(),
+      body: _buildHomeContent(),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: const Color(0xffffffff), // Drawer background color
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 80.0),
+            child: ListTile(
+              title: const Text('공지사항'),
+              onTap: () => _onItemTapped(0),
+            ),
+          ),
+          ListTile(
+            title: const Text('출석부'),
+            onTap: () => _onItemTapped(1),
+          ),
+          ListTile(
+            title: const Text('학생정보'),
+            onTap: () => _onItemTapped(2),
+          ),
+          ListTile(
+            title: const Text('캘린더'),
+            onTap: () => _onItemTapped(7),
+          ),
+          ListTile(
+            leading: const Icon(Icons.people),
+            title: const Text('편의기능'),
+            onTap: _toggleConvenienceItems,
+          ),
+          if (_showConvenienceItems) ...[
             Padding(
-              padding: const EdgeInsets.only(top: 80.0),
+              padding: const EdgeInsets.only(left: 30.0),
               child: ListTile(
-                title: Text('공지사항'),
-                onTap: () {
-                  _onItemTapped(0);
-                },
+                leading: const Icon(Icons.timer),
+                title: const Text('타이머'),
+                onTap: () => _onItemTapped(4),
               ),
             ),
-            ListTile(
-              title: Text('출석부'),
-              onTap: () {
-                _onItemTapped(1);
-              },
-            ),
-            ListTile(
-              title: Text('학생정보'),
-              onTap: () {
-                _onItemTapped(2);
-              },
-            ),
-            ListTile(
-              title: Text('캘린더'),
-              onTap: () {
-                _onItemTapped(7);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.people),
-              title: Text('편의기능'),
-              onTap: _toggleConvenienceItems,
-            ),
-            if (_showConvenienceItems) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 30.0),
-                child: ListTile(
-                  leading: Icon(Icons.timer),
-                  title: Text('타이머'),
-                  onTap: () {
-                    _onItemTapped(4);
-                  },
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30.0),
+              child: ListTile(
+                leading: const Icon(Icons.event_seat),
+                title: const Text('자리배치'),
+                onTap: () => _onItemTapped(5),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 30.0),
-                child: ListTile(
-                  leading: Icon(Icons.event_seat),
-                  title: Text('자리배치'),
-                  onTap: () {
-                    _onItemTapped(5);
-                  },
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 30.0),
+              child: ListTile(
+                leading: const Icon(Icons.how_to_vote_rounded),
+                title: const Text('투표'),
+                onTap: () => _onItemTapped(6),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 30.0),
-                child: ListTile(
-                  leading: Icon(Icons.how_to_vote_rounded),
-                  title: Text('투표'),
-                  onTap: () {
-                    _onItemTapped(6);
-                  },
-                ),
-              ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('구글 로그인 완료'),
-            Text('이름: ${widget.user.displayName}'),
-            Text('이메일: ${widget.user.email}',),
-            ElevatedButton(
-              child: const Text('로그아웃'),
-              style: ElevatedButton.styleFrom(  // '로그아웃' 버튼 스타일 변경
-                backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게
-                foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로
-                shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                  borderRadius: BorderRadius.circular(8), // 버튼 테두리 네모로!
-                )
-              ),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
+    );
+  }
+
+  Widget _buildHomeContent() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('구글 로그인 완료'),
+          Text('이름: ${widget.user.displayName}'),
+          Text('이메일: ${widget.user.email}'),
+          Text('교사 ID: ${widget.teacherId}'),
+          ElevatedButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff515151),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              )
             ),
-          ],
-        ),
+            child: const Text('로그아웃'),
+          ),
+        ],
       ),
     );
   }

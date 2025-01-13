@@ -62,7 +62,7 @@ class _StudentState extends State<Student> {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => StudentDetailPage(student: student),
+                    pageBuilder: (context, animation, secondaryAnimation) => StudentDetailPage(student: student['studentId']),
                     transitionsBuilder: (context, animation, secondaryAnimation, child) {
                       const begin = Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
                       const end = Offset.zero;
