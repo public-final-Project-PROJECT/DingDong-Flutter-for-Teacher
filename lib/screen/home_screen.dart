@@ -1,11 +1,11 @@
 import 'package:dingdong_flutter_teacher/screen/Attendance.dart';
+import 'package:dingdong_flutter_teacher/screen/Calendar.dart';
 import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/login_page.dart';
-import 'package:dingdong_flutter_teacher/screen/Calendar.dart';
 import 'package:dingdong_flutter_teacher/screen/Vote.dart';
+import 'package:dingdong_flutter_teacher/screen/login_page.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +55,8 @@ class TeacherProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _latestClassId = data is int ? data : int.tryParse(data.toString()) ?? 0;
+        _latestClassId =
+            data is int ? data : int.tryParse(data.toString()) ?? 0;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
       }
@@ -105,7 +106,10 @@ class HomeScreen extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             }
-            return HomeContent(user: user, teacherId: provider.teacherId, latestClassId: provider.latestClassId);
+            return HomeContent(
+                user: user,
+                teacherId: provider.teacherId,
+                latestClassId: provider.latestClassId);
           },
         ),
       ),
@@ -189,11 +193,11 @@ class HomeDrawer extends StatelessWidget {
   }
 
   Widget _buildDrawerItem(
-      BuildContext context, {
-        IconData? icon,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    IconData? icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: icon != null ? Icon(icon) : null,
       title: Text(title),
@@ -228,34 +232,40 @@ class HomeContent extends StatelessWidget {
         child: provider.loading
             ? const CircularProgressIndicator()
             : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('구글 로그인 완료'),
-            Text('이름: ${user.displayName}'),
-            Text('이메일: ${user.email}'),
-            Text('교사 ID: $teacherId'),
-            Text('클래스 ID: $latestClassId'),
-            ElevatedButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (user.photoURL != null)
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(user.photoURL!),
+                    ),
+                  const SizedBox(height: 16),
+                  const Text('구글 로그인 완료'),
+                  Text('이름: ${user.displayName}'),
+                  Text('이메일: ${user.email}'),
+                  Text('교사 ID: $teacherId'),
+                  Text('클래스 ID: $latestClassId'),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff515151),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text('로그아웃'),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff515151),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                ],
               ),
-              child: const Text('로그아웃'),
-            ),
-          ],
-        ),
       ),
     );
   }
