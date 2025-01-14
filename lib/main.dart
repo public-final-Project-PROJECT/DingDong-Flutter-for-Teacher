@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
           } else if (snapshot.hasData) {
             return HomeScreen(user: snapshot.data!, teacherId: 0);
           } else {
-            return LoginPage();
+            return const LoginPage();
           }
         },
       ),

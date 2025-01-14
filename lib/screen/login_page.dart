@@ -5,56 +5,65 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class LoginPage extends StatelessWidget {
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final Dio dio = Dio();
 
-  LoginPage({super.key});
+  void _showErrorDialog(String title, String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = navigatorKey.currentState?.overlay?.context;
+      if (context != null) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+  }
 
-  Future<int> _fetchTeacherId(User user) async {
+  Future<int> fetchTeacherId(User user) async {
     final serverURL = dotenv.env['FETCH_SERVER_URL'];
 
     try {
       final response = await dio.get('$serverURL/user/${user.email}');
-
       if (response.statusCode == 200) {
         final data = response.data;
         return data is int ? data : int.tryParse(data.toString()) ?? 0;
       } else {
-        throw Exception('Failed to fetch teacher ID: ${response.statusCode}');
+        throw Exception('Invalid response status: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error fetching teacher ID: $e');
+      throw Exception('Failed to fetch teacher ID: $e');
     }
   }
 
-  Future<void> handleGoogleSignIn(BuildContext context) async {
-    bool dialogShown = false;
-
+  Future<void> handleGoogleSignIn() async {
     try {
-      // Show loading dialog
-      dialogShown = true;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const Center(child: CircularProgressIndicator()),
-      );
-
-      // Sign in with Google
       UserCredential userCredential = await signInWithGoogle();
-      User? user = userCredential.user;
+      final User? user = userCredential.user;
 
       if (user != null) {
-        // Fetch teacher ID
-        final teacherId = await _fetchTeacherId(user);
-
-        if (!context.mounted) return; // Ensure the context is still valid
-
-        // Dismiss loading dialog
-        Navigator.pop(context);
-        dialogShown = false;
+        int teacherId = await fetchTeacherId(user);
 
         if (teacherId > 0) {
-          // Navigate to HomeScreen if ID is valid
+          if (!mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -65,22 +74,12 @@ class LoginPage extends StatelessWidget {
             ),
           );
         } else {
-          // Show error if ID is invalid
-          _showErrorDialog(context, '로그인 실패', '웹에서 회원가입 후 다시 이용해주세요.');
+          _showErrorDialog('로그인 실패', '웹에서 회원가입 후 다시 이용해주세요.');
+          await FirebaseAuth.instance.signOut();
         }
-      } else {
-        throw Exception('User is null after Google sign-in');
       }
     } catch (e) {
-      // Ensure loading dialog is dismissed
-      if (dialogShown && context.mounted) {
-        Navigator.pop(context);
-      }
-
-      // Show error dialog
-      if (context.mounted) {
-        _showErrorDialog(context, '로그인 실패', e.toString());
-      }
+      _showErrorDialog('로그인 실패', '에러가 발생했습니다: $e');
     }
   }
 
@@ -95,7 +94,7 @@ class LoginPage extends StatelessWidget {
             const Text('로고는 여기 위에'),
             const SizedBox(height: 100),
             ElevatedButton(
-              onPressed: () => handleGoogleSignIn(context),
+              onPressed: handleGoogleSignIn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 fixedSize: const Size(300, 50),
@@ -124,22 +123,6 @@ class LoginPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String title, String message) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('확인'),
-          ),
-        ],
       ),
     );
   }
