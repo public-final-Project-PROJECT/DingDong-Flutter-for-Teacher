@@ -1,7 +1,9 @@
 import 'package:dingdong_flutter_teacher/screen/votingAlert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../model/voting_model.dart';
+import 'home_screen.dart';
 import 'voting_modal.dart';
 
 class Vote extends StatefulWidget {
@@ -18,7 +20,7 @@ class _VoteState extends State<Vote> {
   Map<int, Map<int, List<dynamic>>> _votingStudentsMap =
   {}; // 투표 항목에 대한 학생들의 정보
 
-  int classId = 2;
+  late final int classId;
 
   final VotingModel _votingModel = VotingModel();
 
@@ -27,6 +29,7 @@ class _VoteState extends State<Vote> {
   @override
   void initState() {
     super.initState();
+    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
     _loadVoting(); // 투표 기본 정보, 항목 정보 요청
     _loadClassStudentsInfo(classId); // 학생들의 항목 투표 내용 요청
   }

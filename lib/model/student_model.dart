@@ -5,12 +5,12 @@ import 'package:dio/dio.dart';
 class StudentModel{
 
 
-  Future<List<dynamic>>searchStudentList() async{
+  Future<List<dynamic>>searchStudentList(int classId) async{
     final dio = Dio();
 
     try{
-      final response = await dio.get("http://112.221.66.174:3013/api/students/viewClass?classId=1",
-          queryParameters: {'classId': 1});
+      final response = await dio.get("http://112.221.66.174:3013/api/students/viewClass?classId=$classId",
+          queryParameters: {'classId': classId});
       if(response.statusCode == 200){
         print(response.data);
         return response.data as List<dynamic>;

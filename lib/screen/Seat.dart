@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../model/seat_model.dart';
+import 'home_screen.dart';
 
 class Seat extends StatefulWidget {
   const Seat({super.key});
@@ -17,7 +19,7 @@ class _SeatState extends State<Seat> {
   bool showSaveButton = false;
   bool isEditing = false;
   String randomSpinLabel = "start !";
-  int classId = 2;
+  late final int classId;
   Map<String, dynamic>? firstSelectedSeat;
   List<dynamic> originalSeats = [];
   List<Map<String, dynamic>> newSeats = [];
@@ -26,13 +28,14 @@ class _SeatState extends State<Seat> {
   @override
   void initState() {
     super.initState();
+    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
     loadSeatTable(classId);
     loadStudentNames();
   }
 
   // 기존 좌석 조회 api
   Future<void> loadSeatTable(int classId) async {
-    List<dynamic> result = await _seatModel.selectSeatTable(classId) as List;
+    List<dynamic> result = await _seatModel.selectSeatTable(classId);
     setState(() {
       loadedSeats = result.map((seat) => Map<String, dynamic>.from(seat)).toList();
       originalSeats = List.from(loadedSeats);
@@ -58,7 +61,7 @@ class _SeatState extends State<Seat> {
         'studentId': seat['studentId'],
         'rowId': seat['rowId'],
         'columnId': seat['columnId'],
-        'classId': 2
+        'classId': classId
       };
     }).toList();
     try {

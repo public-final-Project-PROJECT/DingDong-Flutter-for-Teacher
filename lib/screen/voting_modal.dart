@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../model/voting_model.dart';
+import 'home_screen.dart';
 
 class AddVotingPage extends StatefulWidget {
   final List<dynamic> inputDataList;
@@ -21,6 +23,14 @@ class _AddVotingPageState extends State<AddVotingPage> {
   String selectedSecretVoting = "secret";
   String selectedDoubleVoting = "one";
   DateTime? selectedDate;
+  late final int classId;
+
+
+  @override
+  void initState() {
+    super.initState();
+    classId = Provider.of<TeacherProvider>(context).latestClassId;
+  }
 
   void _addNewVoting(String title, String description, List<dynamic> options,
       String? deadline, bool secretVoting, bool doubleVoting) async {
@@ -28,7 +38,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
       deadline = "no";
     }
     List<dynamic> votingData = await _votingModel.newVoting(
-        title, description, options, deadline, secretVoting, doubleVoting);
+        classId, title, description, options, deadline, secretVoting, doubleVoting);
     print(votingData);
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text("투표가 생성되었습니다 !")));

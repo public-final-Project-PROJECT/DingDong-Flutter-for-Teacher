@@ -4,6 +4,9 @@ import 'package:dingdong_flutter_teacher/screen/studentDetailPage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'home_screen.dart';
 
 class Attendance extends StatefulWidget {
   const Attendance({super.key});
@@ -15,7 +18,7 @@ class Attendance extends StatefulWidget {
 class _AttendanceState extends State<Attendance> {
   final StudentModel _studentModel = StudentModel();
   final AttendanceModel _attendanceModel = AttendanceModel();
-  final int classId = 1;
+  late final int classId;
 
   List<dynamic> _students = [];
   List<dynamic> _attendanceList = [];
@@ -47,17 +50,18 @@ class _AttendanceState extends State<Attendance> {
   void initState() {
     super.initState();
     _loadStudents();
+    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
   }
 
   void _loadStudents() async {
-    List<dynamic> studentsData = await _studentModel.searchStudentList();
+    List<dynamic> studentsData = await _studentModel.searchStudentList(classId);
     setState(() {
       _students = studentsData;
     });
   }
 
   void _loadAttendance(attendanceDate) async {
-    List<dynamic> attendanceData = await _attendanceModel.searchAttendanceDate(attendanceDate);
+    List<dynamic> attendanceData = await _attendanceModel.searchAttendanceDate(attendanceDate, classId);
     setState(() {
       _attendanceList = attendanceData;
       print("여기데이터");
