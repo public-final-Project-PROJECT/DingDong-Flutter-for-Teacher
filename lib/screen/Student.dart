@@ -53,7 +53,7 @@ class _StudentState extends State<Student> {
 
             return ListTile(
               title: Text(student['studentName'] ?? '이름 없음'),
-              subtitle: Text("학번: ${student['studentId'] ?? '학번 없음'}"),
+              subtitle: Text("학번: ${student['studentNo'] ?? '학번 없음'}"),
               trailing: Icon(Icons.arrow_forward),
               onTap: () {
                 setState(() {

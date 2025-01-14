@@ -159,7 +159,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.only(left: 14.0),
-                          child: Text("${student['schoolName']}/${student['grade']}학년/${student['classNo']}반", style: TextStyle(fontSize: 15)),
+                          child: Text("${student['schoolName']}/${student['grade']}학년/${student['classNo']}반 /${student['studentNo']}번", style: TextStyle(fontSize: 15)),
                           decoration: BoxDecoration(
                             border: Border(bottom: BorderSide(color: Colors.grey)),
                           ),
