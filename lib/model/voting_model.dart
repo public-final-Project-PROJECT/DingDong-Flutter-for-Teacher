@@ -8,7 +8,7 @@ class VotingModel {
     try {
       final response = await dio.post(
           "http://112.221.66.174:3013/api/voting/findVoting",
-          data: {'classId': 2});
+          data: {'classId': classId});
 
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
@@ -43,6 +43,7 @@ class VotingModel {
 
   // 새 투표 생성
   Future<List<dynamic>> newVoting(
+      int classId,
       String title,
       String description,
       List<dynamic> options,
@@ -60,7 +61,7 @@ class VotingModel {
       final response = await dio.post(
         "http://112.221.66.174:3013/api/voting/newvoting",
         data: {
-          'classId': 2,
+          'classId': classId,
           'votingName': title,
           'detail': description,
           'votingEnd': deadline,
@@ -92,9 +93,10 @@ class VotingModel {
         try{
           final response = await dio.post(
             "http://112.221.66.174:3013/api/voting/findStudentsName",
-            data: {'classId' : 1},
+            data: {'classId' : classId},
           );
           if(response.statusCode == 200){
+            print(response.data);
             return response.data as List<dynamic>;
           }else{
             throw Exception("로드 실패");

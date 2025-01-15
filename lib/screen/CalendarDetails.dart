@@ -6,7 +6,12 @@ class Calendardetails extends StatefulWidget {
   final dynamic event;
   final Function(int id) DeleteEvent;
   final Function(dynamic event) UpdateEvent;
-  const Calendardetails({super.key, required this.event, required this.DeleteEvent, required this.UpdateEvent});
+
+  const Calendardetails(
+      {super.key,
+      required this.event,
+      required this.DeleteEvent,
+      required this.UpdateEvent});
 
   @override
   State<Calendardetails> createState() => _CalendardetailsState();
@@ -14,73 +19,154 @@ class Calendardetails extends StatefulWidget {
 
 class _CalendardetailsState extends State<Calendardetails> {
   final CalendarModel _calendarModel = CalendarModel();
-
-
-
+  dynamic event2;
+  bool canDismiss = false; // 조건 변수
+  @override
+  void initState() {
+    super.initState();
+    event2 = widget.event; // 여기서 widget에 안전하게 접근 가능
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Event Details'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add), // 오른쪽 상단에 추가 버튼
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true, // 모달 창이 전체 화면에 가까워지도록 설정
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          title: const Text('이벤트 세부사항'),
+          centerTitle: true,
+          leadingWidth: 90,
+          leading: SizedBox(
+            width: 130, // leading의 크기 제한
+            child: Row(
+              mainAxisSize: MainAxisSize.min, // Row 크기를 최소화하여 공간 초과 방지
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left), // 뒤로가기 화살표
+                  onPressed: () {
+                    Navigator.pop(context); // 뒤로 가기 동작
+                  },
                 ),
-                builder: (context) {
-                  return CalendarUpdate(
+                Flexible(
+                  // 텍스트 길이 제어
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 0.1), // 화살표와 텍스트 간격 조정
+                    child: Text(
+                      event2 != null && event2['start'] != null // 유효성 검사
+                          ? '${event2['start'].toString().substring(5, 7)} 월' // 날짜 출력
+                          : 'No Date',
+                      style: const TextStyle(
+                        fontSize: 16, // 텍스트 크기 줄이기
 
-                    setEvent: widget.event,
-                    updateDate: 0,
-                    onEventAdded: (title, location, description, startDate, endDate) {
-                      // 이벤트 추가 로직
-
-                      final DateTime datestart =
-                      startDate.add(const Duration(hours: 9)).toUtc();
-                      final DateTime dateend =
-                      endDate.add(const Duration(hours: 9)).toUtc();
-                      final event = {
-                        'calendarId' : widget.event['calendarId'],
-                        'title': title,
-                        'description': description,
-                        'start': datestart.toString().substring(0, 10),
-                        'end': dateend.toString().substring(0, 10),
-                      };
-                      widget.UpdateEvent(event);
-                      },
-                  );
-                },
-              );
-            },
+                        color: Colors.black87,
+                      ),
+                      overflow: TextOverflow.ellipsis, // 텍스트 초과 시 "..."로 표시
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit), // 오른쪽 상단에 추가 버튼
+              onPressed: () {
+                showModalBottomSheet(
+                  isDismissible: false,
+                  // 빈 공간 클릭 방지
+                  enableDrag: false,
+
+                  context: context,
+                  isScrollControlled: true,
+                  // 모달 창이 전체 화면에 가까워지도록 설정
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (BuildContext context) {
+                    return StatefulBuilder(builder: (context, setState) {
+                      return GestureDetector(
+                        child: CalendarUpdate(
+                          setEvent: widget.event,
+                          updateDate: 0,
+                          onEventAdded: (title, location, description,
+                              startDate, endDate) {
+                            // 이벤트 추가 로직
+
+                            final DateTime datestart =
+                                startDate.add(const Duration(hours: 9)).toUtc();
+                            final DateTime dateend =
+                                endDate.add(const Duration(hours: 9)).toUtc();
+                            final event = {
+                              'calendarId': widget.event['calendarId'],
+                              'title': title,
+                              'description': description,
+                              'start': datestart.toString().substring(0, 10),
+                              'end': dateend.toString().substring(0, 10),
+                            };
+                            setState(() {
+                              event2['title'] = title;
+                              event2['description'] = description;
+                              event2['start'] =
+                                  datestart.toString().substring(0, 10);
+                              event2['end'] =
+                                  dateend.toString().substring(0, 10);
+                            });
+                            widget.UpdateEvent(event);
+                          },
+                        ),
+                      );
+                    });
+                  },
+                );
+              },
+            ),
+          ]),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.event['title']}',
+              '${event2['title']}',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-
             Text(
-              'Date: ${widget.event['start'].toString().substring(0, 10)}',
+              '시작일 : ${event2['start'].toString().substring(0, 10)}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
-              'Description: ${widget.event['description']}',
+              '종료일 : ${event2['end'].toString().substring(0, 10)}',
               style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey, // Divider color
+            ),
+            Container(
+              height: 200, // 고정된 높이 설정
+              width: double.infinity, // 전체 너비 사용
+              padding: const EdgeInsets.only(top: 5, left: 5), // 위쪽 여백 최소화
+
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+                  children: [
+                    const Text(
+                      '메모',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Text(
+                      '${event2['description']}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ]),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey, // Divider color
             ),
           ],
         ),
@@ -124,7 +210,7 @@ class _CalendardetailsState extends State<Calendardetails> {
             children: [
               // Grouped container for the confirmation text and delete button
               Container(
-                margin: const EdgeInsets.fromLTRB(16,16,16,8),
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 decoration: BoxDecoration(
                   color: Colors.white70, // Button background
                   borderRadius: BorderRadius.circular(12), // Rounded corners
@@ -154,11 +240,9 @@ class _CalendardetailsState extends State<Calendardetails> {
                     // Delete button
                     InkWell(
                       onTap: () {
-
                         widget.DeleteEvent(widget.event['calendarId']);
                         Navigator.pop(context); // Close modal
                         Navigator.pop(context);
-
                       },
                       child: Container(
                         width: double.infinity,
@@ -204,11 +288,9 @@ class _CalendardetailsState extends State<Calendardetails> {
             ],
           ),
         );
-
       },
     );
   }
-
 }
 
 class EditEventScreen extends StatelessWidget {

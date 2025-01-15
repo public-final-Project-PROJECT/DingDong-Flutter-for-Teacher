@@ -5,6 +5,9 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import 'home_screen.dart';
 
 class Noticeupdate extends StatefulWidget {
   final dynamic notice;
@@ -25,6 +28,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
   final List<String> categories = ["가정통신문", "알림장", "학교생활"];
   String _selectedCategory = "";
   int? noticeId;
+  late final int classId;
 
   @override
   void initState() {
@@ -33,6 +37,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
     _contentController.text = widget.notice['noticeContent'] ?? "";
     _selectedCategory = widget.notice['noticeCategory'] ?? "가정통신문";
     noticeId = widget.notice['noticeId'];
+    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
 
     if (widget.notice['noticeImg'] != null) {
       beforeImg = widget.notice['noticeImg'];
@@ -81,7 +86,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
         'noticeTitle': title,
         'noticeCategory': _selectedCategory,
         'noticeContent': content,
-        'classId': 1, // 임시로 고정된 classId 사용
+        'classId': classId, // 임시로 고정된 classId 사용
         if (_selectedImage != null)
           'noticeImg': await MultipartFile.fromFile(_selectedImage!.path),
         if (_selectedFile != null && _selectedFile!.path.isNotEmpty)

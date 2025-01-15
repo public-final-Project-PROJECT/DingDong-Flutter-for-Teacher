@@ -5,6 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+
+import 'home_screen.dart';
 
 class NoticeRegister extends StatefulWidget {
   const NoticeRegister({super.key});
@@ -21,6 +24,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
   File? _selectedFile;
   final List<String> categories = ["가정통신문","알림장","학교생활"];
   String _selectedCategory = "가정통신문";
+  late final int classId;
 
 
   Future<void> _checkPermission(Permission permission) async {
@@ -73,7 +77,11 @@ class _NoticeRegisterState extends State<NoticeRegister> {
   }
 
 
-
+  @override
+  void initState() {
+    super.initState();
+    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
+  }
 
   Future<void> _registerNotice() async {
     final title = _titleController.text.trim();
@@ -91,7 +99,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
         'noticeTitle': title,
         'noticeCategory': _selectedCategory,
         'noticeContent': content,
-        'classId': 1, // 임시로 고정된 classId 사용
+        'classId': classId, // 임시로 고정된 classId 사용
         if (_selectedImage != null)
           'noticeImg': await MultipartFile.fromFile(_selectedImage!.path),
         if (_selectedFile != null)

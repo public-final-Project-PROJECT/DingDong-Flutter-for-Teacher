@@ -4,6 +4,9 @@ import 'package:dingdong_flutter_teacher/screen/NoticeDetailPage.dart';
 import 'package:dingdong_flutter_teacher/screen/NoticeRegister.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'home_screen.dart';
 
 class Notice extends StatefulWidget {
   const Notice({super.key});
@@ -16,15 +19,17 @@ class _NoticeState extends State<Notice> {
   List<dynamic> _noticeList = [];
   final NoticeModel _noticeModel = NoticeModel();
   String? _selectedCategory;
+  late final int classId;
 
   @override
   void initState() {
     super.initState();
-    _loadNotice();
+    classId = Provider.of<TeacherProvider>(context).latestClassId;
+    _loadNotice(classId: classId);
   }
 
-  void _loadNotice({String? category}) async {
-    List<dynamic> noticeData = await _noticeModel.searchNotice(category: category);
+  void _loadNotice({String? category, required int classId}) async {
+    List<dynamic> noticeData = await _noticeModel.searchNotice(category: category, classId: classId);
     setState(() {
       _noticeList = noticeData;
     });
@@ -47,6 +52,7 @@ class _NoticeState extends State<Notice> {
             padding: const EdgeInsets.all(4.0),
             child: Row(
               children: [
+                SizedBox(width: 10),  // 공지사항 카테고리 좌측 공간 확보
                 DropdownButton<String>(
                   value: _selectedCategory,
                   hint: const Text("카테고리 선택"),
@@ -60,8 +66,9 @@ class _NoticeState extends State<Notice> {
                     setState(() {
                       _selectedCategory = value;
                     });
-                    _loadNotice(category: value);
+                    _loadNotice(category: value, classId: classId);
                   },
+                  dropdownColor: Color(0xffFFFFFF),
                 ),
                 const Spacer(),
                 ElevatedButton.icon(
@@ -73,7 +80,7 @@ class _NoticeState extends State<Notice> {
                       ),
                     ).then((result) {
                       if (result == true) {
-                        _loadNotice(category: _selectedCategory);
+                        _loadNotice(category: _selectedCategory, classId: classId);
                       }
                     });
                   },
@@ -143,7 +150,7 @@ class _NoticeState extends State<Notice> {
                                 return NoticedeleteDialog(
                                   noticeId: notice['noticeId'],
                                   onDeleteSuccess: () {
-                                    _loadNotice(); // 삭제 후 목록 새로고침
+                                    _loadNotice(classId: classId); // 삭제 후 목록 새로고침
                                   },
                                 );
                               },

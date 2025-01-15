@@ -20,7 +20,7 @@ dependencies:
   image_picker: ^1.1.2
   file_picker: ^8.1.7
   path_provider: ^2.1.5
-  shared_preferences: ^2.2.0
+  shared_preferences: ^2.3.5
   flutter:
     sdk: flutter
 
@@ -32,6 +32,7 @@ dependencies:
   win32: ^5.10.0
   dart_console: ^4.1.1
   flutter_dotenv: ^5.2.1
+  flutter_secure_storage: ^9.2.4
 
 
 dev_dependencies:

@@ -1,6 +1,9 @@
 import 'package:dingdong_flutter_teacher/model/student_model.dart';
 import 'package:dingdong_flutter_teacher/screen/studentDetailPage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'home_screen.dart';
 
 class Student extends StatefulWidget {
   const Student({super.key});
@@ -14,15 +17,17 @@ class _StudentState extends State<Student> {
   List<dynamic> _students = [];
   final StudentModel _studentModel = StudentModel();
   dynamic _selectedStudent;
-
+  late final int classId;
 
   @override
   void initState() {
+    super.initState();
+    classId = Provider.of<TeacherProvider>(context).latestClassId;
     _loadStudents();
   }
 
   void _loadStudents() async{
-    List<dynamic> studentsData = await _studentModel.searchStudentList();
+    List<dynamic> studentsData = await _studentModel.searchStudentList(classId);
     setState(() {
       //print("불러온 학생 데이터: $studentsData");
       _students = studentsData;
@@ -33,9 +38,9 @@ class _StudentState extends State<Student> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${_students.isNotEmpty
+        title: Text(_students.isNotEmpty
             ? '${_students[0]['schoolName']} ${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
-            : '학생 정보'}"),
+            : '학생 정보'),
         backgroundColor: Color(0xffF4F4F4),
         shape: const Border(  // AppBar 밑줄
           bottom: BorderSide(

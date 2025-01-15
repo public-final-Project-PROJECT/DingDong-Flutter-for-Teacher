@@ -1,7 +1,9 @@
 import 'package:dingdong_flutter_teacher/screen/votingAlert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../model/voting_model.dart';
+import 'home_screen.dart';
 import 'voting_modal.dart';
 
 class Vote extends StatefulWidget {
@@ -18,7 +20,7 @@ class _VoteState extends State<Vote> {
   Map<int, Map<int, List<dynamic>>> _votingStudentsMap =
   {}; // 투표 항목에 대한 학생들의 정보
 
-  int classId = 1;
+  late final int classId;
 
   final VotingModel _votingModel = VotingModel();
 
@@ -27,6 +29,7 @@ class _VoteState extends State<Vote> {
   @override
   void initState() {
     super.initState();
+    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
     _loadVoting(); // 투표 기본 정보, 항목 정보 요청
     _loadClassStudentsInfo(classId); // 학생들의 항목 투표 내용 요청
   }
@@ -35,7 +38,7 @@ class _VoteState extends State<Vote> {
   void _loadClassStudentsInfo(int classId) async {
     try {
       List<dynamic> studentsList =
-      await _votingModel.findStudentsNameAndImg(classId);
+      await _votingModel.findStudentsNameAndImg(2);
 
       print('학생인포: $studentsList');
 
@@ -74,6 +77,7 @@ class _VoteState extends State<Vote> {
           // 학생들의 항목 투표 정보
         }
       }
+      _loadClassStudentsInfo(2);
     } catch (e) {
       print("Error 투표 data: $e");
     }
@@ -164,6 +168,25 @@ class _VoteState extends State<Vote> {
     return {};
   }
 
+  List<Map<String, dynamic>> _getStudentsNotVoted(int votingId) {
+    // 전체 학생 목록
+    final allStudents = _studentsInfo;
+
+    // 투표에 참여한 학생 목록 추출
+    final studentsVoted = _votingStudentsMap[votingId]?.values.expand((voters) => voters).toList() ?? [];
+
+    // 투표에 참여한 학생 ID 추출
+    final votedStudentIds = studentsVoted.map((student) => student["studentId"]).toSet();
+
+    // 투표하지 않은 학생 목록 계산
+    final studentsNotVoted = allStudents.where((student) {
+      return !votedStudentIds.contains(student["id"]);
+    }).toList();
+
+    return studentsNotVoted;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,6 +199,11 @@ class _VoteState extends State<Vote> {
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
+        shape: const Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+          )
+        ),
       ),
       backgroundColor: const Color(0xffF4F4F4),
       body: ListView.builder(
@@ -210,35 +238,27 @@ class _VoteState extends State<Vote> {
                             Icon(
                               Icons.circle,
                               size: 13,
-                              color: voting["vote"] == true
-                                  ? Colors.red
-                                  : Colors.grey,
+                              color: voting["vote"] == true ? Colors.red : Colors.grey,
                             ),
                             SizedBox(width: 5),
                             Text(
                               voting["vote"] == true ? "진행중" : "종료",
                               style: TextStyle(
                                 fontSize: 15,
-                                color: voting["vote"] == true
-                                    ? Colors.red
-                                    : Colors.grey,
+                                color: voting["vote"] == true ? Colors.red : Colors.grey,
                               ),
                             ),
-                            if (voting["votingEnd"] != null &&
-                                voting["vote"] == true)
+                            if (voting["votingEnd"] != null && voting["vote"] == true)
                               Row(
                                 children: [
-                                  Icon(Icons.hourglass_bottom,
-                                      color: Colors.redAccent),
+                                  Icon(Icons.hourglass_bottom, color: Colors.redAccent),
                                   Text(
                                     votingEnd,
-                                    style: TextStyle(
-                                        fontSize: 12, color: Colors.red),
+                                    style: TextStyle(fontSize: 12, color: Colors.red),
                                   ),
                                   Text(
                                     " 에 자동으로 종료됩니다!",
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.red),
+                                    style: TextStyle(fontSize: 14, color: Colors.red),
                                   ),
                                 ],
                               ),
@@ -251,6 +271,7 @@ class _VoteState extends State<Vote> {
                             Text(
                               voting["votingName"] ?? '',
                               style: TextStyle(fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -275,10 +296,8 @@ class _VoteState extends State<Vote> {
                                     onPressed: () {
                                       _votingDelete(votingId);
                                       Navigator.pop(context);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text("투표가 삭제되었습니다!")),
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text("투표가 삭제되었습니다!")),
                                       );
                                     },
                                     child: Text("확인"),
@@ -296,6 +315,53 @@ class _VoteState extends State<Vote> {
                       ),
                     ],
                   ),
+                  TextButton(
+                    onPressed: () {
+                      // 투표 안 한 학생 목록 계산
+                      final studentsNotVoted = _getStudentsNotVoted(votingId);
+
+                      // 다이얼로그로 표시
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("투표 안 한 학생들"),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: ListView.builder(
+                              itemCount: studentsNotVoted.length,
+                              itemBuilder: (context, index) {
+                                final student = studentsNotVoted[index];
+                                return ListTile(
+                                  title: Row(
+                                    children: [
+                                      student["img"] != null
+                                          ? Image.network(student["img"], width: 40, height: 40)
+                                          : Icon(Icons.person_pin, size: 40),
+                                      SizedBox(width: 10),
+                                      Text(student["studentName"] ?? "학생 없음"),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("닫기"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.supervised_user_circle_outlined),
+                        Text("미투표 학생 보기"),
+                      ],
+                    ),
+                  ),
+
                 ],
               ),
               subtitle: Column(
@@ -344,14 +410,6 @@ class _VoteState extends State<Vote> {
                         ),
                     ],
                   ),
-                  // TextButton(onPressed:
-                  //   VotingAlert(),
-                  //  child: Row(
-                  //   children: [
-                  //     Icon(Icons.person_off_sharp),
-                  //     Text("투표 안한 학생 보기"),
-                  //   ],
-                  // )),
                   SizedBox(height: 20),
                   Align(
                     alignment: Alignment.bottomRight,
@@ -364,16 +422,25 @@ class _VoteState extends State<Vote> {
               ),
               isThreeLine: true,
               onTap: () {
+                final voting = _voteList[index];
+                final votingId = voting["id"];
+                final votingContents = _allVotingData[votingId] ?? [];
+                final studentsVotedForContents = _votingStudentsMap[votingId] ?? {};
+
+                print(voting);
+                print(votingId);
+                print('votingContents : $votingContents');
+                print('studentsVotedForContents : $studentsVotedForContents');
+                print('학생정보 ::   $_studentsInfo');
+
                 showDialog(
                   context: context,
-                  builder: (context) =>
-                      VotingAlert(
-                        votingName: voting["votingName"] ?? '',
-                        votingContents: votingContents,
-                        studentsVotedForContents: _votingStudentsMap[votingId] ??
-                            {},
-                        studentsInfo: _studentsInfo,
-                      ),
+                  builder: (context) => VotingAlert(
+                    votingName: voting["votingName"] ?? '',
+                    votingContents: votingContents,
+                    studentsVotedForContents: studentsVotedForContents,
+                    studentsInfo: _studentsInfo,
+                  ),
                 );
               },
               trailing: voting["votingEnd"] == null && voting["vote"] == true
@@ -409,6 +476,7 @@ class _VoteState extends State<Vote> {
                   : null,
             ),
           );
+
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -430,8 +498,6 @@ class _VoteState extends State<Vote> {
             Icon(Icons.how_to_vote),
           ],
         ),
-        backgroundColor: const Color(0xff515151),
-        foregroundColor: Colors.white,
       ),
     );
   }
