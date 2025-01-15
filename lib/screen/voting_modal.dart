@@ -6,7 +6,8 @@ import 'home_screen.dart';
 class AddVotingPage extends StatefulWidget {
   final List<dynamic> inputDataList;
 
-  const AddVotingPage({Key? key, required this.inputDataList}) : super(key: key);
+  const AddVotingPage({Key? key, required this.inputDataList})
+      : super(key: key);
 
   @override
   _AddVotingPageState createState() => _AddVotingPageState();
@@ -25,7 +26,6 @@ class _AddVotingPageState extends State<AddVotingPage> {
   DateTime? selectedDate;
   late final int classId;
 
-
   @override
   void initState() {
     super.initState();
@@ -37,8 +37,8 @@ class _AddVotingPageState extends State<AddVotingPage> {
     if (deadline == null || deadline.isEmpty) {
       deadline = "no";
     }
-    List<dynamic> votingData = await _votingModel.newVoting(
-        classId, title, description, options, deadline, secretVoting, doubleVoting);
+    List<dynamic> votingData = await _votingModel.newVoting(classId, title,
+        description, options, deadline, secretVoting, doubleVoting);
     print(votingData);
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text("투표가 생성되었습니다 !")));
@@ -51,10 +51,9 @@ class _AddVotingPageState extends State<AddVotingPage> {
         title: const Text("새 투표 생성"),
         backgroundColor: Colors.white,
         shape: Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-          )
-        ),
+            bottom: BorderSide(
+          color: Colors.grey,
+        )),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -128,7 +127,9 @@ class _AddVotingPageState extends State<AddVotingPage> {
                 Row(
                   children: [
                     Icon(Icons.calendar_month_outlined),
-                    SizedBox(width: 10,),
+                    SizedBox(
+                      width: 10,
+                    ),
                     const Text("투표 마감 설정",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
@@ -161,8 +162,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
                       }
                     },
                     child: Text(selectedDate != null
-                        ? "선택된 날짜: ${selectedDate!.toLocal()}"
-                        .split(' ')[0]
+                        ? "선택된 날짜: ${selectedDate!.toLocal()}".split(' ')[0]
                         : "날짜를 선택하세요"),
                   ),
                 ListTile(
@@ -187,12 +187,13 @@ class _AddVotingPageState extends State<AddVotingPage> {
                 Row(
                   children: [
                     Icon(Icons.lock_open),
-                    SizedBox(width: 10,),
+                    SizedBox(
+                      width: 10,
+                    ),
                     const Text("비밀투표 설정",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
-
                 ListTile(
                   title: const Text("비밀 투표"),
                   leading: Radio<String>(
@@ -227,12 +228,14 @@ class _AddVotingPageState extends State<AddVotingPage> {
                 Row(
                   children: [
                     Icon(Icons.check_box_outlined),
-                    SizedBox(width: 10,),
+                    SizedBox(
+                      width: 10,
+                    ),
                     const Text("중복투표 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontWeight: FontWeight.bold,
+                        )),
                   ],
                 ),
-
                 ListTile(
                   title: const Text("중복 투표"),
                   leading: Radio<String>(
@@ -267,12 +270,12 @@ class _AddVotingPageState extends State<AddVotingPage> {
           String title = inputTitle.text;
           String description = inputDescription.text;
           List<String> options =
-          inputOptions.map((controller) => controller.text).toList();
+              inputOptions.map((controller) => controller.text).toList();
 
-          dynamic deadline = selectedDeadlineOption == "date" &&
-              selectedDate != null
-              ? selectedDate.toString()
-              : null;
+          dynamic deadline =
+              selectedDeadlineOption == "date" && selectedDate != null
+                  ? selectedDate.toString()
+                  : null;
 
           bool secretVoting = selectedSecretVoting == "secret" ? true : false;
 

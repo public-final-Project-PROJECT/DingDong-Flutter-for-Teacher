@@ -98,7 +98,7 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: const Color(0xffF4F4F4),
           actions: [
             IconButton(
-              icon: const Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications, color: Colors.orangeAccent, size: 30,),
               onPressed: () => _showNotification(context),
             ),
           ],
@@ -169,7 +169,7 @@ class HomeDrawer extends StatelessWidget {
               onTap: () => _navigateTo(context, Calendar(user: user)),
             ),
             ExpansionTile(
-              leading: const Icon(Icons.people),
+              leading: const Icon(Icons.people, size: 30,),
               title: const Text('편의기능'),
               children: [
                 _buildDrawerItem(
