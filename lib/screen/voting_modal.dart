@@ -51,7 +51,6 @@ class _AddVotingPageState extends State<AddVotingPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 제목 입력
             TextField(
               controller: inputTitle,
               decoration: const InputDecoration(
@@ -59,7 +58,6 @@ class _AddVotingPageState extends State<AddVotingPage> {
               ),
             ),
             const SizedBox(height: 10),
-            // 설명 입력
             TextField(
               controller: inputDescription,
               decoration: const InputDecoration(
@@ -67,7 +65,6 @@ class _AddVotingPageState extends State<AddVotingPage> {
               ),
             ),
             const SizedBox(height: 30),
-            // 항목 추가
             Column(
               children: [
                 for (var i = 0; i < inputOptions.length; i++)
@@ -111,15 +108,16 @@ class _AddVotingPageState extends State<AddVotingPage> {
               ],
             ),
             const SizedBox(height: 40),
-            // 투표 마감 설정
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
                     Icon(Icons.calendar_month_outlined),
-                    SizedBox(width: 10,),
-                    Text("투표 마감 설정",
+                    SizedBox(
+                      width: 10,
+                    ),
+                    const Text("투표 마감 설정",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -151,8 +149,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
                       }
                     },
                     child: Text(selectedDate != null
-                        ? "선택된 날짜: ${selectedDate!.toLocal()}"
-                        .split(' ')[0]
+                        ? "선택된 날짜: ${selectedDate!.toLocal()}".split(' ')[0]
                         : "날짜를 선택하세요"),
                   ),
                 ListTile(
@@ -170,19 +167,19 @@ class _AddVotingPageState extends State<AddVotingPage> {
               ],
             ),
             const SizedBox(height: 30),
-            // 비밀 투표 설정
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
                     Icon(Icons.lock_open),
-                    SizedBox(width: 10,),
-                    Text("비밀투표 설정",
+                    SizedBox(
+                      width: 10,
+                    ),
+                    const Text("비밀투표 설정",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ],
                 ),
-
                 ListTile(
                   title: const Text("비밀 투표"),
                   leading: Radio<String>(
@@ -210,19 +207,20 @@ class _AddVotingPageState extends State<AddVotingPage> {
               ],
             ),
             const SizedBox(height: 30),
-            // 중복 투표 설정
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
                     Icon(Icons.check_box_outlined),
-                    SizedBox(width: 10,),
-                    Text("중복투표 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    const Text("중복투표 설정",
+                        style: TextStyle(fontWeight: FontWeight.bold,
+                        )),
                   ],
                 ),
-
                 ListTile(
                   title: const Text("중복 투표"),
                   leading: Radio<String>(
@@ -257,12 +255,12 @@ class _AddVotingPageState extends State<AddVotingPage> {
           String title = inputTitle.text;
           String description = inputDescription.text;
           List<String> options =
-          inputOptions.map((controller) => controller.text).toList();
+              inputOptions.map((controller) => controller.text).toList();
 
-          dynamic deadline = selectedDeadlineOption == "date" &&
-              selectedDate != null
-              ? selectedDate.toString()
-              : null;
+          dynamic deadline =
+              selectedDeadlineOption == "date" && selectedDate != null
+                  ? selectedDate.toString()
+                  : null;
 
           bool secretVoting = selectedSecretVoting == "secret" ? true : false;
 
@@ -286,12 +284,3 @@ class _AddVotingPageState extends State<AddVotingPage> {
     );
   }
 }
-
-// Usage:
-// To navigate to this page:
-// Navigator.push(
-//   context,
-//   MaterialPageRoute(
-//     builder: (context) => AddVotingPage(inputDataList: inputDataList),
-//   ),
-// );

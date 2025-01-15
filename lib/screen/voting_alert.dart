@@ -17,98 +17,111 @@ class VotingAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("투표 상황 보기"),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          children: [
-            const SizedBox(height: 30),
-            Text(
-              votingName,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+      title: Row(
+        children: [
+          Icon(Icons.turned_in, color: Colors.deepOrange, size: 33),
+          SizedBox(width: 10),
+          Text("투표 상황 보기", style: TextStyle(fontSize: 20,  fontWeight: FontWeight.bold,),),
+        ],
+      ),
+      content: SingleChildScrollView(
+
+        child: Container(
+          width: double.maxFinite,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 30),
+              Text(
+                votingName,
+                style: TextStyle(
+                  fontSize: 17,
+                ),
               ),
-            ),
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: votingContents.length,
-              itemBuilder: (context, index) {
-                final content = votingContents[index];
-                final contentName = content["votingContents"] ?? "";
-                final contentId = content["contentsId"];
+              SizedBox(height: 20),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: votingContents.length,
+                itemBuilder: (context, index) {
+                  final content = votingContents[index];
+                  final contentName = content["votingContents"] ?? "";
+                  final contentId = content["contentsId"];
 
-                final students = studentsVotedForContents[contentId] ?? [];
+                  final students = studentsVotedForContents[contentId] ?? [];
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.check_circle_outline_sharp),
-                        const SizedBox(
-                          width: 13,
-                        ),
-                        Text(
-                          "항목${index + 1}.  $contentName",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 30),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline_sharp,
+                            color: Colors.deepOrangeAccent,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    if (students.isEmpty)
-                      const Text("투표한 학생 없음",
-                          style: TextStyle(color: Colors.grey))
-                    else
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: students.map<Widget>((student) {
-                          final studentId = student["studentId"];
-
-                          final studentData = studentsInfo.firstWhere(
-                            (info) {
-                              final infoStudentId =
-                                  info["studentId"].toString().trim();
-                              final studentIdStr = studentId.toString().trim();
-
-                              return infoStudentId == studentIdStr;
-                            },
-                            orElse: () {
-                              return {};
-                            },
-                          );
-
-                          if (studentData.isEmpty) {}
-
-                          final studentName =
-                              studentData["studentName"] ?? "이름 없음";
-                          final studentImg = studentData["studentImg"];
-
-                          return ListTile(
-                            leading: studentImg != null
-                                ? CircleAvatar(
-                                    backgroundImage: NetworkImage(studentImg),
-                                  )
-                                : const CircleAvatar(child: Icon(Icons.person)),
-                            title: Text(studentName),
-                          );
-                        }).toList(),
+                          SizedBox(width: 13),
+                          Text(
+                            "항목${index + 1}.  ",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              color: Colors.deepOrangeAccent,
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(
+                              contentName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
                       ),
-                    const Divider(),
-                  ],
-                );
-              },
-            ),
-          ],
+                      SizedBox(height: 15),
+                      if (students.isEmpty)
+                        Text("투표한 학생 없음", style: TextStyle(color: Colors.grey, fontSize: 15))
+                      else
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: students.map<Widget>((student) {
+                            final studentId = student["studentId"];
+
+                            final studentData = studentsInfo.firstWhere(
+                                  (info) =>
+                              info["studentId"].toString().trim() ==
+                                  studentId.toString().trim(),
+                              orElse: () => {},
+                            );
+
+                            final studentName =
+                                studentData["studentName"] ?? "이름 없음";
+                            final studentImg = studentData["studentImg"];
+
+                            return ListTile(
+                              leading: studentImg != null
+                                  ? CircleAvatar(
+                                backgroundImage: NetworkImage(studentImg),
+                              )
+                                  : CircleAvatar(child: Icon(Icons.person)),
+                              title: Text(studentName, style: TextStyle(fontSize: 16),),
+                            );
+                          }).toList(),
+                        ),
+                      Divider(),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
+        SizedBox(height: 10,),
         TextButton(
           onPressed: () {
             Navigator.pop(context);

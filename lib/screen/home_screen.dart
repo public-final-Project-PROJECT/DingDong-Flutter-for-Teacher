@@ -103,8 +103,9 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: const Color(0xffF4F4F4),
           actions: [
             IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () => _showNotification(context)),
+              icon: const Icon(Icons.notifications, color: Colors.orangeAccent, size: 30,),
+              onPressed: () => _showNotification(context),
+            ),
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
@@ -169,7 +170,7 @@ class HomeDrawer extends StatelessWidget {
                       title: '캘린더',
                       onTap: () => _navigateTo(context, const Calendar())),
                   ExpansionTile(
-                      leading: const Icon(Icons.people),
+                      leading: const Icon(Icons.people, size: 30),
                       title: const Text('편의기능'),
                       children: [
                         _buildDrawerItem(context,
