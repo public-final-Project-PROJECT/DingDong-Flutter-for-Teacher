@@ -18,11 +18,19 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final Dio dio = Dio();
 
-  String get serverURL
-  {
-    return kIsWeb
-        ? dotenv.env['FETCH_SERVER_URL']!
-        : dotenv.env['FETCH_SERVER_URL2']!;
+  String getServerURL() {
+    if (dotenv.env['FLAVOR'] == 'production') {
+      return dotenv.env['FETCH_SERVER_URL_PROD']!;
+    } else if (isRunningOnEmulator()) {
+      return dotenv.env['FETCH_SERVER_URL']!;
+    } else {
+      return dotenv.env['FETCH_SERVER_URL2']!;
+    }
+  }
+
+  bool isRunningOnEmulator() {
+    const bool isEmulator = bool.fromEnvironment('dart.vm.product') == false;
+    return isEmulator;
   }
 
   void _showErrorDialog(String title, String message) {
@@ -47,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<int> fetchTeacherId(User user) async {
+    final serverURL = getServerURL();
 
     try {
       final response = await dio.get('$serverURL/user/${user.email}');

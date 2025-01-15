@@ -22,15 +22,24 @@ class TeacherProvider extends ChangeNotifier {
   int get latestClassId => _latestClassId;
   bool get loading => _loading;
 
-  String get serverURL
-  {
-    return kIsWeb
-        ? dotenv.env['FETCH_SERVER_URL']!
-        : dotenv.env['FETCH_SERVER_URL2']!;
+  String getServerURL() {
+    if (dotenv.env['FLAVOR'] == 'production') {
+      return dotenv.env['FETCH_SERVER_URL_PROD']!;
+    } else if (isRunningOnEmulator()) {
+      return dotenv.env['FETCH_SERVER_URL']!;
+    } else {
+      return dotenv.env['FETCH_SERVER_URL2']!;
+    }
+  }
+
+  bool isRunningOnEmulator() {
+    const bool isEmulator = bool.fromEnvironment('dart.vm.product') == false;
+    return isEmulator;
   }
 
   Future<void> fetchTeacherId(User user) async {
     final Dio dio = Dio();
+    final serverURL = getServerURL();
 
     try {
       final response = await dio
@@ -53,6 +62,7 @@ class TeacherProvider extends ChangeNotifier {
 
   Future<void> fetchLatestClassId(User user) async {
     final Dio dio = Dio();
+    final serverURL = getServerURL();
 
     try {
       final response = await dio
