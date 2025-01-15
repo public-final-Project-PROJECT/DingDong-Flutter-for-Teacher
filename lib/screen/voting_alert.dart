@@ -7,25 +7,25 @@ class VotingAlert extends StatelessWidget {
   final List<Map<String, dynamic>> studentsInfo;
 
   const VotingAlert({
-    Key? key,
+    super.key,
     required this.votingName,
     required this.votingContents,
     required this.studentsVotedForContents,
     required this.studentsInfo,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("투표 상황 보기"),
-      content: Container(
+      title: const Text("투표 상황 보기"),
+      content: SizedBox(
         width: double.maxFinite,
         child: Column(
           children: [
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             Text(
               votingName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -43,68 +43,64 @@ class VotingAlert extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 30,
                     ),
                     Row(
                       children: [
-                        Icon(Icons.check_circle_outline_sharp),
-                        SizedBox(
+                        const Icon(Icons.check_circle_outline_sharp),
+                        const SizedBox(
                           width: 13,
                         ),
                         Text(
                           "항목${index + 1}.  $contentName",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     if (students.isEmpty)
-                      Text("투표한 학생 없음", style: TextStyle(color: Colors.grey))
+                      const Text("투표한 학생 없음",
+                          style: TextStyle(color: Colors.grey))
                     else
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: students.map<Widget>((student) {
                           final studentId = student["studentId"];
 
-                          print('Looking for studentId: $studentId');
-
                           final studentData = studentsInfo.firstWhere(
-                                (info) {
-
-                              final infoStudentId = info["studentId"].toString().trim();
+                            (info) {
+                              final infoStudentId =
+                                  info["studentId"].toString().trim();
                               final studentIdStr = studentId.toString().trim();
 
-                              print('Comparing studentId from studentsInfo: $infoStudentId with studentId: $studentIdStr');
                               return infoStudentId == studentIdStr;
                             },
                             orElse: () {
-                              print("No matching student found for studentId: $studentId");
                               return {};
                             },
                           );
 
-                          if (studentData.isEmpty) {
-                            print("Student data is empty for studentId: $studentId");
-                          }
+                          if (studentData.isEmpty) {}
 
-                          final studentName = studentData["studentName"] ?? "이름 없음";
+                          final studentName =
+                              studentData["studentName"] ?? "이름 없음";
                           final studentImg = studentData["studentImg"];
 
                           return ListTile(
                             leading: studentImg != null
                                 ? CircleAvatar(
-                              backgroundImage: NetworkImage(studentImg),
-                            )
-                                : CircleAvatar(child: Icon(Icons.person)),
+                                    backgroundImage: NetworkImage(studentImg),
+                                  )
+                                : const CircleAvatar(child: Icon(Icons.person)),
                             title: Text(studentName),
                           );
                         }).toList(),
                       ),
-                    Divider(),
+                    const Divider(),
                   ],
                 );
               },
@@ -117,7 +113,6 @@ class VotingAlert extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text("닫기"),
           style: TextButton.styleFrom(
             shadowColor: Colors.black,
             elevation: 7.5,
@@ -127,6 +122,7 @@ class VotingAlert extends StatelessWidget {
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
+          child: const Text("닫기"),
         ),
       ],
       backgroundColor: Colors.white,

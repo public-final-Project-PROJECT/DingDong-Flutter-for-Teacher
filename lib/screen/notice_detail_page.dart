@@ -1,23 +1,23 @@
 import 'dart:io';
 
-import 'package:dingdong_flutter_teacher/screen/NoticeUpdate.dart';
+import 'package:dingdong_flutter_teacher/screen/notice_update.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-
-class NoticeDetailpage extends StatefulWidget {
+class NoticeDetailPage extends StatefulWidget {
   final dynamic notice;
-
-  const NoticeDetailpage({super.key, required this.notice});
+  final int classId;
+  const NoticeDetailPage(
+      {super.key, required this.notice, required this.classId});
 
   @override
-  State<NoticeDetailpage> createState() => _NoticeDetailpageState();
+  State<NoticeDetailPage> createState() => _NoticeDetailPageState();
 }
 
-class _NoticeDetailpageState extends State<NoticeDetailpage> {
+class _NoticeDetailPageState extends State<NoticeDetailPage> {
   static bool isInitialized = false;
 
   @override
@@ -36,7 +36,9 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
     String formattedUpdatedAt = _formatDate(notice['updatedAt']);
 
     String displayDate = "";
-    if (notice['updatedAt'] != null && notice['updatedAt'].isNotEmpty && notice['createdAt'] != notice['updatedAt']) { // 추가된 조건
+    if (notice['updatedAt'] != null &&
+        notice['updatedAt'].isNotEmpty &&
+        notice['createdAt'] != notice['updatedAt']) {
       formattedUpdatedAt = _formatDate(notice['updatedAt']);
       displayDate = "수정일: $formattedUpdatedAt";
     } else {
@@ -46,18 +48,17 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
 
     return Scaffold(
       appBar: AppBar(
-        title:  Text("공지사항"),
-        backgroundColor: Color(0xffF4F4F4),
+        title: const Text("공지사항"),
+        backgroundColor: const Color(0xffF4F4F4),
         shape: const Border(
             bottom: BorderSide(
-              color: Colors.grey,
-              width: 1,
-            )
-        ),
+          color: Colors.grey,
+          width: 1,
+        )),
       ),
-      backgroundColor: Color(0xffF4F4F4),
+      backgroundColor: const Color(0xffF4F4F4),
       body: Padding(
-        padding:  EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -66,34 +67,37 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
               children: [
                 Text(
                   "${notice['noticeTitle']}",
-                  style:  TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 if (notice['noticeFile'] != null)
                   ElevatedButton.icon(
-                    onPressed: () async {
-                      String fileUrl =
-                          "http://112.221.66.174:3013/download${notice['noticeFile']}"; // 변경된 부분: /download 추가
-                      await _downloadFile(fileUrl, context);
-                    },
-                    icon:  Icon(Icons.file_download),
-                    label:  Text("참부파일", style: TextStyle(fontSize: 11),),
-                    style: ElevatedButton.styleFrom(// '첨부 파일' 버튼 스타일 변경
-                        backgroundColor: Color(0xff515151), // 버튼 배경색 변경 (어둡게)
-                        foregroundColor: Colors.white, // 버튼 텍스트 색 변경 (흰색)
-                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 5), // 버튼 크기 지정
-                        shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                          borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
-                        )
-                    )
-                  ),
+                      onPressed: () async {
+                        String fileUrl =
+                            "http://112.221.66.174:3013/download${notice['noticeFile']}";
+                        await _downloadFile(fileUrl, context);
+                      },
+                      icon: const Icon(Icons.file_download),
+                      label: const Text(
+                        "참부파일",
+                        style: TextStyle(fontSize: 11),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff515151),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ))),
               ],
             ),
             Text(displayDate),
             Text("${notice['noticeCategory']}"),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               width: 393,
-              decoration: ShapeDecoration(
+              decoration: const ShapeDecoration(
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
                     width: 1,
@@ -103,9 +107,7 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
-
-            // 이미지 섬네일 표시
+            const SizedBox(height: 8),
             if (notice['noticeImg'] != null && notice['noticeImg'].isNotEmpty)
               Image.network(
                 "http://112.221.66.174:3013${notice['noticeImg']}",
@@ -113,23 +115,21 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                 width: double.infinity,
                 height: 200,
               ),
-            SizedBox(height: 8),
-
+            const SizedBox(height: 8),
             Text("${notice['noticeContent']}"),
-            SizedBox(height: 8),
-
+            const SizedBox(height: 8),
             if (notice['noticeFile'] != null && notice['noticeFile'].isNotEmpty)
               Container(
                 alignment: Alignment.centerRight,
-                padding:  EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  getFileName("${getFileName(notice['noticeFile'])}") ,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                  getFileName(getFileName(notice['noticeFile'])),
+                  style: const TextStyle(
+                      fontSize: 10, fontWeight: FontWeight.w500),
                 ),
               ),
-
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -138,18 +138,20 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  Noticeupdate(notice:notice)));
+                              builder: (context) => NoticeUpdate(
+                                    notice: notice,
+                                    classId: widget.classId,
+                                  )));
                     },
-                    child:  Text('수정'),
-                    style: ElevatedButton.styleFrom(  // '수정' 버튼 스타일 변경
-                        backgroundColor: Color(0xff515151),  // 버튼 배경색 변경 (어둡게)
-                        foregroundColor: Colors.white,  // 버튼 텍스트 색 변경 (흰색)
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13),  // 버튼 크기 지정
-                        shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                          borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
-                        )
-                    ),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff515151),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        )),
+                    child: const Text('수정'),
                   ),
                 ],
               ),
@@ -165,18 +167,17 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
       if (await Permission.storage.request().isGranted) {
         final externalDirs = await getExternalStorageDirectories();
         if (externalDirs == null || externalDirs.isEmpty) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('외부 저장소를 찾을 수 없습니다.')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('외부 저장소를 찾을 수 없습니다.')));
           return;
         }
 
         final downloadsDirectory = Directory('/storage/emulated/0/Download');
-        print("다운로드 위치: ${downloadsDirectory.path}");
         if (!downloadsDirectory.existsSync()) {
           downloadsDirectory.createSync(recursive: true);
         }
 
-        final taskId = await FlutterDownloader.enqueue(
+        await FlutterDownloader.enqueue(
           url: fileUrl,
           savedDir: downloadsDirectory.path,
           showNotification: true,
@@ -184,7 +185,6 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
           saveInPublicStorage: true,
         );
 
-        print("다운로드 완료: $taskId");
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('다운로드가 완료되었습니다.')));
       } else {
@@ -192,9 +192,8 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
             .showSnackBar(const SnackBar(content: Text('저장소 권한을 허용해주세요.')));
       }
     } catch (e) {
-      print("파일 다운로드 중 오류 발생: $e");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('파일 다운로드 중 오류가 발생했습니다: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('파일 다운로드 중 오류가 발생했습니다: $e')));
     }
   }
 
@@ -205,9 +204,7 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
   }
 
   String getFileName(String filePath) {
-    String fileName = filePath
-        .split('/')
-        .last;
+    String fileName = filePath.split('/').last;
 
     String processedFileName;
     if (fileName.contains('%')) {
@@ -216,7 +213,6 @@ class _NoticeDetailpageState extends State<NoticeDetailpage> {
       processedFileName = fileName;
     }
 
-    // 첫 번째 '_' 뒤부터 자르기
     int underscoreIndex = processedFileName.indexOf('_');
     if (underscoreIndex != -1) {
       return processedFileName.substring(underscoreIndex + 1);

@@ -1,30 +1,28 @@
-import 'package:dingdong_flutter_teacher/model/calendar_model.dart';
 import 'package:dingdong_flutter_teacher/screen/calendar_update.dart';
 import 'package:flutter/material.dart';
 
-class Calendardetails extends StatefulWidget {
+class CalendarDetails extends StatefulWidget {
   final dynamic event;
-  final Function(int id) DeleteEvent;
-  final Function(dynamic event) UpdateEvent;
+  final Function(int id) deleteEvent;
+  final Function(dynamic event) updateEvent;
 
-  const Calendardetails(
+  const CalendarDetails(
       {super.key,
       required this.event,
-      required this.DeleteEvent,
-      required this.UpdateEvent});
+      required this.deleteEvent,
+      required this.updateEvent});
 
   @override
-  State<Calendardetails> createState() => _CalendardetailsState();
+  State<CalendarDetails> createState() => _CalendarDetailsState();
 }
 
-class _CalendardetailsState extends State<Calendardetails> {
-  final CalendarModel _calendarModel = CalendarModel();
+class _CalendarDetailsState extends State<CalendarDetails> {
   dynamic event2;
-  bool canDismiss = false; // 조건 변수
+  bool canDismiss = false;
   @override
   void initState() {
     super.initState();
-    event2 = widget.event; // 여기서 widget에 안전하게 접근 가능
+    event2 = widget.event;
   }
 
   @override
@@ -35,30 +33,28 @@ class _CalendardetailsState extends State<Calendardetails> {
           centerTitle: true,
           leadingWidth: 90,
           leading: SizedBox(
-            width: 130, // leading의 크기 제한
+            width: 130,
             child: Row(
-              mainAxisSize: MainAxisSize.min, // Row 크기를 최소화하여 공간 초과 방지
+              mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.chevron_left), // 뒤로가기 화살표
+                  icon: const Icon(Icons.chevron_left),
                   onPressed: () {
-                    Navigator.pop(context); // 뒤로 가기 동작
+                    Navigator.pop(context);
                   },
                 ),
                 Flexible(
-                  // 텍스트 길이 제어
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 0.1), // 화살표와 텍스트 간격 조정
+                    padding: const EdgeInsets.only(left: 0.1),
                     child: Text(
-                      event2 != null && event2['start'] != null // 유효성 검사
-                          ? '${event2['start'].toString().substring(5, 7)} 월' // 날짜 출력
+                      event2 != null && event2['start'] != null
+                          ? '${event2['start'].toString().substring(5, 7)} 월'
                           : 'No Date',
                       style: const TextStyle(
-                        fontSize: 16, // 텍스트 크기 줄이기
-
+                        fontSize: 16,
                         color: Colors.black87,
                       ),
-                      overflow: TextOverflow.ellipsis, // 텍스트 초과 시 "..."로 표시
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -67,16 +63,13 @@ class _CalendardetailsState extends State<Calendardetails> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.edit), // 오른쪽 상단에 추가 버튼
+              icon: const Icon(Icons.edit),
               onPressed: () {
                 showModalBottomSheet(
                   isDismissible: false,
-                  // 빈 공간 클릭 방지
                   enableDrag: false,
-
                   context: context,
                   isScrollControlled: true,
-                  // 모달 창이 전체 화면에 가까워지도록 설정
                   shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(20)),
@@ -89,28 +82,26 @@ class _CalendardetailsState extends State<Calendardetails> {
                           updateDate: 0,
                           onEventAdded: (title, location, description,
                               startDate, endDate) {
-                            // 이벤트 추가 로직
-
-                            final DateTime datestart =
+                            final DateTime dateStart =
                                 startDate.add(const Duration(hours: 9)).toUtc();
-                            final DateTime dateend =
+                            final DateTime dateEnd =
                                 endDate.add(const Duration(hours: 9)).toUtc();
                             final event = {
                               'calendarId': widget.event['calendarId'],
                               'title': title,
                               'description': description,
-                              'start': datestart.toString().substring(0, 10),
-                              'end': dateend.toString().substring(0, 10),
+                              'start': dateStart.toString().substring(0, 10),
+                              'end': dateEnd.toString().substring(0, 10),
                             };
                             setState(() {
                               event2['title'] = title;
                               event2['description'] = description;
                               event2['start'] =
-                                  datestart.toString().substring(0, 10);
+                                  dateStart.toString().substring(0, 10);
                               event2['end'] =
-                                  dateend.toString().substring(0, 10);
+                                  dateEnd.toString().substring(0, 10);
                             });
-                            widget.UpdateEvent(event);
+                            widget.updateEvent(event);
                           },
                         ),
                       );
@@ -143,15 +134,14 @@ class _CalendardetailsState extends State<Calendardetails> {
             const Divider(
               height: 1,
               thickness: 1,
-              color: Colors.grey, // Divider color
+              color: Colors.grey,
             ),
             Container(
-              height: 200, // 고정된 높이 설정
-              width: double.infinity, // 전체 너비 사용
-              padding: const EdgeInsets.only(top: 5, left: 5), // 위쪽 여백 최소화
-
+              height: 200,
+              width: double.infinity,
+              padding: const EdgeInsets.only(top: 5, left: 5),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       '메모',
@@ -166,7 +156,7 @@ class _CalendardetailsState extends State<Calendardetails> {
             const Divider(
               height: 1,
               thickness: 1,
-              color: Colors.grey, // Divider color
+              color: Colors.grey,
             ),
           ],
         ),
@@ -199,7 +189,7 @@ class _CalendardetailsState extends State<Calendardetails> {
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(16), // Rounded top corners
+          top: Radius.circular(16),
         ),
       ),
       backgroundColor: Colors.transparent,
@@ -208,51 +198,47 @@ class _CalendardetailsState extends State<Calendardetails> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Grouped container for the confirmation text and delete button
               Container(
                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 decoration: BoxDecoration(
-                  color: Colors.white70, // Button background
-                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                  color: Colors.white70,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Confirmation text
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        '이 이벤트를 삭제하겠습니까?', // Confirmation text
+                        '이 이벤트를 삭제하겠습니까?',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black, // Text color
+                          color: Colors.black,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    // Divider
                     const Divider(
                       height: 1,
                       thickness: 1,
-                      color: Colors.grey, // Divider color
+                      color: Colors.grey,
                     ),
-                    // Delete button
                     InkWell(
                       onTap: () {
-                        widget.DeleteEvent(widget.event['calendarId']);
-                        Navigator.pop(context); // Close modal
+                        widget.deleteEvent(widget.event['calendarId']);
+                        Navigator.pop(context);
                         Navigator.pop(context);
                       },
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: const Text(
-                          '이벤트 삭제', // Delete text
+                          '이벤트 삭제',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.red, // Red text color
+                            color: Colors.red,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -261,25 +247,24 @@ class _CalendardetailsState extends State<Calendardetails> {
                   ],
                 ),
               ),
-              // Cancel button (independent)
               InkWell(
                 onTap: () {
-                  Navigator.pop(context); // Close modal
+                  Navigator.pop(context);
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Button background
-                    borderRadius: BorderRadius.circular(12), // Rounded corners
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
-                    '취소', // Cancel text
+                    '취소',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.normal,
-                      color: Colors.black, // Text color
+                      color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ),

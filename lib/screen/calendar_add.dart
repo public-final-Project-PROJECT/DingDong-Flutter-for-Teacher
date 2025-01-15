@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class CalendarAdd extends StatefulWidget {
@@ -23,7 +21,6 @@ class _CalendarAddState extends State<CalendarAdd> {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   late FocusNode focusNode;
-  File? _selectedImage;
   DateTime? startDate;
   DateTime? endDate;
 
@@ -31,23 +28,18 @@ class _CalendarAddState extends State<CalendarAdd> {
   void initState() {
     super.initState();
 
-    int Id = widget.updateDate;
-
-    DateTime defaulttime =
+    DateTime defaultTime =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
     startDate =
         widget.initialDate.subtract(const Duration(hours: 9)).toLocal() ??
-            defaulttime;
+            defaultTime;
     endDate = widget.initialDate.subtract(const Duration(hours: 9)).toLocal() ??
-        defaulttime;
+        defaultTime;
     focusNode = FocusNode();
 
-    // FocusNode 리스너 추가
     focusNode.addListener(() {
-      setState(() {
-        // 포커스 상태가 바뀔 때마다 UI 갱신
-      });
+      setState(() {});
     });
   }
 
@@ -56,33 +48,29 @@ class _CalendarAddState extends State<CalendarAdd> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isStartDate
-          ? start ?? DateTime.now() // `isStartDate`가 true이면 `start` 사용
+          ? start ?? DateTime.now()
           : (end == null || (start != null && start.isAfter(end)))
-              ? start ??
-                  DateTime
-                      .now() // `end`가 null이거나 `start`가 `end`보다 이후이면 `start`를 사용
+              ? start ?? DateTime.now()
               : end,
-      // 기본적으로 `end` 사용
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
       helpText: '',
-      // 상단의 "Select Date" 제거
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.orange, // 선택된 날짜 배경색
-              onPrimary: Colors.white, // 선택된 날짜 텍스트 색상
-              onSurface: Colors.black, // 기본 텍스트 색상
+            colorScheme: const ColorScheme.light(
+              primary: Colors.orange,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.orange, // 확인 및 취소 버튼 색상
+                foregroundColor: Colors.orange,
               ),
             ),
-            dialogTheme: DialogTheme(
+            dialogTheme: const DialogTheme(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero, // 테두리 모서리를 직각으로 설정
+                borderRadius: BorderRadius.zero,
               ),
             ),
           ),
@@ -94,19 +82,15 @@ class _CalendarAddState extends State<CalendarAdd> {
     if (picked != null) {
       setState(() {
         if (isStartDate) {
-          // Start date 업데이트
           startDate = picked;
 
-          // Start가 End 이후라면 End도 Start로 동기화
-          if (end != null && start!.isAfter(end!)) {
+          if (end != null && start!.isAfter(end)) {
             endDate = startDate;
           }
         } else {
-          // End date 업데이트
           endDate = picked;
 
-          // End가 Start 이전이면 Start와 동기화
-          if (start != null && start!.isAfter(end!)) {
+          if (start != null && start.isAfter(end!)) {
             endDate = startDate;
           }
         }
@@ -117,12 +101,12 @@ class _CalendarAddState extends State<CalendarAdd> {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      heightFactor: 0.9, // 화면의 90% 높이
+      heightFactor: 0.9,
       child: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(16.0), // 모서리 둥글게
+            top: Radius.circular(16.0),
           ),
         ),
         padding: EdgeInsets.only(
@@ -142,13 +126,9 @@ class _CalendarAddState extends State<CalendarAdd> {
                     if (titleController.text.isEmpty &&
                         descriptionController.text.isEmpty) {
                       Navigator.pop(context);
-
-                    }
-                    else
-                    {
+                    } else {
                       _showDeleteModal(context);
                     }
-
                   },
                   child: const Text(
                     '취소',
@@ -177,7 +157,7 @@ class _CalendarAddState extends State<CalendarAdd> {
                       startDate!,
                       endDate!,
                     );
-                    Navigator.of(context).pop(); // 모달 닫기
+                    Navigator.of(context).pop();
                   },
                   child: const Text(
                     '추가',
@@ -198,14 +178,14 @@ class _CalendarAddState extends State<CalendarAdd> {
                         ? IconButton(
                             icon: const Icon(Icons.clear),
                             onPressed: () {
-                              titleController.clear(); // 텍스트 초기화
+                              titleController.clear();
                               setState(() {});
                             },
                           )
-                        : null, // 포커스가 없으면 X 버튼 숨김
+                        : null,
               ),
               onChanged: (value) {
-                setState(() {}); // 텍스트가 변경될 때 UI 갱신
+                setState(() {});
               },
             ),
             const SizedBox(height: 16),
@@ -233,16 +213,16 @@ class _CalendarAddState extends State<CalendarAdd> {
                       OutlinedButton(
                         onPressed: () =>
                             _pickDate(context, true, startDate, endDate),
-                        child: Text(
-                          startDate == null
-                              ? 'Select Start Date'
-                              : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
-                        ),
                         style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             )),
+                        child: Text(
+                          startDate == null
+                              ? 'Select Start Date'
+                              : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
+                        ),
                       ),
                     ],
                   ),
@@ -258,6 +238,11 @@ class _CalendarAddState extends State<CalendarAdd> {
                     OutlinedButton(
                       onPressed: () =>
                           _pickDate(context, false, startDate, endDate),
+                      style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          )),
                       child: Text(
                         endDate == null
                             ? 'Select End Date'
@@ -265,11 +250,6 @@ class _CalendarAddState extends State<CalendarAdd> {
                                 ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}'
                                 : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
                       ),
-                      style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          )),
                     ),
                   ]),
                 ),
@@ -287,7 +267,7 @@ class _CalendarAddState extends State<CalendarAdd> {
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(16), // Rounded top corners
+          top: Radius.circular(16),
         ),
       ),
       backgroundColor: Colors.transparent,
@@ -296,53 +276,46 @@ class _CalendarAddState extends State<CalendarAdd> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Grouped container for the confirmation text and delete button
               Container(
-                margin: const EdgeInsets.fromLTRB(16,16,16,8),
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 decoration: BoxDecoration(
-                  color: Colors.white70, // Button background
-                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                  color: Colors.white70,
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Confirmation text
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        '이 새로운 이벤트를 폐기하겠습니까?', // Confirmation text
+                        '이 새로운 이벤트를 폐기하겠습니까?',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black, // Text color
+                          color: Colors.black,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    // Divider
                     const Divider(
                       height: 1,
                       thickness: 1,
-                      color: Colors.grey, // Divider color
+                      color: Colors.grey,
                     ),
-                    // Delete button
                     InkWell(
                       onTap: () {
-
-
-                        Navigator.pop(context); // Close modal
                         Navigator.pop(context);
-
+                        Navigator.pop(context);
                       },
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         child: const Text(
-                          '변경 사항 폐기', // Delete text
+                          '변경 사항 폐기',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.red, // Red text color
+                            color: Colors.red,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -351,25 +324,24 @@ class _CalendarAddState extends State<CalendarAdd> {
                   ],
                 ),
               ),
-              // Cancel button (independent)
               InkWell(
                 onTap: () {
-                  Navigator.pop(context); // Close modal
+                  Navigator.pop(context);
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Button background
-                    borderRadius: BorderRadius.circular(12), // Rounded corners
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: const Text(
-                    '계속 편집하기', // Cancel text
+                    '계속 편집하기',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.normal,
-                      color: Colors.black, // Text color
+                      color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -378,7 +350,6 @@ class _CalendarAddState extends State<CalendarAdd> {
             ],
           ),
         );
-
       },
     );
   }

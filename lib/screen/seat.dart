@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../model/seat_model.dart';
@@ -12,7 +11,7 @@ class Seat extends StatefulWidget {
 }
 
 class _SeatState extends State<Seat> {
-  final seatModel _seatModel = seatModel();
+  final SeatModel _seatModel = SeatModel();
   List<dynamic> loadedSeats = [];
   List<dynamic> nameList = [];
   bool modifyState = false;
@@ -23,17 +22,21 @@ class _SeatState extends State<Seat> {
   Map<String, dynamic>? firstSelectedSeat;
   List<dynamic> originalSeats = [];
   List<Map<String, dynamic>> newSeats = [];
-  List<dynamic> insertSeats = []; // 담아서 보내는
+  List<dynamic> insertSeats = [];
+  bool _isInitialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
-    loadSeatTable(classId);
-    loadStudentNames();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_isInitialized) {
+      classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
+      loadSeatTable(classId);
+      loadStudentNames();
+      _isInitialized = true;
+    }
   }
 
-  // 기존 좌석 조회 api
   Future<void> loadSeatTable(int classId) async {
     List<dynamic> result = await _seatModel.selectSeatTable(classId);
     setState(() {
@@ -45,15 +48,11 @@ class _SeatState extends State<Seat> {
    }
   }
 
-  // 좌석 저장 api
   Future<void> insertSeatTable() async {
-    print('저장 api 호출 ~!');
-    if(!newSeats.isEmpty){
+    if(newSeats.isNotEmpty){
       insertSeats = newSeats;
-      print("newSeats");
     }else{
       insertSeats = loadedSeats;
-      print("loadedSeats");
     }
 
     List<Map<String, dynamic>> seatsToSave = insertSeats.map((seat) {
@@ -70,45 +69,10 @@ class _SeatState extends State<Seat> {
       loadStudentNames();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("자리를 저장했습니다 !")));
     } catch (e) {
-      print("Failed to save the seat data: $e");
+      Exception (e);
     }
   }
 
-  // // seatTable이 null이면 studentsTable 조회 api
-  // Future<void> loadStudentsFromTable(int classId) async {
-  //   List<dynamic> result = await _seatModel.selectStudentsTable(classId) as List;
-  //   setState(() {
-  //     nameList = result;
-  //     // 학생 데이터를 순차적으로 행/열에 배치
-  //
-  //     int row = 1;
-  //     int column = 1;
-  //
-  //     for (var student in nameList) {
-  //       // 각 학생의 좌석을 배치
-  //       newSeats.add({
-  //         'studentId': student['studentId'],
-  //         'rowId': row,
-  //         'columnId': column,
-  //       });
-  //
-  //       // 열의 끝에 도달하면 다음 행으로 넘어가도록 설정
-  //       column++;
-  //       if (column > 5) {
-  //         column = 1;
-  //         row++;
-  //       }
-  //     }
-  //     print('새로운 좌석 :: $newSeats');
-  //     // loadedSeats = newSeats; // 자동 배치된 좌석을 설정
-  //     loadSeatTable(classId);
-  //   });
-  //
-  //   // 좌석 배치 후, 좌석을 저장하는 API 호출
-  //   insertSeatTable();
-  // }
-
-  // 이름 조회 api
   Future<void> loadStudentNames() async {
     List<dynamic> result = await _seatModel.studentNameAPI() as List;
     setState(() {
@@ -117,7 +81,6 @@ class _SeatState extends State<Seat> {
     });
   }
 
-  // name과 studentId 매칭
   String getStudentNameByStudentId(int studentId) {
     var student = nameList.firstWhere(
           (student) => student['studentId'] == studentId,
@@ -126,9 +89,7 @@ class _SeatState extends State<Seat> {
     return student['studentName'];
   }
 
-  // 좌석 수정 handler
   void handleSeatClick(Map<String, dynamic> seat) {
-    print('seat :: $seat');
     if (!isEditing) return;
     setState(() {
       if (firstSelectedSeat == null) {
@@ -190,7 +151,7 @@ class _SeatState extends State<Seat> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.event_seat_sharp),
             SizedBox(width: 10),
@@ -198,7 +159,7 @@ class _SeatState extends State<Seat> {
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
-        shape: Border(
+        shape: const Border(
           bottom: BorderSide(
             color: Colors.grey,
           ),
@@ -207,19 +168,19 @@ class _SeatState extends State<Seat> {
       backgroundColor: const Color(0xffF4F4F4),
       body: Column(
         children: [
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: toggleEditMode,
-            child: Text(
-              isEditing ? "수정중 ..." : "좌석 수정",
-              style: TextStyle(fontSize: 15),
-            ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xff515151),
+              backgroundColor: const Color(0xff515151),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
+            ),
+            child: Text(
+              isEditing ? "수정중 ..." : "좌석 수정",
+              style: const TextStyle(fontSize: 15),
             ),
           ),
           if (isEditing) ...[
@@ -228,45 +189,45 @@ class _SeatState extends State<Seat> {
               children: [
                 ElevatedButton(
                   onPressed: saveChanges,
-                  child: Text("저장"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff515151),
+                    backgroundColor: const Color(0xff515151),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
+                  child: const Text("저장"),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: cancelChanges,
-                  child: Text("취소"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff515151),
+                    backgroundColor: const Color(0xff515151),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
+                  child: const Text("취소"),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
               ],
             ),
-            Text(
+            const Text(
               "좌석을 클릭하여 위치를 변경하세요",
               style: TextStyle(fontSize: 13, color: Colors.red),
             )
           ],
-          ElevatedButton(onPressed: () {}, child: Icon(Icons.save),
+          ElevatedButton(onPressed: () {},
             style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff515151),
+                backgroundColor: const Color(0xff515151),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 )
-            ),
+            ), child: const Icon(Icons.save),
           ),
-          SizedBox(
+          const SizedBox(
             height: 30,
           ),
           Center(
@@ -274,18 +235,18 @@ class _SeatState extends State<Seat> {
               height: 50,
               width: 150,
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: Colors.green),
-              child: Text(
+              decoration: const BoxDecoration(color: Colors.green),
+              child: const Text(
                 "교탁",
                 style: TextStyle(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: GridView.builder(
-                padding: EdgeInsets.fromLTRB(30, 30, 30, 30),
+                padding: const EdgeInsets.fromLTRB(30, 30, 30, 30),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: maxColumn,
                   mainAxisSpacing: 4,
@@ -307,7 +268,7 @@ class _SeatState extends State<Seat> {
                     );
                     return buildSeatWidget(seat, isEditing);
                   } else {
-                    if (index >= nameList.length) return SizedBox();
+                    if (index >= nameList.length) return const SizedBox();
                     var student = nameList[index];
                     return Container(
                       alignment: Alignment.center,
@@ -317,7 +278,7 @@ class _SeatState extends State<Seat> {
                       ),
                       child: Text(
                         student['studentName'],
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     );
                   }
@@ -337,7 +298,7 @@ class _SeatState extends State<Seat> {
           color: Colors.white70,
           borderRadius: BorderRadius.circular(50),
         ),
-        child: SizedBox(height: 30, width: 30),
+        child: const SizedBox(height: 30, width: 30),
       );
     }
     return GestureDetector(
@@ -356,7 +317,7 @@ class _SeatState extends State<Seat> {
         child: Text(
           getStudentNameByStudentId(seat['studentId']),
           textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );

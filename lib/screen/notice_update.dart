@@ -1,23 +1,21 @@
 import 'dart:io';
 
-import 'package:dingdong_flutter_teacher/screen/Notice.dart';
+import 'package:dingdong_flutter_teacher/screen/notice.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
-import 'home_screen.dart';
-
-class Noticeupdate extends StatefulWidget {
+class NoticeUpdate extends StatefulWidget {
   final dynamic notice;
-  const Noticeupdate({super.key, required this.notice});
+  final int classId;
+  const NoticeUpdate({super.key, required this.notice, required this.classId});
 
   @override
-  State<Noticeupdate> createState() => _NoticeupdateState();
+  State<NoticeUpdate> createState() => _NoticeUpdateState();
 }
 
-class _NoticeupdateState extends State<Noticeupdate> {
+class _NoticeUpdateState extends State<NoticeUpdate> {
   final _dio = Dio();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
@@ -28,7 +26,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
   final List<String> categories = ["가정통신문", "알림장", "학교생활"];
   String _selectedCategory = "";
   int? noticeId;
-  late final int classId;
 
   @override
   void initState() {
@@ -37,7 +34,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
     _contentController.text = widget.notice['noticeContent'] ?? "";
     _selectedCategory = widget.notice['noticeCategory'] ?? "가정통신문";
     noticeId = widget.notice['noticeId'];
-    classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
 
     if (widget.notice['noticeImg'] != null) {
       beforeImg = widget.notice['noticeImg'];
@@ -57,7 +53,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
     }
   }
 
-  // 파일 피커
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.any,
@@ -86,7 +81,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
         'noticeTitle': title,
         'noticeCategory': _selectedCategory,
         'noticeContent': content,
-        'classId': classId, // 임시로 고정된 classId 사용
+        'classId': widget.classId,
         if (_selectedImage != null)
           'noticeImg': await MultipartFile.fromFile(_selectedImage!.path),
         if (_selectedFile != null && _selectedFile!.path.isNotEmpty)
@@ -105,7 +100,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
           const SnackBar(content: Text("공지사항이 업데이트되었습니다.")),
         );
 
-        // 초기화
         _titleController.clear();
         _contentController.clear();
         setState(() {
@@ -116,7 +110,8 @@ class _NoticeupdateState extends State<Noticeupdate> {
         });
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Notice()),
+          MaterialPageRoute(
+              builder: (context) => Notice(classId: widget.classId)),
         );
       } else {
         throw Exception("업데이트 실패: ${response.data}");
@@ -133,15 +128,14 @@ class _NoticeupdateState extends State<Noticeupdate> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("공지사항 수정"),
-        backgroundColor: Color(0xffF4F4F4),
+        backgroundColor: const Color(0xffF4F4F4),
         shape: const Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-            width: 1,
-          )
-        ),
+            bottom: BorderSide(
+          color: Colors.grey,
+          width: 1,
+        )),
       ),
-      backgroundColor: Color(0xffF4F4F4),  // 배경색 변경
+      backgroundColor: const Color(0xffF4F4F4),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -159,8 +153,8 @@ class _NoticeupdateState extends State<Noticeupdate> {
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 items: categories
-                    .map((category) =>
-                    DropdownMenuItem(value: category, child: Text(category)))
+                    .map((category) => DropdownMenuItem(
+                        value: category, child: Text(category)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -171,7 +165,7 @@ class _NoticeupdateState extends State<Noticeupdate> {
                   labelText: "카테고리",
                   border: OutlineInputBorder(),
                 ),
-                dropdownColor: Colors.white,  //카테고리 목록 흰색으로 변경
+                dropdownColor: Colors.white,
               ),
               const SizedBox(height: 16),
               TextField(
@@ -184,7 +178,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
                 ),
               ),
               const SizedBox(height: 16),
-              // 이미지 선택 UI
               if (_selectedImage != null)
                 Column(
                   children: [
@@ -199,14 +192,13 @@ class _NoticeupdateState extends State<Noticeupdate> {
                         ),
                         ElevatedButton(
                           onPressed: _pickImage,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xff515151),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              )),
                           child: const Text("이미지 선택"),
-                          style: ElevatedButton.styleFrom(  // '이미지 선택' 버튼 스타일 변경
-                            backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
-                            foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
-                            shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                              borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
-                            )
-                          ),
                         ),
                       ],
                     ),
@@ -222,20 +214,19 @@ class _NoticeupdateState extends State<Noticeupdate> {
                       children: [
                         Image.network(
                           "http://112.221.66.174:3013$beforeImg",
-                          width: 100, // 섬네일 크기로 조정
-                          height: 100, // 섬네일 크기로 조정
+                          width: 100,
+                          height: 100,
                           fit: BoxFit.cover,
                         ),
                         ElevatedButton(
                           onPressed: _pickImage,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xff515151),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              )),
                           child: const Text("이미지 변경하기"),
-                          style: ElevatedButton.styleFrom(  // '이미지 변경하기' 버튼 스타일 변경
-                            backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
-                            foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
-                            shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                              borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
-                            )
-                          ),
                         ),
                       ],
                     ),
@@ -248,19 +239,17 @@ class _NoticeupdateState extends State<Noticeupdate> {
                   children: [
                     ElevatedButton(
                       onPressed: _pickImage,
-                      child: const Text("이미지 선택"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff515151),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        )
-                      ),
+                          backgroundColor: const Color(0xff515151),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          )),
+                      child: const Text("이미지 선택"),
                     ),
                   ],
                 ),
               const SizedBox(height: 16),
-              // 파일 선택 UI
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -268,41 +257,38 @@ class _NoticeupdateState extends State<Noticeupdate> {
                     Text(
                       selectedFileName!,
                       style: const TextStyle(color: Colors.black, fontSize: 12),
-                      overflow: TextOverflow.ellipsis, // 너무 긴 텍스트는 생략 부호 추가
+                      overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
                   if (_selectedFile != null)
                     Text(
-                      getFileName(_selectedFile!.path), // 파일 이름 가져오기
-                      style: const TextStyle(color: Colors.black, fontSize: 12), // 스타일 정의
-                      overflow: TextOverflow.ellipsis, // 너무 긴 텍스트는 생략 부호 추가
+                      getFileName(_selectedFile!.path),
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
                   ElevatedButton(
                     onPressed: _pickFile,
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff515151),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        )),
                     child: const Text("파일 선택"),
-                    style: ElevatedButton.styleFrom(  // '파일 선택' 버튼 스타일 변경
-                      backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
-                      foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
-                      shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                        borderRadius: BorderRadius.circular(8.0), // 버튼 테두리 둥글기 조절 (네모로)
-                      )
-                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              // 수정 버튼
               ElevatedButton(
                 onPressed: _updateNotice,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff515151),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    )),
                 child: const Text("수정하기"),
-                style: ElevatedButton.styleFrom(  // '수정하기' 버튼 스타일 변경
-                  backgroundColor: Color(0xff515151), // 버튼 배경색 어둡게 변경
-                  foregroundColor: Colors.white,  // 버튼 텍스트 흰색으로 변경
-                  shape: RoundedRectangleBorder(  // 버튼 테두리 조절
-                    borderRadius: BorderRadius.circular(8.0),  // 버튼 테두리 둥글기 조절 (네모로)
-                  )
-                ),
               ),
             ],
           ),
@@ -321,7 +307,6 @@ class _NoticeupdateState extends State<Noticeupdate> {
       processedFileName = fileName;
     }
 
-    // 첫 번째 '_' 뒤부터 자르기
     int underscoreIndex = processedFileName.lastIndexOf('_');
     if (underscoreIndex != -1) {
       return processedFileName.substring(underscoreIndex + 1);

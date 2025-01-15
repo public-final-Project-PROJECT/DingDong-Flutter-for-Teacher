@@ -12,8 +12,7 @@ class _ConvenienceState extends State<Convenience> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("편의기능"),
-        )
-    );
+      title: const Text("편의기능"),
+    ));
   }
 }

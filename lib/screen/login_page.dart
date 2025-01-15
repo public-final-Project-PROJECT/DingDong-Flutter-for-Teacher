@@ -19,18 +19,11 @@ class _LoginPageState extends State<LoginPage> {
   final Dio dio = Dio();
 
   String getServerURL() {
-    if (dotenv.env['FLAVOR'] == 'production') {
-      return dotenv.env['FETCH_SERVER_URL_PROD']!;
-    } else if (isRunningOnEmulator()) {
-      return dotenv.env['FETCH_SERVER_URL']!;
-    } else {
+    if (kIsWeb) {
       return dotenv.env['FETCH_SERVER_URL2']!;
+    } else {
+      return dotenv.env['FETCH_SERVER_URL']!;
     }
-  }
-
-  bool isRunningOnEmulator() {
-    const bool isEmulator = bool.fromEnvironment('dart.vm.product') == false;
-    return isEmulator;
   }
 
   void _showErrorDialog(String title, String message) {
