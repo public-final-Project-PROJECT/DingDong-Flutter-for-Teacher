@@ -8,6 +8,7 @@ import 'package:dingdong_flutter_teacher/screen/Vote.dart';
 import 'package:dingdong_flutter_teacher/screen/login_page.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -21,9 +22,15 @@ class TeacherProvider extends ChangeNotifier {
   int get latestClassId => _latestClassId;
   bool get loading => _loading;
 
+  String get serverURL
+  {
+    return kIsWeb
+        ? dotenv.env['FETCH_SERVER_URL']!
+        : dotenv.env['FETCH_SERVER_URL2']!;
+  }
+
   Future<void> fetchTeacherId(User user) async {
     final Dio dio = Dio();
-    final serverURL = dotenv.env['FETCH_SERVER_URL'];
 
     try {
       final response = await dio
@@ -46,7 +53,6 @@ class TeacherProvider extends ChangeNotifier {
 
   Future<void> fetchLatestClassId(User user) async {
     final Dio dio = Dio();
-    final serverURL = dotenv.env['FETCH_SERVER_URL'];
 
     try {
       final response = await dio
