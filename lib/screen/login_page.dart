@@ -2,6 +2,7 @@ import 'package:dingdong_flutter_teacher/screen/home_screen.dart';
 import 'package:dingdong_flutter_teacher/screen/sign_in_with_google.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -16,6 +17,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final Dio dio = Dio();
+
+  String get serverURL
+  {
+    return kIsWeb
+        ? dotenv.env['FETCH_SERVER_URL']!
+        : dotenv.env['FETCH_SERVER_URL2']!;
+  }
 
   void _showErrorDialog(String title, String message) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -39,7 +47,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<int> fetchTeacherId(User user) async {
-    final serverURL = dotenv.env['FETCH_SERVER_URL2'];
 
     try {
       final response = await dio.get('$serverURL/user/${user.email}');

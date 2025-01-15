@@ -1,13 +1,14 @@
 import 'package:dingdong_flutter_teacher/screen/Attendance.dart';
+import 'package:dingdong_flutter_teacher/screen/Calendar.dart';
 import 'package:dingdong_flutter_teacher/screen/Notice.dart';
 import 'package:dingdong_flutter_teacher/screen/Seat.dart';
 import 'package:dingdong_flutter_teacher/screen/Student.dart';
 import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/login_page.dart';
-import 'package:dingdong_flutter_teacher/screen/Calendar.dart';
 import 'package:dingdong_flutter_teacher/screen/Vote.dart';
+import 'package:dingdong_flutter_teacher/screen/login_page.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -21,9 +22,15 @@ class TeacherProvider extends ChangeNotifier {
   int get latestClassId => _latestClassId;
   bool get loading => _loading;
 
+  String get serverURL
+  {
+    return kIsWeb
+        ? dotenv.env['FETCH_SERVER_URL']!
+        : dotenv.env['FETCH_SERVER_URL2']!;
+  }
+
   Future<void> fetchTeacherId(User user) async {
     final Dio dio = Dio();
-    final serverURL = dotenv.env['FETCH_SERVER_URL2'];
 
     try {
       final response = await dio
@@ -46,7 +53,6 @@ class TeacherProvider extends ChangeNotifier {
 
   Future<void> fetchLatestClassId(User user) async {
     final Dio dio = Dio();
-    final serverURL = dotenv.env['FETCH_SERVER_URL2'];
 
     try {
       final response = await dio
@@ -55,7 +61,8 @@ class TeacherProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _latestClassId = data is int ? data : int.tryParse(data.toString()) ?? 0;
+        _latestClassId =
+        data is int ? data : int.tryParse(data.toString()) ?? 0;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
       }
@@ -105,7 +112,10 @@ class HomeScreen extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             }
-            return HomeContent(user: user, teacherId: provider.teacherId, latestClassId: provider.latestClassId);
+            return HomeContent(
+                user: user,
+                teacherId: provider.teacherId,
+                latestClassId: provider.latestClassId);
           },
         ),
       ),
@@ -230,6 +240,12 @@ class HomeContent extends StatelessWidget {
             : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (user.photoURL != null)
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(user.photoURL!),
+              ),
+            const SizedBox(height: 16),
             const Text('구글 로그인 완료'),
             Text('이름: ${user.displayName}'),
             Text('이메일: ${user.email}'),
