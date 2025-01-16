@@ -181,7 +181,10 @@ class HomeDrawer extends StatelessWidget {
                         _buildDrawerItem(context,
                             icon: Icons.event_seat,
                             title: '자리배치',
-                            onTap: () => _navigateTo(context, const Seat())),
+                            onTap: () => _navigateTo(
+                                context,
+                                Seat(classId: Provider.of<TeacherProvider>(context, listen: false)
+                                    .latestClassId))),
                         _buildDrawerItem(context,
                             icon: Icons.how_to_vote_rounded,
                             title: '투표',
@@ -189,7 +192,7 @@ class HomeDrawer extends StatelessWidget {
                                 context,
                                 Vote(
                                     classId:
-                                        Provider.of<TeacherProvider>(context)
+                                        Provider.of<TeacherProvider>(context, listen: false)
                                             .latestClassId)))
                       ])
                 ])));

@@ -21,21 +21,17 @@ class _VoteState extends State<Vote> {
   List<Map<String, dynamic>> _studentsInfo = [];
   final Map<int, Map<int, List<dynamic>>> _votingStudentsMap = {};
 
-  late final int classId;
 
   final VotingModel _votingModel = VotingModel();
 
   get inputDataList => null;
-  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // classId =  Provider.of<TeacherProvider>(context, listen: false).latestClassId;
-    classId = 2;
-    print('클래스 아이디 :  + $classId');
-    _loadVoting(classId);
-    _loadClassStudentsInfo(classId);
+    print('클래스 아이디 :  + ${widget.classId}');
+    _loadVoting(widget.classId);
+    _loadClassStudentsInfo(widget.classId);
   }
 
   void _loadClassStudentsInfo(int classId) async {
@@ -101,10 +97,9 @@ class _VoteState extends State<Vote> {
     try {
       bool result = (await _votingModel.deleteVoting(votingId)) as bool;
       setState(() {
-        classId = 2;
-        print('클래스 아이디 :  + $classId');
-        _loadVoting(classId);
-        _loadClassStudentsInfo(classId);
+        print('클래스 아이디 :  + ${widget.classId}');
+        _loadVoting(widget.classId);
+        _loadClassStudentsInfo(widget.classId);
       });
     } catch (e) {
       Exception(e);
@@ -135,10 +130,9 @@ class _VoteState extends State<Vote> {
     try {
       bool result = (await _votingModel.isVoteUpdate(votingId)) as bool;
       setState(() {
-        classId = 2;
-        print('클래스 아이디 :  + $classId');
-        _loadVoting(classId); 
-        _loadClassStudentsInfo(classId);
+        print('클래스 아이디 :  + $widget.classId');
+        _loadVoting(widget.classId);
+        _loadClassStudentsInfo(widget.classId);
       });
     } catch (e) {
       Exception(e);

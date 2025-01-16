@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../model/seat_model.dart';
-import 'home_screen.dart';
 
 class Seat extends StatefulWidget {
-  const Seat({super.key});
+  final int classId;
+  const Seat({super.key, required this.classId});
 
   @override
   State<Seat> createState() => _SeatState();
@@ -19,32 +18,27 @@ class _SeatState extends State<Seat> {
   bool isEditing = false;
   String randomSpinLabel = "start !";
 
-  // late final int classId;
-  int classId = 2;
   Map<String, dynamic>? firstSelectedSeat;
   List<dynamic> originalSeats = [];
   List<Map<String, dynamic>> newSeats = [];
   List<dynamic> insertSeats = [];
-  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // classId = Provider.of<TeacherProvider>(context, listen: false).latestClassId;
-    // classId = 2;
-    loadSeatTable(classId);
+    loadSeatTable(widget.classId);
     loadStudentNames();
   }
 
   Future<void> loadSeatTable(int classId) async {
-    List<dynamic> result = await _seatModel.selectSeatTable(classId);
+    List<dynamic> result = await _seatModel.selectSeatTable(widget.classId);
     setState(() {
       loadedSeats =
           result.map((seat) => Map<String, dynamic>.from(seat)).toList();
       originalSeats = List.from(loadedSeats);
     });
     if (result.isEmpty) {
-      loadSeatTable(classId);
+      loadSeatTable(widget.classId);
     }
   }
 
@@ -60,12 +54,12 @@ class _SeatState extends State<Seat> {
         'studentId': seat['studentId'],
         'rowId': seat['rowId'],
         'columnId': seat['columnId'],
-        'classId': classId
+        'classId': widget.classId
       };
     }).toList();
     try {
       await _seatModel.saveStudentsSeat(seatsToSave);
-      loadSeatTable(classId);
+      loadSeatTable(widget.classId);
       loadStudentNames();
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("자리를 저장했습니다 !")));
@@ -75,7 +69,7 @@ class _SeatState extends State<Seat> {
   }
 
   Future<void> loadStudentNames() async {
-    List<dynamic> result = await _seatModel.studentNameAPI() as List;
+    List<dynamic> result = await _seatModel.studentNameAPI(widget.classId) as List;
     setState(() {
       nameList = List.from(result);
       nameList.sort((a, b) => a['studentId'].compareTo(b['studentId']));
@@ -126,7 +120,7 @@ class _SeatState extends State<Seat> {
       originalSeats = List.from(loadedSeats);
       isEditing = false;
       showSaveButton = false;
-      loadSeatTable(classId);
+      loadSeatTable(widget.classId);
       loadStudentNames();
     });
     insertSeatTable();
@@ -139,7 +133,7 @@ class _SeatState extends State<Seat> {
       showSaveButton = false;
       firstSelectedSeat = null;
     });
-    loadSeatTable(classId);
+    loadSeatTable(widget.classId);
   }
 
   @override
