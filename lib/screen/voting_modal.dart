@@ -38,7 +38,13 @@ class _AddVotingPageState extends State<AddVotingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("새 투표 생성"),
+        title:
+        Row(
+          children: [
+            Icon(Icons.add_location_outlined, size: 32, color: Colors.deepOrangeAccent,),
+            Text(" 새 투표 생성 ", )
+          ],
+        ),
         backgroundColor: Colors.white,
         shape: const Border(
           bottom: BorderSide(
@@ -54,7 +60,8 @@ class _AddVotingPageState extends State<AddVotingPage> {
             TextField(
               controller: inputTitle,
               decoration: const InputDecoration(
-                labelText: "제목을 입력하세요",
+                labelText:
+                "제목을 입력하세요",
               ),
             ),
             const SizedBox(height: 10),
@@ -97,14 +104,14 @@ class _AddVotingPageState extends State<AddVotingPage> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: const Icon(Icons.add_circle_outline, color: Colors.deepOrangeAccent, size: 30,),
                   onPressed: () {
                     setState(() {
                       inputOptions.add(TextEditingController());
                     });
                   },
                 ),
-                const Text("항목 추가"),
+                const Text("항목 추가", style: TextStyle(color: Colors.deepOrangeAccent),),
               ],
             ),
             const SizedBox(height: 40),
@@ -113,12 +120,12 @@ class _AddVotingPageState extends State<AddVotingPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.calendar_month_outlined),
+                    Icon(Icons.calendar_month_outlined, color: Colors.deepOrangeAccent, size: 28,),
                     SizedBox(
                       width: 10,
                     ),
                     const Text("투표 마감 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrangeAccent, fontSize: 15)),
                   ],
                 ),
                 ListTile(
@@ -172,12 +179,12 @@ class _AddVotingPageState extends State<AddVotingPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.lock_open),
+                    Icon(Icons.lock_open, color: Colors.deepOrangeAccent, size: 28),
                     SizedBox(
                       width: 10,
                     ),
                     const Text("비밀투표 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrangeAccent, fontSize: 15)),
                   ],
                 ),
                 ListTile(
@@ -212,12 +219,14 @@ class _AddVotingPageState extends State<AddVotingPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.check_box_outlined),
+                    Icon(Icons.check_box_outlined, color: Colors.deepOrangeAccent, size: 28),
                     SizedBox(
                       width: 10,
                     ),
                     const Text("중복투표 설정",
                         style: TextStyle(fontWeight: FontWeight.bold,
+                            color: Colors.deepOrangeAccent,
+                            fontSize: 15
                         )),
                   ],
                 ),
@@ -277,9 +286,11 @@ class _AddVotingPageState extends State<AddVotingPage> {
 
           Navigator.pop(context);
         },
-        backgroundColor: const Color(0xff515151),
+        backgroundColor: Colors.deepOrangeAccent,
         foregroundColor: Colors.white,
-        child: const Text("확인"),
+
+
+        child: const Text("생성"),
       ),
     );
   }

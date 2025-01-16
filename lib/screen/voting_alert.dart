@@ -19,7 +19,7 @@ class VotingAlert extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.turned_in, color: Colors.deepOrange, size: 33),
+          Icon(Icons.turned_in, color: Colors.deepOrangeAccent, size: 33),
           SizedBox(width: 10),
           Text("투표 상황 보기", style: TextStyle(fontSize: 20,  fontWeight: FontWeight.bold,),),
         ],
