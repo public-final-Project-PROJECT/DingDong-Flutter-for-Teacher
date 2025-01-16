@@ -84,8 +84,9 @@ class TeacherProvider extends ChangeNotifier {
 
 class HomeScreen extends StatelessWidget {
   final User user;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  const HomeScreen({
+  HomeScreen({
     required this.user,
     super.key,
   });
@@ -98,34 +99,144 @@ class HomeScreen extends StatelessWidget {
     provider.fetchLatestClassId(user);
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Home'),
-          backgroundColor: const Color(0xffF4F4F4),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.orangeAccent, size: 30,),
-              onPressed: () => _showNotification(context),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xffF4F4F4),
-        drawer: HomeDrawer(user: user),
-        body: Consumer<TeacherProvider>(
-          builder: (context, provider, _) {
-            if (provider.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return HomeContent(
-                user: user,
-                teacherId: provider.teacherId,
-                latestClassId: provider.latestClassId);
-          },
-        ));
+      key: _scaffoldKey,
+      appBar: _buildAppBar(context),
+      backgroundColor: const Color(0xffF4F4F4),
+      drawer: HomeDrawer(user: user),
+      endDrawer: _buildSecondaryDrawer(user, context),
+      body: _buildBody(provider),
+    );
   }
 
-  void _showNotification(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Notification clicked')),
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('홈'),
+      backgroundColor: const Color(0xffF4F4F4),
+      actions: [
+        IconButton(
+          icon: CircleAvatar(
+            radius: 15,
+            backgroundImage:
+                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            child: user.photoURL == null
+                ? const Icon(Icons.person, size: 30)
+                : null,
+          ),
+          onPressed: () => _showNotification(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(TeacherProvider provider) {
+    return Consumer<TeacherProvider>(
+      builder: (context, provider, _) {
+        if (provider.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return HomeContent(
+          user: user,
+          teacherId: provider.teacherId,
+          latestClassId: provider.latestClassId,
+        );
+      },
+    );
+  }
+
+  void _showNotification() {
+    _scaffoldKey.currentState?.openEndDrawer();
+  }
+
+  Widget _buildSecondaryDrawer(User user, BuildContext context) {
+    return Drawer(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildDrawerHeader(user),
+            _buildDrawerItems(context),
+            _buildLogOutButton(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader(User user) {
+    return DrawerHeader(
+      decoration: const BoxDecoration(
+        color: Colors.transparent,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundImage:
+                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            child: user.photoURL == null
+                ? const Icon(Icons.person, size: 40)
+                : null,
+          ),
+          const SizedBox(height: 10),
+          Flexible(
+            child: Text(
+              ('${user.displayName!} 선생님'),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              user.email ?? '',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItems(BuildContext context) {
+    return Column(
+      children: [
+        _buildDrawerItem(context, title: 'Settings', onTap: () {}),
+        _buildDrawerItem(context, title: 'Help', onTap: () {}),
+      ],
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context,
+      {required String title, required VoidCallback onTap}) {
+    return ListTile(
+      leading: const Icon(Icons.settings),
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildLogOutButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        await FirebaseAuth.instance.signOut();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LoginPage(),
+          ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xff515151),
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+      child: const Text('로그아웃'),
     );
   }
 }
@@ -138,76 +249,69 @@ class HomeDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        backgroundColor: const Color(0xffffffff),
-        child: Consumer<TeacherProvider>(
-            builder: (_, provider, __) =>
-                ListView(padding: EdgeInsets.zero, children: [
-                  const SizedBox(height: 80),
-                  _buildDrawerItem(context,
-                      title: '홈', onTap: () => Navigator.pop(context)),
-                  _buildDrawerItem(context,
-                      title: '공지사항',
-                      onTap: () => _navigateTo(
-                          context,
-                          Notice(
-                              classId: Provider.of<TeacherProvider>(context, listen: false)
-                                  .latestClassId))),
-                  _buildDrawerItem(context,
-                      title: '출석부',
-                      onTap: () => _navigateTo(
-                          context,
-                          Attendance(
-                              classId: Provider.of<TeacherProvider>(context, listen: false)
-                                  .latestClassId))),
-                  _buildDrawerItem(context,
-                      title: '학생정보',
-                      onTap: () => _navigateTo(
-                          context,
-                          Student(
-                              classId: Provider.of<TeacherProvider>(context, listen: false)
-                                  .latestClassId))),
-                  _buildDrawerItem(context,
-                      title: '캘린더',
-                      onTap: () => _navigateTo(context, const Calendar())),
-                  ExpansionTile(
-                      leading: const Icon(Icons.people, size: 30),
-                      title: const Text('편의기능'),
-                      children: [
-                        _buildDrawerItem(context,
-                            icon: Icons.timer,
-                            title: '타이머',
-                            onTap: () =>
-                                _navigateTo(context, const TimerScreen())),
-                        _buildDrawerItem(context,
-                            icon: Icons.event_seat,
-                            title: '자리배치',
-                            onTap: () => _navigateTo(
-                                context,
-                                Seat(classId: Provider.of<TeacherProvider>(context, listen: false)
-                                    .latestClassId))),
-                        _buildDrawerItem(context,
-                            icon: Icons.how_to_vote_rounded,
-                            title: '투표',
-                            onTap: () => _navigateTo(
-                                context,
-                                Vote(
-                                    classId:
-                                        Provider.of<TeacherProvider>(context, listen: false)
-                                            .latestClassId)))
-                      ])
-                ])));
+      backgroundColor: const Color(0xffffffff),
+      child: Consumer<TeacherProvider>(
+        builder: (_, provider, __) => ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const SizedBox(height: 80),
+            _buildDrawerItem(context,
+                title: '홈', onTap: () => Navigator.pop(context)),
+            _buildDrawerItem(context,
+                title: '공지사항',
+                onTap: () => _navigateTo(
+                    context, Notice(classId: provider.latestClassId))),
+            _buildDrawerItem(context,
+                title: '출석부',
+                onTap: () => _navigateTo(
+                    context, Attendance(classId: provider.latestClassId))),
+            _buildDrawerItem(context,
+                title: '학생정보',
+                onTap: () => _navigateTo(
+                    context, Student(classId: provider.latestClassId))),
+            _buildDrawerItem(context,
+                title: '캘린더',
+                onTap: () => _navigateTo(context, const Calendar())),
+            _buildConvenienceFunctions(context),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildDrawerItem(
-    BuildContext context, {
-    IconData? icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildDrawerItem(BuildContext context,
+      {required String title, required VoidCallback onTap}) {
     return ListTile(
-      leading: icon != null ? Icon(icon) : null,
       title: Text(title),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildConvenienceFunctions(BuildContext context) {
+    return ExpansionTile(
+      leading: const Icon(Icons.people, size: 30),
+      title: const Text('편의기능'),
+      children: [
+        _buildDrawerItem(context,
+            title: '타이머',
+            onTap: () => _navigateTo(context, const TimerScreen())),
+        _buildDrawerItem(context,
+            title: '자리배치',
+            onTap: () => _navigateTo(
+                context,
+                Seat(
+                    classId:
+                        Provider.of<TeacherProvider>(context, listen: false)
+                            .latestClassId))),
+        _buildDrawerItem(context,
+            title: '투표',
+            onTap: () => _navigateTo(
+                context,
+                Vote(
+                    classId:
+                        Provider.of<TeacherProvider>(context, listen: false)
+                            .latestClassId))),
+      ],
     );
   }
 
@@ -233,45 +337,13 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TeacherProvider>(
-      builder: (_, provider, __) => Center(
-        child: provider.loading
-            ? const CircularProgressIndicator()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (user.photoURL != null)
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: NetworkImage(user.photoURL!),
-                    ),
-                  const SizedBox(height: 16),
-                  const Text('구글 로그인 완료'),
-                  Text('이름: ${user.displayName}'),
-                  Text('이메일: ${user.email}'),
-                  Text('교사 ID: $teacherId'),
-                  Text('클래스 ID: $latestClassId'),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff515151),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    child: const Text('로그아웃'),
-                  ),
-                ],
-              ),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('교사 ID: $teacherId'),
+          Text('클래스 ID: $latestClassId'),
+        ],
       ),
     );
   }
