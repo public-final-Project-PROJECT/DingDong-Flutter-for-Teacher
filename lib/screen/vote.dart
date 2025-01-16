@@ -1,8 +1,10 @@
 import 'package:dingdong_flutter_teacher/screen/voting_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../model/voting_model.dart';
+import 'home_screen.dart';
 import 'voting_modal.dart';
 
 class Vote extends StatefulWidget {
@@ -27,6 +29,7 @@ class _VoteState extends State<Vote> {
   @override
   void initState() {
     super.initState();
+    print('클래스 아이디 :  + ${widget.classId}');
     _loadVoting(widget.classId);
     _loadClassStudentsInfo(widget.classId);
   }
@@ -36,17 +39,23 @@ class _VoteState extends State<Vote> {
       List<dynamic> studentsList =
           await _votingModel.findStudentsNameAndImg(classId);
 
+      print('학생인포: $studentsList');
+
       setState(() {
         _studentsInfo = studentsList.cast<Map<String, dynamic>>();
       });
 
+      print(_studentsInfo);
     } catch (e) {
-      throw Exception(e);
+      print("Error 학생 정보 api: $e");
     }
   }
 
   void _loadVoting(int classId) async {
     try {
+      // classId =
+      //     Provider.of<TeacherProvider>(context, listen: false).latestClassId;
+      // classId = 2;
       List<dynamic> votingData = await _votingModel.selectVoting(classId);
 
       votingData.sort((a, b) {
@@ -88,6 +97,7 @@ class _VoteState extends State<Vote> {
     try {
       bool result = (await _votingModel.deleteVoting(votingId)) as bool;
       setState(() {
+        print('클래스 아이디 :  + ${widget.classId}');
         _loadVoting(widget.classId);
         _loadClassStudentsInfo(widget.classId);
       });
@@ -120,6 +130,7 @@ class _VoteState extends State<Vote> {
     try {
       bool result = (await _votingModel.isVoteUpdate(votingId)) as bool;
       setState(() {
+        print('클래스 아이디 :  + $widget.classId');
         _loadVoting(widget.classId);
         _loadClassStudentsInfo(widget.classId);
       });
@@ -137,6 +148,8 @@ class _VoteState extends State<Vote> {
       final studentsVotedForContent =
           _votingStudentsMap[votingId]?[contentId] ?? [];
       voteCounts[contentId] = studentsVotedForContent.length;
+      print(" studentsVotedForContent ::::: $studentsVotedForContent");
+      print("voteCounts[contentId] :::: $voteCounts[contentId]");
     }
 
     int maxVotes = 0;
@@ -221,6 +234,12 @@ class _VoteState extends State<Vote> {
               final votingContents = _allVotingData[votingId] ?? [];
               final studentsVotedForContents =
                   _votingStudentsMap[votingId] ?? {};
+
+              print(voting);
+              print(votingId);
+              print('votingContents : $votingContents');
+              print('studentsVotedForContents : $studentsVotedForContents');
+              print('학생정보 ::   $_studentsInfo');
 
               showDialog(
                 context: context,

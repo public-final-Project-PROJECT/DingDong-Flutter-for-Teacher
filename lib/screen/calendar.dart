@@ -239,7 +239,7 @@ class _CalendarState extends State<Calendar> {
           color: const Color(0xffF4F4F4),
           border: Border(
             top: BorderSide(
-              color: Colors.grey.withValues(),
+              // color: Colors.grey.withValues(),
               width: 1.0,
             ),
           ),

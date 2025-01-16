@@ -24,7 +24,7 @@ class _VotingAlertState extends State<VotingAlert> {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.turned_in, color: Colors.deepOrange, size: 33),
+          Icon(Icons.turned_in, color: Colors.deepOrangeAccent, size: 33),
           SizedBox(width: 10),
           Text(
             "투표 상황 보기",
