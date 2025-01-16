@@ -23,6 +23,8 @@ class TeacherProvider extends ChangeNotifier {
   int _teacherId = 0;
   int _latestClassId = 0;
   bool _loading = true;
+  bool _teacherIdFetched = false;
+  bool _latestClassIdFetched = false;
 
   int get teacherId => _teacherId;
   int get latestClassId => _latestClassId;
@@ -35,6 +37,8 @@ class TeacherProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTeacherId(User user) async {
+    if (_teacherIdFetched) return;
+
     final Dio dio = Dio();
     String serverURL = getServerURL();
 
@@ -46,6 +50,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _teacherId = data is int ? data : int.tryParse(data.toString()) ?? 0;
+        _teacherIdFetched = true;
       } else {
         throw Exception('Failed to fetch teacher ID: ${response.statusCode}');
       }
@@ -58,6 +63,8 @@ class TeacherProvider extends ChangeNotifier {
   }
 
   Future<void> fetchLatestClassId(User user) async {
+    if (_latestClassIdFetched) return;
+
     final Dio dio = Dio();
     String serverURL = getServerURL();
 
@@ -69,7 +76,8 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-            data is int ? data : int.tryParse(data.toString()) ?? 0;
+        data is int ? data : int.tryParse(data.toString()) ?? 0;
+        _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
       }
@@ -294,7 +302,7 @@ class HomeDrawer extends StatelessWidget {
       children: [
         _buildDrawerItem(context,
             title: '타이머',
-            onTap: () => _navigateTo(context, const TimerScreen())),
+            onTap: () => _navigateTo(context, TimerScreen())),
         _buildDrawerItem(context,
             title: '자리배치',
             onTap: () => _navigateTo(
