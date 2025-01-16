@@ -150,21 +150,21 @@ class HomeDrawer extends StatelessWidget {
                       onTap: () => _navigateTo(
                           context,
                           Notice(
-                              classId: Provider.of<TeacherProvider>(context)
+                              classId: Provider.of<TeacherProvider>(context, listen: false)
                                   .latestClassId))),
                   _buildDrawerItem(context,
                       title: '출석부',
                       onTap: () => _navigateTo(
                           context,
                           Attendance(
-                              classId: Provider.of<TeacherProvider>(context)
+                              classId: Provider.of<TeacherProvider>(context, listen: false)
                                   .latestClassId))),
                   _buildDrawerItem(context,
                       title: '학생정보',
                       onTap: () => _navigateTo(
                           context,
                           Student(
-                              classId: Provider.of<TeacherProvider>(context)
+                              classId: Provider.of<TeacherProvider>(context, listen: false)
                                   .latestClassId))),
                   _buildDrawerItem(context,
                       title: '캘린더',
