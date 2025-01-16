@@ -1,11 +1,11 @@
-import 'package:dingdong_flutter_teacher/screen/Attendance.dart';
-import 'package:dingdong_flutter_teacher/screen/Calendar.dart';
-import 'package:dingdong_flutter_teacher/screen/Notice.dart';
-import 'package:dingdong_flutter_teacher/screen/Seat.dart';
-import 'package:dingdong_flutter_teacher/screen/Student.dart';
-import 'package:dingdong_flutter_teacher/screen/Timer.dart';
-import 'package:dingdong_flutter_teacher/screen/Vote.dart';
+import 'package:dingdong_flutter_teacher/screen/attendance.dart';
+import 'package:dingdong_flutter_teacher/screen/calendar.dart';
 import 'package:dingdong_flutter_teacher/screen/login_page.dart';
+import 'package:dingdong_flutter_teacher/screen/notice.dart';
+import 'package:dingdong_flutter_teacher/screen/seat.dart';
+import 'package:dingdong_flutter_teacher/screen/student.dart';
+import 'package:dingdong_flutter_teacher/screen/timer.dart';
+import 'package:dingdong_flutter_teacher/screen/vote.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +14,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
 class TeacherProvider extends ChangeNotifier {
+  static final TeacherProvider _instance = TeacherProvider._internal();
+
+  factory TeacherProvider() => _instance;
+
+  TeacherProvider._internal();
+
   int _teacherId = 0;
   int _latestClassId = 0;
   bool _loading = true;
@@ -23,23 +29,14 @@ class TeacherProvider extends ChangeNotifier {
   bool get loading => _loading;
 
   String getServerURL() {
-    if (dotenv.env['FLAVOR'] == 'production') {
-      return dotenv.env['FETCH_SERVER_URL_PROD']!;
-    } else if (isRunningOnEmulator()) {
-      return dotenv.env['FETCH_SERVER_URL']!;
-    } else {
-      return dotenv.env['FETCH_SERVER_URL2']!;
-    }
-  }
-
-  bool isRunningOnEmulator() {
-    const bool isEmulator = bool.fromEnvironment('dart.vm.product') == false;
-    return isEmulator;
+    return kIsWeb
+        ? dotenv.env['FETCH_SERVER_URL2']!
+        : dotenv.env['FETCH_SERVER_URL']!;
   }
 
   Future<void> fetchTeacherId(User user) async {
     final Dio dio = Dio();
-    final serverURL = getServerURL();
+    String serverURL = getServerURL();
 
     try {
       final response = await dio
@@ -62,7 +59,7 @@ class TeacherProvider extends ChangeNotifier {
 
   Future<void> fetchLatestClassId(User user) async {
     final Dio dio = Dio();
-    final serverURL = getServerURL();
+    String serverURL = getServerURL();
 
     try {
       final response = await dio
@@ -72,7 +69,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-        data is int ? data : int.tryParse(data.toString()) ?? 0;
+            data is int ? data : int.tryParse(data.toString()) ?? 0;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
       }
@@ -95,20 +92,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) {
-        final provider = TeacherProvider();
-        provider.fetchTeacherId(user);
-        provider.fetchLatestClassId(user);
-        return provider;
-      },
-      child: Scaffold(
+    final provider = Provider.of<TeacherProvider>(context);
+
+    provider.fetchTeacherId(user);
+    provider.fetchLatestClassId(user);
+
+    return Scaffold(
         appBar: AppBar(
           title: const Text('Home'),
           backgroundColor: const Color(0xffF4F4F4),
           actions: [
             IconButton(
-              icon: const Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications, color: Colors.orangeAccent, size: 30,),
               onPressed: () => _showNotification(context),
             ),
           ],
@@ -118,18 +113,14 @@ class HomeScreen extends StatelessWidget {
         body: Consumer<TeacherProvider>(
           builder: (context, provider, _) {
             if (provider.loading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
             return HomeContent(
                 user: user,
                 teacherId: provider.teacherId,
                 latestClassId: provider.latestClassId);
           },
-        ),
-      ),
-    );
+        ));
   }
 
   void _showNotification(BuildContext context) {
@@ -147,73 +138,72 @@ class HomeDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xffffffff),
-      child: Consumer<TeacherProvider>(
-        builder: (_, provider, __) => ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const SizedBox(height: 80),
-            _buildDrawerItem(
-              context,
-              title: '홈',
-              onTap: () => Navigator.pop(context),
-            ),
-            _buildDrawerItem(
-              context,
-              title: '공지사항',
-              onTap: () => _navigateTo(context, const Notice()),
-            ),
-            _buildDrawerItem(
-              context,
-              title: '출석부',
-              onTap: () => _navigateTo(context, const Attendance()),
-            ),
-            _buildDrawerItem(
-              context,
-              title: '학생정보',
-              onTap: () => _navigateTo(context, const Student()),
-            ),
-            _buildDrawerItem(
-              context,
-              title: '캘린더',
-              onTap: () => _navigateTo(context, Calendar(user: user)),
-            ),
-            ExpansionTile(
-              leading: const Icon(Icons.people),
-              title: const Text('편의기능'),
-              children: [
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.timer,
-                  title: '타이머',
-                  onTap: () => _navigateTo(context, const TimerScreen()),
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.event_seat,
-                  title: '자리배치',
-                  onTap: () => _navigateTo(context, const Seat()),
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.how_to_vote_rounded,
-                  title: '투표',
-                  onTap: () => _navigateTo(context, const Vote()),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+        backgroundColor: const Color(0xffffffff),
+        child: Consumer<TeacherProvider>(
+            builder: (_, provider, __) =>
+                ListView(padding: EdgeInsets.zero, children: [
+                  const SizedBox(height: 80),
+                  _buildDrawerItem(context,
+                      title: '홈', onTap: () => Navigator.pop(context)),
+                  _buildDrawerItem(context,
+                      title: '공지사항',
+                      onTap: () => _navigateTo(
+                          context,
+                          Notice(
+                              classId: Provider.of<TeacherProvider>(context, listen: false)
+                                  .latestClassId))),
+                  _buildDrawerItem(context,
+                      title: '출석부',
+                      onTap: () => _navigateTo(
+                          context,
+                          Attendance(
+                              classId: Provider.of<TeacherProvider>(context, listen: false)
+                                  .latestClassId))),
+                  _buildDrawerItem(context,
+                      title: '학생정보',
+                      onTap: () => _navigateTo(
+                          context,
+                          Student(
+                              classId: Provider.of<TeacherProvider>(context, listen: false)
+                                  .latestClassId))),
+                  _buildDrawerItem(context,
+                      title: '캘린더',
+                      onTap: () => _navigateTo(context, const Calendar())),
+                  ExpansionTile(
+                      leading: const Icon(Icons.people, size: 30),
+                      title: const Text('편의기능'),
+                      children: [
+                        _buildDrawerItem(context,
+                            icon: Icons.timer,
+                            title: '타이머',
+                            onTap: () =>
+                                _navigateTo(context, const TimerScreen())),
+                        _buildDrawerItem(context,
+                            icon: Icons.event_seat,
+                            title: '자리배치',
+                            onTap: () => _navigateTo(
+                                context,
+                                Seat(classId: Provider.of<TeacherProvider>(context, listen: false)
+                                    .latestClassId))),
+                        _buildDrawerItem(context,
+                            icon: Icons.how_to_vote_rounded,
+                            title: '투표',
+                            onTap: () => _navigateTo(
+                                context,
+                                Vote(
+                                    classId:
+                                        Provider.of<TeacherProvider>(context, listen: false)
+                                            .latestClassId)))
+                      ])
+                ])));
   }
 
   Widget _buildDrawerItem(
-      BuildContext context, {
-        IconData? icon,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    IconData? icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: icon != null ? Icon(icon) : null,
       title: Text(title),
@@ -248,40 +238,40 @@ class HomeContent extends StatelessWidget {
         child: provider.loading
             ? const CircularProgressIndicator()
             : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (user.photoURL != null)
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(user.photoURL!),
-              ),
-            const SizedBox(height: 16),
-            const Text('구글 로그인 완료'),
-            Text('이름: ${user.displayName}'),
-            Text('이메일: ${user.email}'),
-            Text('교사 ID: $teacherId'),
-            Text('클래스 ID: $latestClassId'),
-            ElevatedButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (user.photoURL != null)
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(user.photoURL!),
+                    ),
+                  const SizedBox(height: 16),
+                  const Text('구글 로그인 완료'),
+                  Text('이름: ${user.displayName}'),
+                  Text('이메일: ${user.email}'),
+                  Text('교사 ID: $teacherId'),
+                  Text('클래스 ID: $latestClassId'),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff515151),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    child: const Text('로그아웃'),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff515151),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+                ],
               ),
-              child: const Text('로그아웃'),
-            ),
-          ],
-        ),
       ),
     );
   }

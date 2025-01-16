@@ -5,13 +5,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 Future<UserCredential> signInWithGoogle() async {
   if (kIsWeb) {
-    // Web-specific Google Sign-In
     GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
-    // Sign in with a popup
     return await FirebaseAuth.instance.signInWithPopup(googleProvider);
   } else {
-    // Mobile-specific Google Sign-In
     final GoogleSignInAccount? googleUser = await GoogleSignIn(
       clientId: defaultTargetPlatform == TargetPlatform.iOS
           ? dotenv.env['IOS_CLIENT_ID']

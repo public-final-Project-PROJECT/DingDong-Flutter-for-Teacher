@@ -1,27 +1,24 @@
 import 'package:dingdong_flutter_teacher/model/notice_model.dart';
 import 'package:flutter/material.dart';
 
-class NoticedeleteDialog extends StatefulWidget {
-  final int noticeId; // 삭제할 공지사항 ID
+class NoticeDeleteDialog extends StatefulWidget {
+  final int noticeId;
   final VoidCallback onDeleteSuccess;
 
-  const NoticedeleteDialog({Key? key, required this.noticeId ,  required this.onDeleteSuccess})
-      : super(key: key);
+  const NoticeDeleteDialog(
+      {super.key, required this.noticeId, required this.onDeleteSuccess});
 
   @override
-  State<NoticedeleteDialog> createState() => _NoticedeleteDialogState();
+  State<NoticeDeleteDialog> createState() => _NoticeDeleteDialogState();
 }
 
-class _NoticedeleteDialogState extends State<NoticedeleteDialog> {
-NoticeModel _noticeModel = NoticeModel();
-
+class _NoticeDeleteDialogState extends State<NoticeDeleteDialog> {
+  final NoticeModel _noticeModel = NoticeModel();
 
   void _deleteNotice(int noticeId) async {
     await _noticeModel.deleteNotice(noticeId);
-    widget.onDeleteSuccess(); // 목록 새로고침 콜백 호출
-    Navigator.of(context).pop(); // 다이얼로그만 닫기
-
-
+    widget.onDeleteSuccess();
+    Navigator.of(context).pop();
   }
 
   @override
@@ -38,7 +35,7 @@ NoticeModel _noticeModel = NoticeModel();
         ),
         TextButton(
           onPressed: () {
-            _deleteNotice(widget.noticeId); // widget.noticeId 사용
+            _deleteNotice(widget.noticeId);
           },
           child: const Text("삭제"),
         ),

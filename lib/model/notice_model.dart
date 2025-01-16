@@ -1,11 +1,10 @@
-
-
 import 'package:dio/dio.dart';
 
-class NoticeModel{
+class NoticeModel {
+  late final int classId;
 
-
-  Future<List<dynamic>> searchNotice({String? category, required int classId}) async {
+  Future<List<dynamic>> searchNotice(
+      {String? category, required int classId}) async {
     final dio = Dio();
     try {
       final response = await dio.get(
@@ -17,12 +16,11 @@ class NoticeModel{
       );
       return response.data as List<dynamic>;
     } catch (e) {
-      print(e);
       throw Exception("Error: $e");
     }
   }
 
-  Future<List<dynamic>>registerNotice(int classId) async{
+  Future<List<dynamic>> registerNotice(int classId) async {
     final dio = Dio();
     try {
       final response = await dio.get(
@@ -31,19 +29,16 @@ class NoticeModel{
       );
       return response.data as List<dynamic>;
     } catch (e) {
-      print(e);
       throw Exception("Error: $e");
     }
   }
 
-  Future<void> deleteNotice(int noticeId) async{
+  Future<void> deleteNotice(int noticeId) async {
     final dio = Dio();
-    try{
-      final response = await dio.post("http://112.221.66.174:3013/api/notice/delete/$noticeId");
-    }catch (e){
+    try {
+      await dio.post("http://112.221.66.174:3013/api/notice/delete/$noticeId");
+    } catch (e) {
       throw Exception("Error $e");
     }
   }
-
-
 }
