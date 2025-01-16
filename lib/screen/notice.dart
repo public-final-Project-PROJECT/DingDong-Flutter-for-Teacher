@@ -102,101 +102,101 @@ class _NoticeState extends State<Notice> {
           Expanded(
             child: _noticeList.isEmpty
                 ? const Center(
-                    child: Text(
-                      "공지사항이 존재하지 않습니다.",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
+              child: Text(
+                "공지사항이 존재하지 않습니다.",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
                 : ListView.builder(
-                    itemCount: _noticeList.length,
-                    itemBuilder: (context, index) {
-                      var notice = _noticeList[index];
-                      String formattedCreateAt =
-                          _formatDate(notice['createdAt']);
-                      String formattedUpdatedAt =
-                          _formatDate(notice['updatedAt']);
+              itemCount: _noticeList.length,
+              itemBuilder: (context, index) {
+                var notice = _noticeList[index];
+                String formattedCreateAt =
+                _formatDate(notice['createdAt']);
+                String formattedUpdatedAt =
+                _formatDate(notice['updatedAt']);
 
-                      String displayDate = "";
-                      if (notice['updatedAt'] != null &&
-                          notice['updatedAt'].isNotEmpty &&
-                          notice['createdAt'] != notice['updatedAt']) {
-                        formattedUpdatedAt = _formatDate(notice['updatedAt']);
-                        displayDate = "수정일: $formattedUpdatedAt";
-                      } else {
-                        formattedCreateAt = _formatDate(notice['createdAt']);
-                        displayDate = "작성일: $formattedCreateAt";
-                      }
+                String displayDate = "";
+                if (notice['updatedAt'] != null &&
+                    notice['updatedAt'].isNotEmpty &&
+                    notice['createdAt'] != notice['updatedAt']) {
+                  formattedUpdatedAt = _formatDate(notice['updatedAt']);
+                  displayDate = "수정일: $formattedUpdatedAt";
+                } else {
+                  formattedCreateAt = _formatDate(notice['createdAt']);
+                  displayDate = "작성일: $formattedCreateAt";
+                }
 
-                      return Card(
-                        margin: const EdgeInsets.all(8.0),
-                        color: const Color(0xffFFFFFF),
-                        elevation: 4.0,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16.0),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  notice['noticeTitle'],
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return NoticeDeleteDialog(
-                                        noticeId: notice['noticeId'],
-                                        onDeleteSuccess: () {
-                                          _loadNotice(
-                                              classId: widget
-                                                  .classId);
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
+                return Card(
+                  margin: const EdgeInsets.all(8.0),
+                  color: const Color(0xffFFFFFF),
+                  elevation: 4.0,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16.0),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notice['noticeTitle'],
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "카테고리: ${notice['noticeCategory']}",
-                                style: const TextStyle(
-                                    fontSize: 14, color: Colors.grey),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "내용: ${notice['noticeContent']}",
-                                style: const TextStyle(fontSize: 16),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              Text(displayDate,
-                                  style: const TextStyle(fontSize: 11)),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => NoticeDetailPage(
-                                        notice: notice,
-                                        classId: widget.classId)));
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return NoticeDeleteDialog(
+                                  noticeId: notice['noticeId'],
+                                  onDeleteSuccess: () {
+                                    _loadNotice(
+                                        classId: widget
+                                            .classId);
+                                  },
+                                );
+                              },
+                            );
                           },
                         ),
-                      );
+                      ],
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "카테고리: ${notice['noticeCategory']}",
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "내용: ${notice['noticeContent']}",
+                          style: const TextStyle(fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        Text(displayDate,
+                            style: const TextStyle(fontSize: 11)),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NoticeDetailPage(
+                                  notice: notice,
+                                  classId: widget.classId)));
                     },
                   ),
+                );
+              },
+            ),
           ),
         ],
       ),
