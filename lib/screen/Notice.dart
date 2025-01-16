@@ -52,7 +52,7 @@ class _NoticeState extends State<Notice> {
             padding: const EdgeInsets.all(4.0),
             child: Row(
               children: [
-                SizedBox(width: 10),  // 공지사항 카테고리 좌측 공간 확보
+                SizedBox(width: 10),
                 DropdownButton<String>(
                   value: _selectedCategory,
                   hint: const Text("카테고리 선택"),
@@ -87,8 +87,8 @@ class _NoticeState extends State<Notice> {
                   icon: const Icon(Icons.add),
                   label: const Text("작성하기"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff515151), // 버튼 배경색 변경
-                    foregroundColor: Colors.white, // 버튼 텍스트 색 변경
+                    backgroundColor: const Color(0xff515151),
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
