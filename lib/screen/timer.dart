@@ -11,7 +11,7 @@ class TimerScreen extends StatefulWidget {
 }
 
 class _TimerScreenState extends State<TimerScreen> {
-  late Timer _timer;
+  Timer? _timer;
   int _totalSeconds = 0;
   int _remainingSeconds = 0;
   bool _isRunning = false;
@@ -55,9 +55,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _pauseTimer() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
+    _timer?.cancel(); // Safely cancel the timer if it's not null
     setState(() {
       _isRunning = false;
     });
@@ -65,20 +63,19 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _resetTimer() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
+    _timer?.cancel(); // Safely cancel the timer if it's not null
     setState(() {
       _remainingSeconds = 0;
       _totalSeconds = 0;
       _controller.clear();
       _isRunning = false;
+      _isFinished = false;
     });
     _saveTimerState();
   }
 
   void _finishTimer() {
-    _timer.cancel();
+    _timer?.cancel(); // Safely cancel the timer if it's not null
     setState(() {
       _isRunning = false;
       _isFinished = true;
@@ -102,9 +99,7 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   void dispose() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }

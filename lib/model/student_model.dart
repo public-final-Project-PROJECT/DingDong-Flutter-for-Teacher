@@ -1,11 +1,18 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class StudentModel {
-  final serverURL = dotenv.env['FETCH_SERVER_URL2'];
+
+  String getServerURL() {
+    return kIsWeb
+        ? dotenv.env['FETCH_SERVER_URL2']!
+        : dotenv.env['FETCH_SERVER_URL']!;
+  }
 
   Future<List<dynamic>> searchStudentList(int classId) async {
     final dio = Dio();
+    final serverURL = getServerURL();
 
     try {
       final response =
@@ -22,6 +29,7 @@ class StudentModel {
 
   Future<void> updateMemo(int studentId, String memo) async {
     final dio = Dio();
+    final serverURL = getServerURL();
 
     try {
       await dio.post(
