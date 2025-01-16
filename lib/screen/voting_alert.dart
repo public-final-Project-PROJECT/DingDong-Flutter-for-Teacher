@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class VotingAlert extends StatelessWidget {
+class VotingAlert extends StatefulWidget {
   final String votingName;
   final List<dynamic> votingContents;
   final Map<int, List<dynamic>> studentsVotedForContents;
@@ -15,17 +15,27 @@ class VotingAlert extends StatelessWidget {
   });
 
   @override
+  State<VotingAlert> createState() => _VotingAlertState();
+}
+
+class _VotingAlertState extends State<VotingAlert> {
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Row(
         children: [
           Icon(Icons.turned_in, color: Colors.deepOrangeAccent, size: 33),
           SizedBox(width: 10),
-          Text("투표 상황 보기", style: TextStyle(fontSize: 20,  fontWeight: FontWeight.bold,),),
+          Text(
+            "투표 상황 보기",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
       content: SingleChildScrollView(
-
         child: Container(
           width: double.maxFinite,
           child: Column(
@@ -33,7 +43,7 @@ class VotingAlert extends StatelessWidget {
             children: [
               SizedBox(height: 30),
               Text(
-                votingName,
+                widget.votingName,
                 style: TextStyle(
                   fontSize: 17,
                 ),
@@ -42,13 +52,14 @@ class VotingAlert extends StatelessWidget {
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: votingContents.length,
+                itemCount: widget.votingContents.length,
                 itemBuilder: (context, index) {
-                  final content = votingContents[index];
+                  final content = widget.votingContents[index];
                   final contentName = content["votingContents"] ?? "";
                   final contentId = content["contentsId"];
 
-                  final students = studentsVotedForContents[contentId] ?? [];
+                  final students =
+                      widget.studentsVotedForContents[contentId] ?? [];
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,14 +94,15 @@ class VotingAlert extends StatelessWidget {
                       ),
                       SizedBox(height: 15),
                       if (students.isEmpty)
-                        Text("투표한 학생 없음", style: TextStyle(color: Colors.grey, fontSize: 15))
+                        Text("투표한 학생 없음",
+                            style: TextStyle(color: Colors.grey, fontSize: 15))
                       else
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: students.map<Widget>((student) {
                             final studentId = student["studentId"];
 
-                            final studentData = studentsInfo.firstWhere(
+                            final studentData = widget.studentsInfo.firstWhere(
                                   (info) =>
                               info["studentId"].toString().trim() ==
                                   studentId.toString().trim(),
@@ -107,7 +119,10 @@ class VotingAlert extends StatelessWidget {
                                 backgroundImage: NetworkImage(studentImg),
                               )
                                   : CircleAvatar(child: Icon(Icons.person)),
-                              title: Text(studentName, style: TextStyle(fontSize: 16),),
+                              title: Text(
+                                studentName,
+                                style: TextStyle(fontSize: 16),
+                              ),
                             );
                           }).toList(),
                         ),
@@ -121,7 +136,9 @@ class VotingAlert extends StatelessWidget {
         ),
       ),
       actions: [
-        SizedBox(height: 10,),
+        SizedBox(
+          height: 10,
+        ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);

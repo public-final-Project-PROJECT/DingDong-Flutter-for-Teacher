@@ -34,7 +34,7 @@ class _VoteState extends State<Vote> {
     _loadClassStudentsInfo(widget.classId);
   }
 
-  Future<void> _loadClassStudentsInfo(int classId) async {
+  void _loadClassStudentsInfo(int classId) async {
     try {
       List<dynamic> studentsList =
           await _votingModel.findStudentsNameAndImg(classId);
@@ -51,41 +51,37 @@ class _VoteState extends State<Vote> {
     }
   }
 
-  Future<void> _loadVoting(int classId) async {
+  void _loadVoting(int classId) async {
     try {
       // classId =
       //     Provider.of<TeacherProvider>(context, listen: false).latestClassId;
       // classId = 2;
-      print("투표 list 가져오는 api : $classId");
       List<dynamic> votingData = await _votingModel.selectVoting(classId);
-      setState(() {
+
       votingData.sort((a, b) {
         if (a["vote"] == true && b["vote"] != true) return -1;
         if (a["vote"] != true && b["vote"] == true) return 1;
         return 0;
       });
 
-
+      setState(() {
         _voteList = votingData;
+      });
 
       for (var voting in votingData) {
         final votingId = voting["id"];
         if (votingId != null) {
-          setState(() {
-            _loadVotingContents(votingId);
-            _voteOptionUsers(votingId);
-          });
-
+          _loadVotingContents(votingId);
+          _voteOptionUsers(votingId);
         }
       }
       _loadClassStudentsInfo(classId);
-      });
     } catch (e) {
       Exception(e);
     }
   }
 
-  Future<void> _loadVotingContents(int votingId) async {
+  void _loadVotingContents(int votingId) async {
     try {
       List<dynamic> contents =
           await _votingModel.selectVotingContents(votingId);
@@ -97,10 +93,9 @@ class _VoteState extends State<Vote> {
     }
   }
 
-  Future<void> _votingDelete(int votingId) async {
+  void _votingDelete(int votingId) async {
     try {
       bool result = (await _votingModel.deleteVoting(votingId)) as bool;
-      // 삭제되었습니다 알림메세지
       setState(() {
         print('클래스 아이디 :  + ${widget.classId}');
         _loadVoting(widget.classId);
@@ -111,21 +106,19 @@ class _VoteState extends State<Vote> {
     }
   }
 
-  Future<void> _voteOptionUsers(int votingId) async {
+  void _voteOptionUsers(int votingId) async {
     try {
       List<dynamic> userVotingData =
           await _votingModel.voteOptionUsers(votingId);
-      setState(() {
       Map<int, List<dynamic>> votingStudents = {};
-
-        for (var userVote in userVotingData) {
-          final int contentsId = userVote["contentsId"];
-          if (!votingStudents.containsKey(contentsId)) {
-            votingStudents[contentsId] = [];
-          }
-          votingStudents[contentsId]!.add(userVote);
+      for (var userVote in userVotingData) {
+        final int contentsId = userVote["contentsId"];
+        if (!votingStudents.containsKey(contentsId)) {
+          votingStudents[contentsId] = [];
         }
-
+        votingStudents[contentsId]!.add(userVote);
+      }
+      setState(() {
         _votingStudentsMap[votingId] = votingStudents;
       });
     } catch (e) {
@@ -133,7 +126,7 @@ class _VoteState extends State<Vote> {
     }
   }
 
-  Future<void> isVoteUpdate(int votingId) async {
+  void isVoteUpdate(int votingId) async {
     try {
       bool result = (await _votingModel.isVoteUpdate(votingId)) as bool;
       setState(() {
@@ -202,46 +195,11 @@ class _VoteState extends State<Vote> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.how_to_vote, color: Colors.deepOrangeAccent, size: 33,),
-            const SizedBox(width: 15),
-            const Text("학급 투표"),
-            const SizedBox(width: 100,),
-
-            TextButton(
-              onPressed: () async {
-                List<dynamic> inputDataList = [];
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddVotingPage(inputDataList: inputDataList, classId: widget.classId,),
-                  ),
-                );
-                await _loadVoting(widget.classId);
-                await _loadClassStudentsInfo(widget.classId);
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.deepOrangeAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(30),
-                ),
-                padding: EdgeInsets.symmetric(
-                    vertical: 4, horizontal: 8),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add, color: Colors.white,),
-                  SizedBox(width: 6,),
-                  Icon(Icons.how_to_vote, color: Colors.white,),
-                ],
-              ),
-            )
-
-
+            Text("투표"),
+            SizedBox(width: 15),
+            Icon(Icons.how_to_vote),
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
@@ -261,11 +219,11 @@ class _VoteState extends State<Vote> {
           final mostVotedContentName = mostVotedContent["votingContents"] ?? "";
           final createdAt = voting["createdAt"] != null
               ? DateFormat('yyyy-MM-dd')
-              .format(DateTime.parse(voting["createdAt"]))
+                  .format(DateTime.parse(voting["createdAt"]))
               : '';
           final votingEnd = voting["votingEnd"] != null
               ? DateFormat('yyyy-MM-dd')
-              .format(DateTime.parse(voting["votingEnd"]))
+                  .format(DateTime.parse(voting["votingEnd"]))
               : '';
           final studentsVotedForContents = _votingStudentsMap[votingId] ?? {};
 
@@ -276,6 +234,12 @@ class _VoteState extends State<Vote> {
               final votingContents = _allVotingData[votingId] ?? [];
               final studentsVotedForContents =
                   _votingStudentsMap[votingId] ?? {};
+
+              print(voting);
+              print(votingId);
+              print('votingContents : $votingContents');
+              print('studentsVotedForContents : $studentsVotedForContents');
+              print('학생정보 ::   $_studentsInfo');
 
               showDialog(
                 context: context,
@@ -375,10 +339,6 @@ class _VoteState extends State<Vote> {
                                       onPressed: () {
                                         _votingDelete(votingId);
                                         Navigator.pop(context);
-                                        setState(() {
-                                          _loadVoting(widget.classId);
-                                          _loadClassStudentsInfo(widget.classId);
-                                        });
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           const SnackBar(
@@ -427,14 +387,15 @@ class _VoteState extends State<Vote> {
                           width: 9,
                         ),
                         Flexible(
-                          child: Text(
-                            voting["votingDetail"] ?? '',
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.deepOrangeAccent,
-                            ),
-                            softWrap: true,
+                          child:
+                        Text(
+                          voting["votingDetail"] ?? '',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.deepOrangeAccent,
                           ),
+                          softWrap: true,
+                        ),
                         )
                       ],
                     ),
@@ -444,16 +405,13 @@ class _VoteState extends State<Vote> {
                         Icon(
                           Icons.how_to_vote_rounded,
                           color: Colors.deepOrangeAccent,
-                          size: 30,
                         ),
                         SizedBox(width: 5),
                         Expanded(
                           child: Row(
                             children: [
                               Text(
-                                voting["vote"] == false
-                                    ? "투표 결과 : "
-                                    : "투표 현황 : ",
+                                voting["vote"] == false ? "투표 결과 : " : "투표 현황 : ",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               SizedBox(width: 15),
@@ -486,7 +444,7 @@ class _VoteState extends State<Vote> {
                         TextButton.icon(
                           onPressed: () {
                             final studentsNotVoted =
-                            _getStudentsNotVoted(votingId);
+                                _getStudentsNotVoted(votingId);
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
@@ -494,7 +452,7 @@ class _VoteState extends State<Vote> {
                                   children: [
                                     Icon(
                                       Icons.person_off_sharp,
-                                      color: Colors.deepOrangeAccent,
+                                      color: Colors.deepOrange,
                                       size: 35,
                                     ),
                                     SizedBox(
@@ -502,7 +460,6 @@ class _VoteState extends State<Vote> {
                                     ),
                                     Text(
                                       "투표 안 한 학생들",
-                                      style: TextStyle(fontSize: 20),
                                     ),
                                   ],
                                 ),
@@ -519,8 +476,8 @@ class _VoteState extends State<Vote> {
                                           .values
                                           .any((votedList) => votedList.any(
                                               (votedStudent) =>
-                                          votedStudent["studentId"] ==
-                                              student["studentId"]));
+                                                  votedStudent["studentId"] ==
+                                                  student["studentId"]));
 
                                       if (hasVoted) {
                                         return SizedBox.shrink();
@@ -531,19 +488,19 @@ class _VoteState extends State<Vote> {
                                           children: [
                                             student["img"] != null
                                                 ? Image.network(
-                                              student["img"],
-                                              width: 40,
-                                              height: 40,
-                                            )
+                                                    student["img"],
+                                                    width: 40,
+                                                    height: 40,
+                                                  )
                                                 : Icon(
-                                              Icons.person_pin,
-                                              color: Colors.deepOrangeAccent,
-                                              size: 40,
-                                            ),
+                                                    Icons.person_pin,
+                                                    color: Colors.deepOrange,
+                                                    size: 40,
+                                                  ),
                                             SizedBox(width: 10),
                                             Text(
                                               student["studentName"] ?? "학생 없음",
-                                              style: TextStyle(fontSize: 17),
+                                              style: TextStyle(fontSize: 20),
                                             ),
                                           ],
                                         ),
@@ -561,10 +518,10 @@ class _VoteState extends State<Vote> {
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
                                         style: TextButton.styleFrom(
-                                          backgroundColor: Colors.deepOrangeAccent,
+                                          backgroundColor: Colors.orange,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                           ),
                                           padding: EdgeInsets.symmetric(
                                               vertical: 10, horizontal: 10),
@@ -592,10 +549,10 @@ class _VoteState extends State<Vote> {
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
                                         style: TextButton.styleFrom(
-                                          backgroundColor: Colors.deepOrangeAccent,
+                                          backgroundColor: Colors.deepOrange,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                           ),
                                           padding: EdgeInsets.symmetric(
                                               vertical: 4, horizontal: 8),
@@ -628,57 +585,57 @@ class _VoteState extends State<Vote> {
                           ),
                           label: Text(
                             "미투표 학생 보기",
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                         ),
                         voting["votingEnd"] == null && voting["vote"] == true
                             ? TextButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext con) {
-                                return AlertDialog(
-                                  content: const Text('정말 투표를 종료하시겠습니까?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context),
-                                      child: Text("취소"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        isVoteUpdate(votingId);
-                                        Navigator.pop(context);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content:
-                                              Text("투표가 종료되었습니다!")),
-                                        );
-                                      },
-                                      child: Text("확인"),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.deepOrangeAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 6),
-                          ),
-                          child: Text(
-                            "종료",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),
-                        )
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext con) {
+                                      return AlertDialog(
+                                        content: const Text('정말 투표를 종료하시겠습니까?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text("취소"),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              isVoteUpdate(votingId);
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                    content:
+                                                        Text("투표가 종료되었습니다!")),
+                                              );
+                                            },
+                                            child: Text("확인"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 6),
+                                ),
+                                child: Text(
+                                  "종료",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              )
                             : SizedBox(),
                       ],
                     ),

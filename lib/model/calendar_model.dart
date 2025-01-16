@@ -1,11 +1,21 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CalendarModel {
+
+  String getServerURL() {
+    return kIsWeb
+        ? dotenv.env['FETCH_SERVER_URL2']!
+        : dotenv.env['FETCH_SERVER_URL']!;
+  }
+
   Future<List<dynamic>> calendarList() async {
     final dio = Dio();
+    final serverURL = getServerURL();
 
     try {
-      final response = await dio.get("http://10.0.2.2:3013/calendar/list");
+      final response = await dio.get("$serverURL/calendar/list");
 
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
@@ -19,9 +29,10 @@ class CalendarModel {
 
   Future<void> calendarInsert(dynamic event) async {
     final dio = Dio();
+    final serverURL = getServerURL();
+
     try {
-      final response = await dio.post(
-        "http://10.0.2.2:3013/calendar/insert",
+      final response = await dio.post("$serverURL/calendar/insert",
         data: event,
         options: Options(
           headers: {'Content-Type': 'application/json'},
@@ -39,9 +50,11 @@ class CalendarModel {
 
   Future<void> calendarDelete(int id) async {
     final dio = Dio();
+    final serverURL = getServerURL();
+
     try {
       await dio.post(
-        "http://10.0.2.2:3013/calendar/delete",
+        "$serverURL/calendar/delete",
         data: {
           "id": id,
         },
@@ -56,9 +69,11 @@ class CalendarModel {
 
   Future<void> calendarUpdate(dynamic event) async {
     final dio = Dio();
+    final serverURL = getServerURL();
+
     try {
       await dio.post(
-        "http://10.0.2.2:3013/calendar/selectupdate",
+        "$serverURL/calendar/selectupdate",
         data: event,
         options: Options(
           headers: {'Content-Type': 'application/json'},
