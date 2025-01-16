@@ -104,9 +104,29 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                 ],
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 15),
+                  if( student['studentImg'] != null )
+                    Image.network(
+                      "http://112.221.66.174:6892${student['studentImg']}",
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 100,
+                          height: 100,
+                          color: Colors.grey[300],
+                          child: Icon(Icons.image, color: Colors.grey[700]),
+                        );
+                      },
+                    ),
+                  Container(
+                    child:
+                    Text("프로필 사진"),
+                  ),
+
                   Row(
                     children: [
                       const SizedBox(
