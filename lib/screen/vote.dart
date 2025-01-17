@@ -197,9 +197,16 @@ class _VoteState extends State<Vote> {
       appBar: AppBar(
         title: const Row(
           children: [
-            Text("투표"),
-            SizedBox(width: 15),
-            Icon(Icons.how_to_vote),
+            Row(
+              children: [
+                Text("투표"),
+                SizedBox(width: 15),
+                Icon(Icons.how_to_vote),
+                SizedBox(width: 30,)
+                // TextButton(onPressed: (), child: child)
+              ],
+            )
+
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
@@ -420,14 +427,14 @@ class _VoteState extends State<Vote> {
                                   studentsVotedForContents == null
                                       ? "투표한 학생이 없습니다."
                                       : mostVotedContentName == ""
-                                      ? "동점입니다. "
+                                      ?
                                       "클릭해서 자세한 상황을 확인하세요."
                                       : mostVotedContentName,
                                   style: TextStyle(
                                     color: mostVotedContentName.isEmpty
                                         ? Colors.black
                                         : Colors.red,
-                                    fontSize: 18,
+                                    fontSize: 16,
                                   ),
                                   softWrap: true,
                                 ),
@@ -518,7 +525,7 @@ class _VoteState extends State<Vote> {
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
                                         style: TextButton.styleFrom(
-                                          backgroundColor: Colors.orange,
+                                          backgroundColor: Colors.deepOrangeAccent,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(30),
@@ -621,7 +628,7 @@ class _VoteState extends State<Vote> {
                                   );
                                 },
                                 style: TextButton.styleFrom(
-                                  backgroundColor: Colors.orange,
+                                  backgroundColor: Colors.deepOrangeAccent,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
