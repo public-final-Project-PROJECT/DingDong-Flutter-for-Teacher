@@ -21,21 +21,8 @@ class _TimerScreenState extends State<TimerScreen> {
   @override
   void initState() {
     super.initState();
-    _syncTimer(); // 상태 동기화를 위해 추가
+    _syncTimer();
   }
-
-  // Future<void> _loadTimerState() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     _totalSeconds = prefs.getInt('totalSeconds') ?? 0;
-  //     _remainingSeconds = prefs.getInt('remainingSeconds') ?? 0;
-  //     _isRunning = prefs.getBool('isRunning') ?? false;
-  //   });
-  //
-  //   if (_isRunning && _remainingSeconds > 0) {
-  //     _startTimer();
-  //   }
-  // }
 
   Future<void> _syncTimer() async {
     final prefs = await SharedPreferences.getInstance();
@@ -52,9 +39,9 @@ class _TimerScreenState extends State<TimerScreen> {
         _remainingSeconds = updatedRemainingSeconds;
         _isRunning = true;
       });
-      _startTimer(); // 타이머 재시작
+      _startTimer();
     } else if (savedRemainingSeconds > 0) {
-      _finishTimer(); // 타이머 완료 처리
+      _finishTimer();
     }
   }
 
@@ -77,7 +64,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _pauseTimer() {
-    _timer?.cancel(); // Safely cancel the timer if it's not null
+    _timer?.cancel();
     setState(() {
       _isRunning = false;
     });
@@ -85,7 +72,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _resetTimer() {
-    _timer?.cancel(); // Safely cancel the timer if it's not null
+    _timer?.cancel();
     setState(() {
       _remainingSeconds = 0;
       _totalSeconds = 0;
@@ -97,7 +84,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _finishTimer() {
-    _timer?.cancel(); // Safely cancel the timer if it's not null
+    _timer?.cancel();
     setState(() {
       _isRunning = false;
       _isFinished = true;
@@ -130,8 +117,7 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        _totalSeconds > 0 ? _remainingSeconds / _totalSeconds : 0.0;
+    final progress = _totalSeconds > 0 ? _remainingSeconds / _totalSeconds : 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -167,7 +153,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
-                        value: 0,
+                        value: progress,
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
@@ -281,7 +267,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
-                        value: _totalSeconds > 0 ? _remainingSeconds / _totalSeconds : 0.0,
+                        value: progress,
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(

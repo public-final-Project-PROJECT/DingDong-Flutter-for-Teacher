@@ -1,5 +1,5 @@
 import 'package:dingdong_flutter_teacher/screen/home_screen.dart';
-import 'package:dingdong_flutter_teacher/screen/sign_in_with_google.dart';
+import 'package:dingdong_flutter_teacher/sign_in_with_google.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
