@@ -380,7 +380,7 @@ class _VoteState extends State<Vote> {
                       children: [
                         Icon(
                           Icons.star,
-                          color: Colors.deepOrangeAccent,
+                          color: Color(0xff88BB35),
                           size: 20,
                         ),
                         SizedBox(
@@ -392,7 +392,7 @@ class _VoteState extends State<Vote> {
                           voting["votingDetail"] ?? '',
                           style: TextStyle(
                             fontSize: 15,
-                            color: Colors.deepOrangeAccent,
+                            color: Color(0xff88BB35),
                           ),
                           softWrap: true,
                         ),
@@ -404,7 +404,7 @@ class _VoteState extends State<Vote> {
                       children: [
                         Icon(
                           Icons.how_to_vote_rounded,
-                          color: Colors.deepOrangeAccent,
+                          color: Color(0xff88BB35),
                         ),
                         SizedBox(width: 5),
                         Expanded(
@@ -452,7 +452,7 @@ class _VoteState extends State<Vote> {
                                   children: [
                                     Icon(
                                       Icons.person_off_sharp,
-                                      color: Colors.deepOrange,
+                                      color: Color(0xff323e75),
                                       size: 35,
                                     ),
                                     SizedBox(
@@ -494,7 +494,7 @@ class _VoteState extends State<Vote> {
                                                   )
                                                 : Icon(
                                                     Icons.person_pin,
-                                                    color: Colors.deepOrange,
+                                                    color: Color(0xff3CB371),
                                                     size: 40,
                                                   ),
                                             SizedBox(width: 10),
@@ -529,7 +529,7 @@ class _VoteState extends State<Vote> {
                                         child: Row(children: [
                                           Icon(
                                             Icons.notifications_active,
-                                            color: Colors.white,
+                                            color: Color(0xff3CB371),
                                           ),
                                           SizedBox(
                                             width: 10,
@@ -549,7 +549,7 @@ class _VoteState extends State<Vote> {
                                       TextButton(
                                         onPressed: () => Navigator.pop(context),
                                         style: TextButton.styleFrom(
-                                          backgroundColor: Colors.deepOrange,
+                                          backgroundColor: Color(0xff3096a6),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(30),
@@ -570,7 +570,7 @@ class _VoteState extends State<Vote> {
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: voting["vote"] == true
-                                ? Colors.deepOrangeAccent
+                                ? Color(0xff3096a6)
                                 : Colors.grey,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),

@@ -130,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                 ? const Icon(Icons.person, size: 30)
                 : null,
           ),
-          onPressed: () => _showNotification(),
+          onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
       ],
     );
@@ -149,10 +149,6 @@ class HomeScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  void _showNotification() {
-    _scaffoldKey.currentState?.openEndDrawer();
   }
 
   Widget _buildSecondaryDrawer(User user, BuildContext context) {
