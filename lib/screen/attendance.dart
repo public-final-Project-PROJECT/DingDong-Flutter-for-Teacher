@@ -161,18 +161,18 @@ class _AttendanceState extends State<Attendance> {
                   ElevatedButton(
                     onPressed: () => _selectDate(context),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xff3CB371),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
-                        )),
+                        ),minimumSize: const Size(110, 60)),
                     child: Text(
                       selectedDate == null
                           ? '날짜 선택'
                           : '${selectedDate?.toLocal()}'.split(' ')[0],
-                    ),
+                    style: TextStyle(fontSize: 17),),
                   ),
-                  const SizedBox(width: 25),
+                  const SizedBox(width: 30),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -182,19 +182,33 @@ class _AttendanceState extends State<Attendance> {
                     child: const Row(
                       children: [
                         Column(
-                          children: [Icon(Icons.check_circle), Text("출석")],
+                          children: [Icon(
+                            Icons.check_circle,
+                            color: Colors.green,  // 아이콘 색상 설정
+                          ), Text("출석")],
                         ),
                         SizedBox(width: 10),
                         Column(
-                          children: [Icon(Icons.cancel), Text("결석")],
+                          children: [Icon(
+                            Icons.cancel,
+                            color: Colors.red,  // 아이콘 색상 설정
+                          ), Text("결석")],
                         ),
                         SizedBox(width: 10),
                         Column(
-                          children: [Icon(Icons.access_time), Text("지각")],
+                          children: [Icon(
+                            Icons.access_time,
+                            color: Colors.orange
+                            ,  // 아이콘 색상 설정
+                          ), Text("지각")],
                         ),
                         SizedBox(width: 10),
                         Column(
-                          children: [Icon(Icons.exit_to_app), Text("조퇴")],
+                          children: [Icon(
+                            Icons.exit_to_app,
+                            color: Colors.blue
+                            ,  // 아이콘 색상 설정
+                          ), Text("조퇴")],
                         ),
                         SizedBox(width: 10),
                         Column(
@@ -207,8 +221,12 @@ class _AttendanceState extends State<Attendance> {
               ),
             ),
             const SizedBox(height: 20),
+            const Divider(
+              color: Colors.grey,
+              thickness: 1.5,
+            ),
             SizedBox(
-              height: MediaQuery.of(context).size.height * 0.65,
+              height: MediaQuery.of(context).size.height * 0.68,
               child: ListView.builder(
                 itemCount: _students.length,
                 itemBuilder: (context, index) {
@@ -229,31 +247,44 @@ class _AttendanceState extends State<Attendance> {
                                 builder: (context) => StudentDetailPage(
                                     student: student['studentId'])));
                       },
-                      child: ListTile(
-                        title: Text(student['studentName'] ?? '이름 없음'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('학번: ${student['studentId']}'),
-                            Text('출석 상태: $attendanceState'),
-                          ],
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(student['studentName'] ?? '이름 없음',style: const TextStyle(
+                            fontSize: 20,
+                           // fontWeight: FontWeight.bold,
+                          ),),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('학번: ${student['studentId']}번' ,style: const TextStyle(fontSize: 15)),
+                              Text('출석 상태: $attendanceState',style: const  TextStyle(fontSize: 15)),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: _getAttendanceIcon(attendanceState),
+                            onPressed: () {
+                              _toggleAttendanceState(student['studentId']);
+                            },
+                          ),
                         ),
-                        trailing: IconButton(
-                          icon: Icon(_getAttendanceIcon(attendanceState)),
-                          onPressed: () {
-                            _toggleAttendanceState(student['studentId']);
-                          },
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 1.5,
                         ),
-                      ));
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
+
             ElevatedButton(
               onPressed: () {
                 registerAttendance(_attendanceList);
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff515151),
+                  backgroundColor: const Color(0xff205736),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -266,18 +297,25 @@ class _AttendanceState extends State<Attendance> {
     );
   }
 
-  IconData _getAttendanceIcon(String attendanceState) {
+  Icon _getAttendanceIcon(String attendanceState) {
+    Color iconColor;
+
     switch (attendanceState) {
       case '출석':
-        return Icons.check_circle;
+        iconColor = Colors.green;
+        return Icon(Icons.check_circle, color: iconColor , size: 40);
       case '결석':
-        return Icons.cancel;
+        iconColor = Colors.red;
+        return Icon(Icons.cancel, color: iconColor , size: 40);
       case '지각':
-        return Icons.access_time;
+        iconColor = Colors.orange;
+        return Icon(Icons.access_time, color: iconColor , size: 40);
       case '조퇴':
-        return Icons.exit_to_app;
+        iconColor = Colors.blue;
+        return Icon(Icons.exit_to_app, color: iconColor , size: 40);
       default:
-        return Icons.help_outline;
+        iconColor = Colors.black;
+        return Icon(Icons.help_outline, color: iconColor , size: 40);
     }
   }
 }

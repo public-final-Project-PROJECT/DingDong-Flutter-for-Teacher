@@ -77,7 +77,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${student['studentName']}학생 인적 사항"),
+        title: Text("${student['studentName']} 학생의 인적 사항"),
         backgroundColor: const Color(0xffF4F4F4),
       ),
       backgroundColor: const Color(0xffF4F4F4),
@@ -124,15 +124,16 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                     ),
                   Container(
                     child:
-                    Text("프로필 사진"),
+                    Text("프로필 사진" ,style: const TextStyle(fontSize: 15, fontWeight:FontWeight.bold )),
                   ),
+                  const SizedBox(height: 15),
 
                   Row(
                     children: [
                       const SizedBox(
                         width: 87,
                         child: Text("이 름 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -142,8 +143,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
-                          child: Text("${student['studentName']}",
-                              style: const TextStyle(fontSize: 15)),
+                          child: Text( student['studentName'] ?? "미입력"),
                         ),
                       ),
                     ],
@@ -154,7 +154,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("생년월일 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -164,7 +164,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
-                          child: Text("${student['studentBirth']}",
+                          child: Text("${student['studentBirth'] ?? "미입력"}",
                               style: const TextStyle(fontSize: 15)),
                         ),
                       ),
@@ -176,7 +176,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("학 교 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -199,7 +199,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("성별 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -209,7 +209,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
-                          child: Text("${student['studentGender']}",
+                          child: Text("${student['studentGender'] ?? "미입력" }",
                               style: const TextStyle(fontSize: 15)),
                         ),
                       ),
@@ -221,7 +221,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("핸드폰 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -231,7 +231,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
-                          child: Text("${student['studentPhone']}",
+                          child: Text("${student['studentPhone'] ?? "미입력"}",
                               style: const TextStyle(fontSize: 15)),
                         ),
                       ),
@@ -243,7 +243,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("보호자",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -265,7 +265,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("보호자 번호",
-                            style: TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -287,7 +287,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("주소 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -297,7 +297,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
-                          child: Text("${student['studentAddress']}",
+                          child: Text("${student['studentAddress'] ?? "미입력"}",
                               style: const TextStyle(fontSize: 15)),
                         ),
                       ),
@@ -309,7 +309,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("특이사항 ",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -319,7 +319,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
-                          child: Text("${student['studentEtc']}",
+                          child: Text("${student['studentEtc'] ?? "미입력"}",
                               style: const TextStyle(fontSize: 15)),
                         ),
                       ),
@@ -331,7 +331,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                       const SizedBox(
                         width: 87,
                         child: Text("메 모 ",
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16 , fontWeight : FontWeight.bold),
                             textAlign: TextAlign.center),
                       ),
                       Expanded(
@@ -350,8 +350,8 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                                   boxShadow: const [
                                     BoxShadow(
                                       color: Colors.black,
-                                      blurRadius: 8,
-                                      offset: Offset(0, 4),
+                                      blurRadius: 7,
+                                      offset: Offset(0, 2),
                                     ),
                                   ],
                                 ),
@@ -380,7 +380,7 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 12.0, horizontal: 20.0),
-                                  backgroundColor: const Color(0xff515151),
+                                  backgroundColor: const  Color(0xff3CB371),
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0),
