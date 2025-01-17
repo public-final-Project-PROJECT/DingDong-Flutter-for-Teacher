@@ -11,7 +11,8 @@ class TimerScreen extends StatefulWidget {
 }
 
 class _TimerScreenState extends State<TimerScreen> {
-  Timer? _timer;
+  Timer?
+  _timer;
   int _totalSeconds = 0;
   int _remainingSeconds = 0;
   bool _isRunning = false;
@@ -24,7 +25,7 @@ class _TimerScreenState extends State<TimerScreen> {
     _syncTimer();
   }
 
-  Future<void> _syncTimer() async {
+  void _syncTimer() async {
     final prefs = await SharedPreferences.getInstance();
     final savedRemainingSeconds = prefs.getInt('remainingSeconds') ?? 0;
     final savedTimestamp = prefs.getInt('lastUpdatedTimestamp') ?? 0;
@@ -34,15 +35,17 @@ class _TimerScreenState extends State<TimerScreen> {
 
     final updatedRemainingSeconds = savedRemainingSeconds - elapsedSeconds;
 
-    if (updatedRemainingSeconds > 0) {
-      setState(() {
+    setState(() {
+      if (updatedRemainingSeconds > 0) {
         _remainingSeconds = updatedRemainingSeconds;
         _isRunning = true;
-      });
-      _startTimer();
-    } else if (savedRemainingSeconds > 0) {
-      _finishTimer();
-    }
+        _totalSeconds = prefs.getInt('totalSeconds') ?? 0; // 복원된 전체 시간 설정
+      } else if (savedRemainingSeconds > 0) {
+        _finishTimer();
+      }
+    });
+
+    _startTimer(); // 타이머 실행
   }
 
 
@@ -153,7 +156,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
-                        value: progress,
+                        value: progress, // 동적으로 계산된 progress 적용
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
@@ -219,7 +222,7 @@ class _TimerScreenState extends State<TimerScreen> {
                 const Stack(
                   alignment: Alignment.center,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
@@ -231,7 +234,7 @@ class _TimerScreenState extends State<TimerScreen> {
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "00:00",
                       style: TextStyle(
                         fontSize: 50,
@@ -267,7 +270,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
-                        value: progress,
+                        value: progress, // 동적으로 계산된 progress 적용
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
