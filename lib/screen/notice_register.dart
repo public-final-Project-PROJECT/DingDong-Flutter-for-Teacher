@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dingdong_flutter_teacher/model/alert_model.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,8 @@ class _NoticeRegisterState extends State<NoticeRegister> {
   final _focusNodeTitle = FocusNode();
   final _focusNodeContent = FocusNode();
   bool _isFocusTransitioning = false;
+
+  AlertModel alertModel = AlertModel();
 
   Future<void> _checkPermission(Permission permission) async {
     PermissionStatus permissionStatus = await permission.status;
@@ -109,6 +112,20 @@ class _NoticeRegisterState extends State<NoticeRegister> {
       );
 
       if (response.statusCode == 200) {
+        final responseData = response.data as Map<String, dynamic>;
+        int noticeId = responseData['noticeId'];
+        print(noticeId);
+
+
+
+        final Map<String, dynamic> data = {
+          "alertCategory": "공지사항",
+          "noticeId": noticeId,
+          "classId": widget.classId,
+        };
+
+        alertModel.alertRegister(data);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("공지사항이 등록되었습니다.")),
         );
