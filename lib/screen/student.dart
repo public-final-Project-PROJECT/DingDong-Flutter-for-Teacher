@@ -66,11 +66,7 @@ class _StudentState extends State<Student> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _students.isNotEmpty
-              ? '${_students[0]['schoolName']} ${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
-              : '학생 정보',
-        ),
+        title: Text("학생 정보"),
         backgroundColor: const Color(0xffF4F4F4),
         shape: const Border(
           bottom: BorderSide(color: Colors.grey, width: 1),
@@ -88,15 +84,26 @@ class _StudentState extends State<Student> {
                     style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 )
-              : ListView.builder(
+              : Column(
+               children: [
+                 Text(
+                   _students.isNotEmpty
+                       ? '${_students[0]['schoolName']} ${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
+                       : '학생 정보',style: TextStyle(fontSize: 25),
+                 ),
+                 const SizedBox(height: 10),
+                 Expanded(child:
+                 ListView.builder(
                   itemCount: _students.length,
                   itemBuilder: (context, index) {
                     final student = _students[index];
                     return ListTile(
-                      title: Text(student['studentName'] ?? '이름 없음'),
-                      subtitle: Text('학번: ${student['studentId'] ?? '학번 없음'}'),
-                      trailing: const Icon(Icons.arrow_forward),
-                      onTap: () {
+                      title: Text(student['studentName'] ?? '이름 없음' , style: TextStyle(fontSize: 20),),
+                      subtitle: Text('학번: ${student['studentId'] ?? '학번 없음'}',style: TextStyle(fontSize: 16),),
+                      trailing: Column( children: [ Text("자세히"),const Icon(
+                    Icons.arrow_forward,
+                    color: Colors.green,size: 40)]),
+                    onTap: () {
                         Navigator.push(
                           context,
                           PageRouteBuilder(
@@ -124,7 +131,7 @@ class _StudentState extends State<Student> {
                       },
                     );
                   },
-                ),
+          ) ),])
     );
   }
 }

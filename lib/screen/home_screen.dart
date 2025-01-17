@@ -112,6 +112,7 @@ class HomeScreen extends StatelessWidget {
     return AppBar(
       title: const Text('홈'),
       backgroundColor: const Color(0xffF4F4F4),
+
       actions: [
         IconButton(
           icon: CircleAvatar(

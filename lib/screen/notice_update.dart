@@ -193,7 +193,7 @@ class _NoticeUpdateState extends State<NoticeUpdate> {
                         ElevatedButton(
                           onPressed: _pickImage,
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff515151),
+                              backgroundColor: const Color(0xff3CB371),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -221,7 +221,7 @@ class _NoticeUpdateState extends State<NoticeUpdate> {
                         ElevatedButton(
                           onPressed: _pickImage,
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff515151),
+                              backgroundColor: const Color(0xff3CB371),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -240,7 +240,7 @@ class _NoticeUpdateState extends State<NoticeUpdate> {
                     ElevatedButton(
                       onPressed: _pickImage,
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff515151),
+                          backgroundColor: const Color(0xff3CB371),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -270,7 +270,7 @@ class _NoticeUpdateState extends State<NoticeUpdate> {
                   ElevatedButton(
                     onPressed: _pickFile,
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xff3CB371),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -283,7 +283,7 @@ class _NoticeUpdateState extends State<NoticeUpdate> {
               ElevatedButton(
                 onPressed: _updateNotice,
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff515151),
+                    backgroundColor: const Color(0xff205736),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),

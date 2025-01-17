@@ -114,6 +114,12 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 200,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/error_image.png', // 기본 이미지 경로
+                    fit: BoxFit.contain, // 기본 이미지도 동일하게 처리
+                  );
+                },
               ),
             const SizedBox(height: 8),
             Text("${notice['noticeContent']}"),
@@ -144,7 +150,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                                   )));
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xff3CB371),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 13),

@@ -84,10 +84,13 @@ class _NoticeState extends State<Notice> {
                       }
                     });
                   },
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(
+                    Icons.add,
+                    color: Colors.white,  // 아이콘 색상 설정
+                  ),
                   label: const Text("작성하기"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff515151),
+                    backgroundColor: const Color(0xff3CB371),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 12),
