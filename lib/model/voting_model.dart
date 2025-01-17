@@ -8,7 +8,6 @@ class VotingModel {
       final response = await dio.post(
           "http://112.221.66.174:3013/api/voting/findVoting",
           data: {'classId': classId});
-
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
       } else {
@@ -50,7 +49,6 @@ class VotingModel {
       if (deadline == null || deadline.isEmpty) {
         deadline = "no";
       }
-
       final response = await dio.post(
         "http://112.221.66.174:3013/api/voting/newvoting",
         data: {
@@ -66,6 +64,7 @@ class VotingModel {
 
       if (response.statusCode == 200) {
         return response.data as List<dynamic>;
+
       } else {
         throw Exception("로드 실패");
       }
@@ -109,7 +108,6 @@ class VotingModel {
     }
   }
 
-  // 투표 종료 api
   Future<List<dynamic>> isVoteUpdate(int voteId) async {
     final dio = Dio();
 
@@ -161,4 +159,6 @@ class VotingModel {
       throw Exception(e);
     }
   }
+
+
 }

@@ -3,6 +3,7 @@ import '../model/seat_model.dart';
 
 class Seat extends StatefulWidget {
   final int classId;
+
   const Seat({super.key, required this.classId});
 
   @override
@@ -43,9 +44,9 @@ class _SeatState extends State<Seat> {
   }
 
   Future<void> insertSeatTable() async {
-    if(newSeats.isNotEmpty){
+    if (newSeats.isNotEmpty) {
       insertSeats = newSeats;
-    }else{
+    } else {
       insertSeats = loadedSeats;
     }
 
@@ -64,12 +65,13 @@ class _SeatState extends State<Seat> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("자리를 저장했습니다 !")));
     } catch (e) {
-      Exception (e);
+      Exception(e);
     }
   }
 
   Future<void> loadStudentNames() async {
-    List<dynamic> result = await _seatModel.studentNameAPI(widget.classId) as List;
+    List<dynamic> result =
+        await _seatModel.studentNameAPI(widget.classId) as List;
     setState(() {
       nameList = List.from(result);
       nameList.sort((a, b) => a['studentId'].compareTo(b['studentId']));
@@ -153,7 +155,7 @@ class _SeatState extends State<Seat> {
           children: [
             Icon(
               Icons.event_seat_sharp,
-              color: Colors.deepOrangeAccent,
+              color: Color(0xff309729),
               size: 30,
             ),
             SizedBox(width: 10),
@@ -179,7 +181,8 @@ class _SeatState extends State<Seat> {
               ElevatedButton(
                 onPressed: toggleEditMode,
                 style: TextButton.styleFrom(
-                  backgroundColor:  isEditing ?  Colors.grey : Colors.deepOrangeAccent,
+                  backgroundColor:
+                      isEditing ? Colors.grey :  Color(0xff309729),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -198,8 +201,7 @@ class _SeatState extends State<Seat> {
                       isEditing ? "수정중 ... " : "좌석 수정",
                       style: TextStyle(
                           fontSize: 18,
-                          color: isEditing ? Colors.white : Colors.white
-                      ),
+                          color: isEditing ? Colors.white : Colors.white),
                     ),
                   ],
                 ),
@@ -210,7 +212,8 @@ class _SeatState extends State<Seat> {
               ElevatedButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
-                  backgroundColor: isEditing ?  Colors.grey : Colors.deepOrangeAccent,
+                  backgroundColor:
+                      isEditing ? Colors.grey :  Color(0xff309729),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -235,7 +238,7 @@ class _SeatState extends State<Seat> {
                         fontSize: 17,
                       )),
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.deepOrangeAccent,
+                    backgroundColor:  Color(0xff309729),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -250,7 +253,7 @@ class _SeatState extends State<Seat> {
                     style: TextStyle(color: Colors.white, fontSize: 17),
                   ),
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.deepOrangeAccent,
+                    backgroundColor: Color(0xff309729),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -291,17 +294,21 @@ class _SeatState extends State<Seat> {
           ),
           Center(
             child: Container(
-              height: 50,
-              width: 150,
+              height: 40,
+              width: 170,
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: Colors.lightGreen),
+              decoration: BoxDecoration(
+                color: Color(0xff45c63b),
+                borderRadius: BorderRadius.circular(30),
+              ),
               child: Text(
-                "교탁",
-                style: TextStyle( fontSize: 18),
+                "칠판",
+                style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ),
           ),
+
           Expanded(
             child: GridView.builder(
                 padding: EdgeInsets.fromLTRB(7, 60, 7, 30),
@@ -333,8 +340,7 @@ class _SeatState extends State<Seat> {
                     return Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.orange,
+                        color:  Color(0xff72BF6C),
                       ),
                       child: Text(
                         student['studentName'],
@@ -368,7 +374,7 @@ class _SeatState extends State<Seat> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
-          color: Colors.orangeAccent,
+          color:  Color(0xff82e87c),
           border: Border.all(
             color: (firstSelectedSeat == seat) ? Colors.red : Colors.white70,
           ),
@@ -376,7 +382,7 @@ class _SeatState extends State<Seat> {
         child: Text(
           getStudentNameByStudentId(seat['studentId']),
           textAlign: TextAlign.center,
-          style: TextStyle( fontSize: 17),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
         ),
       ),
     );
