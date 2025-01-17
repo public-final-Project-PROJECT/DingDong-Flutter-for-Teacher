@@ -1,3 +1,4 @@
+import 'package:dingdong_flutter_teacher/screen/vote.dart';
 import 'package:flutter/material.dart';
 import '../model/voting_model.dart';
 
@@ -5,7 +6,8 @@ class AddVotingPage extends StatefulWidget {
   final List<dynamic> inputDataList;
   final int classId;
 
-  const AddVotingPage({super.key, required this.inputDataList, required this.classId});
+  const AddVotingPage(
+      {super.key, required this.inputDataList, required this.classId});
 
   @override
   State<AddVotingPage> createState() => _AddVotingPageState();
@@ -23,34 +25,65 @@ class _AddVotingPageState extends State<AddVotingPage> {
   String selectedDoubleVoting = "one";
   DateTime? selectedDate;
 
-  void _addNewVoting(String title, String description, List<dynamic> options,
-      String? deadline, bool secretVoting, bool doubleVoting) async {
-    if (deadline == null || deadline.isEmpty) {
-      deadline = "no";
+  void _addNewVoting(String title,
+      String description,
+      List<dynamic> options,
+      String? deadline,
+      bool secretVoting,
+      bool doubleVoting,) async {
+    try {
+      if (deadline == null || deadline.isEmpty) {
+        deadline = "no";
+      }
+
+      List<String> options = inputOptions
+          .map((controller) => controller.text.toString())
+          .toList();
+
+
+      await _votingModel.newVoting(
+        widget.classId,
+        title,
+        description,
+        options,
+        deadline,
+        secretVoting,
+        doubleVoting,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("투표가 생성되었습니다!")),
+      );
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("오류 발생: $e")),
+      );
     }
-    await _votingModel.newVoting(
-        widget.classId, title, description, options, deadline, secretVoting, doubleVoting);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text("투표가 생성되었습니다 !")));
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-        Row(
+        title: Row(
           children: [
-            Icon(Icons.add_location_outlined, size: 32, color: Colors.deepOrangeAccent,),
-            Text(" 새 투표 생성 ", )
+            Icon(
+              Icons.add_location_outlined,
+              size: 32,
+              color: Color(0xff3CB371),
+            ),
+            Text(
+              " 새 투표 생성 ",
+            )
           ],
         ),
         backgroundColor: Colors.white,
         shape: const Border(
-          bottom: BorderSide(
-            color: Colors.grey,
-          )
-        ),
+            bottom: BorderSide(
+              color: Colors.grey,
+            )),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -60,9 +93,11 @@ class _AddVotingPageState extends State<AddVotingPage> {
             TextField(
               controller: inputTitle,
               decoration: const InputDecoration(
-                labelText:
-                "제목을 입력하세요",
+                labelText: "제목을 입력하세요",
               ),
+              onChanged: (value) {
+                setState(() {});
+              },
             ),
             const SizedBox(height: 10),
             TextField(
@@ -70,6 +105,9 @@ class _AddVotingPageState extends State<AddVotingPage> {
               decoration: const InputDecoration(
                 labelText: "설명을 입력하세요",
               ),
+              onChanged: (value) {
+                setState(() {});
+              },
             ),
             const SizedBox(height: 30),
             Column(
@@ -85,6 +123,9 @@ class _AddVotingPageState extends State<AddVotingPage> {
                             decoration: const InputDecoration(
                               labelText: "항목을 입력하세요",
                             ),
+                            onChanged: (value) {
+                              setState(() {});
+                            },
                           ),
                         ),
                         if (inputOptions.length > 1)
@@ -104,14 +145,21 @@ class _AddVotingPageState extends State<AddVotingPage> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline, color: Colors.deepOrangeAccent, size: 30,),
+                  icon: const Icon(
+                    Icons.add_circle_outline,
+                    color: Color(0xff3CB371),
+                    size: 30,
+                  ),
                   onPressed: () {
                     setState(() {
                       inputOptions.add(TextEditingController());
                     });
                   },
                 ),
-                const Text("항목 추가", style: TextStyle(color: Colors.deepOrangeAccent),),
+                const Text(
+                  "항목 추가",
+                  style: TextStyle(color: Color(0xff72BF6C)),
+                ),
               ],
             ),
             const SizedBox(height: 40),
@@ -120,12 +168,19 @@ class _AddVotingPageState extends State<AddVotingPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.calendar_month_outlined, color: Colors.deepOrangeAccent, size: 28,),
+                    Icon(
+                      Icons.calendar_month_outlined,
+                      color: Color(0xff3CB371),
+                      size: 28,
+                    ),
                     SizedBox(
                       width: 10,
                     ),
                     const Text("투표 마감 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrangeAccent, fontSize: 15)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff3CB371),
+                            fontSize: 15)),
                   ],
                 ),
                 ListTile(
@@ -179,12 +234,16 @@ class _AddVotingPageState extends State<AddVotingPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.lock_open, color: Colors.deepOrangeAccent, size: 28),
+                    Icon(Icons.lock_open,
+                        color: Color(0xff3CB371), size: 28),
                     SizedBox(
                       width: 10,
                     ),
                     const Text("비밀투표 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrangeAccent, fontSize: 15)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff3CB371),
+                            fontSize: 15)),
                   ],
                 ),
                 ListTile(
@@ -219,15 +278,16 @@ class _AddVotingPageState extends State<AddVotingPage> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.check_box_outlined, color: Colors.deepOrangeAccent, size: 28),
+                    Icon(Icons.check_box_outlined,
+                        color: Color(0xff3CB371), size: 28),
                     SizedBox(
                       width: 10,
                     ),
                     const Text("중복투표 설정",
-                        style: TextStyle(fontWeight: FontWeight.bold,
-                            color: Colors.deepOrangeAccent,
-                            fontSize: 15
-                        )),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff3CB371),
+                            fontSize: 15)),
                   ],
                 ),
                 ListTile(
@@ -261,36 +321,89 @@ class _AddVotingPageState extends State<AddVotingPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          String title = inputTitle.text;
-          String description = inputDescription.text;
-          List<String> options =
-              inputOptions.map((controller) => controller.text).toList();
-
-          dynamic deadline =
-              selectedDeadlineOption == "date" && selectedDate != null
-                  ? selectedDate.toString()
-                  : null;
-
-          bool secretVoting = selectedSecretVoting == "secret" ? true : false;
-
-          bool doubleVoting = selectedDoubleVoting == "double" ? true : false;
-
-          widget.inputDataList.add(title);
-          widget.inputDataList.add(description);
-          widget.inputDataList.addAll(options);
-          widget.inputDataList.add(deadline);
-          widget.inputDataList.add(secretVoting);
-
-          _addNewVoting(title, description, options, deadline, secretVoting,
-              doubleVoting);
-
-          Navigator.pop(context);
+          if (_canCreateVoting()) {
+            _handleCreateVoting();
+          } else {
+            _showValidationMessage(
+                context);
+          }
         },
-        backgroundColor: Colors.deepOrangeAccent,
+        backgroundColor: _canCreateVoting() ?Color(0xff3CB371) : Colors
+            .grey,
         foregroundColor: Colors.white,
-
-
         child: const Text("생성"),
+      ),
+    );
+  }
+
+  bool _canCreateVoting() {
+    if (inputTitle.text.isEmpty || inputDescription.text.isEmpty) {
+      return false;
+    }
+    for (var controller in inputOptions) {
+      if (controller.text.isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  void _handleCreateVoting() {
+    try {
+      String title = inputTitle.text;
+      String description = inputDescription.text;
+      List<String> options = inputOptions.map((controller) => controller.text)
+          .where((text) => text.isNotEmpty)
+          .toList();
+
+      dynamic deadline =
+      selectedDeadlineOption == "date" && selectedDate != null ? selectedDate
+          .toString() : null;
+
+      bool secretVoting = selectedSecretVoting == "secret";
+      bool doubleVoting = selectedDoubleVoting == "double";
+
+      widget.inputDataList.add(title);
+      widget.inputDataList.add(description);
+      widget.inputDataList.addAll(options);
+      widget.inputDataList.add(deadline);
+      widget.inputDataList.add(secretVoting);
+
+      _addNewVoting(
+        title,
+        description,
+        options,
+        deadline,
+        secretVoting,
+        doubleVoting,
+      );
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Vote(classId: widget.classId)),
+      );
+    } catch (e) {
+      print("생성 버튼 에러: $e");
+    }
+  }
+
+  void _showValidationMessage(BuildContext context) {
+    String message = "";
+    if (inputTitle.text.isEmpty) {
+      message = "제목을 입력하세요.";
+    } else if (inputDescription.text.isEmpty) {
+      message = "설명을 입력하세요.";
+    } else if (inputOptions.every((controller) => controller.text.isEmpty)) {
+      message = "항목을 하나 이상 입력하세요.";
+    } else {
+      message = "입력을 확인하세요.";
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
       ),
     );
   }
