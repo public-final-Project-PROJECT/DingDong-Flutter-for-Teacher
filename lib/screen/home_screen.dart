@@ -20,12 +20,6 @@ class TeacherProvider extends ChangeNotifier {
 
   TeacherProvider._internal();
 
-  int _teacherId = 0;
-  int _latestClassId = 0;
-  bool _loading = true;
-  bool _teacherIdFetched = false;
-  bool _latestClassIdFetched = false;
-
   int get teacherId => _teacherId;
   int get latestClassId => _latestClassId;
   bool get loading => _loading;
@@ -35,6 +29,12 @@ class TeacherProvider extends ChangeNotifier {
         ? dotenv.env['FETCH_SERVER_URL2']!
         : dotenv.env['FETCH_SERVER_URL']!;
   }
+
+
+
+
+
+
 
   Future<void> fetchTeacherId(User user) async {
     if (_teacherIdFetched) return;
@@ -91,13 +91,51 @@ class TeacherProvider extends ChangeNotifier {
 }
 
 class HomeScreen extends StatelessWidget {
+
   final User user;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final Map<DateTime, List<dynamic>> _events = {};
+  int _teacherId = 0;
+  int _latestClassId = 0;
+  bool _loading = true;
+  bool _teacherIdFetched = false;
+  bool _latestClassIdFetched = false;
+  CalendarFormat format = CalendarFormat.month;
+  final CalendarModel _calendarModel = CalendarModel();
+  DateTime? _selectedDay = DateTime.now();
+  DateTime? _focusedDay = DateTime.now();
+  DateTime? _rangeStart = DateTime.now();
+  DateTime? _rangeEnd = DateTime.now();
+  final Map<DateTime, List<dynamic>> _events = {};
+  final random = Random();
+  final List<Color> colors = [
+    Colors.pink,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+  ];
 
   HomeScreen({
     required this.user,
     super.key,
   });
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCalendar();
+    initializeDateFormatting();
+    _selectedDay = DateTime.now();
+    _focusedDay = DateTime.now();
+    final DateTime date = DateTime.now();
+    _rangeStart = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+    _rangeEnd = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +203,32 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+  void _loadCalendar() async {
+    List<dynamic> calendarData = await _calendarModel.calendarList();
+    setState(() {
+      _events.clear();
+      for (var item in calendarData) {
+        // 날짜 파싱
+        final DateTime date =
+        DateTime.parse(item['start']).add(const Duration(hours: 9)).toUtc();
+        final DateTime endDate =
+        DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
+
+        DateTime currentDate = date;
+        while (!currentDate.isAfter(endDate)) {
+          if (_events[currentDate] != null) {
+            _events[currentDate]!.add(item);
+          } else {
+            _events[currentDate] = [item];
+          }
+
+          currentDate = currentDate.add(const Duration(days: 1));
+        }
+      }
+    });
+  }
+
+
 
   Widget _buildDrawerHeader(User user) {
     return DrawerHeader(
