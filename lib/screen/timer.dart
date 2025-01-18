@@ -11,7 +11,8 @@ class TimerScreen extends StatefulWidget {
 }
 
 class _TimerScreenState extends State<TimerScreen> {
-  Timer? _timer;
+  Timer?
+  _timer;
   int _totalSeconds = 0;
   int _remainingSeconds = 0;
   bool _isRunning = false;
@@ -21,21 +22,32 @@ class _TimerScreenState extends State<TimerScreen> {
   @override
   void initState() {
     super.initState();
-    _loadTimerState();
+    _syncTimer();
   }
 
-  Future<void> _loadTimerState() async {
+  void _syncTimer() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedRemainingSeconds = prefs.getInt('remainingSeconds') ?? 0;
+    final savedTimestamp = prefs.getInt('lastUpdatedTimestamp') ?? 0;
+
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+    final elapsedSeconds = (currentTime - savedTimestamp) ~/ 1000;
+
+    final updatedRemainingSeconds = savedRemainingSeconds - elapsedSeconds;
+
     setState(() {
-      _totalSeconds = prefs.getInt('totalSeconds') ?? 0;
-      _remainingSeconds = prefs.getInt('remainingSeconds') ?? 0;
-      _isRunning = prefs.getBool('isRunning') ?? false;
+      if (updatedRemainingSeconds > 0) {
+        _remainingSeconds = updatedRemainingSeconds;
+        _isRunning = true;
+        _totalSeconds = prefs.getInt('totalSeconds') ?? 0; // 복원된 전체 시간 설정
+      } else if (savedRemainingSeconds > 0) {
+        _finishTimer();
+      }
     });
 
-    if (_isRunning && _remainingSeconds > 0) {
-      _startTimer();
-    }
+    _startTimer(); // 타이머 실행
   }
+
 
   void _startTimer() {
     setState(() {
@@ -55,7 +67,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _pauseTimer() {
-    _timer?.cancel(); // Safely cancel the timer if it's not null
+    _timer?.cancel();
     setState(() {
       _isRunning = false;
     });
@@ -63,7 +75,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _resetTimer() {
-    _timer?.cancel(); // Safely cancel the timer if it's not null
+    _timer?.cancel();
     setState(() {
       _remainingSeconds = 0;
       _totalSeconds = 0;
@@ -75,7 +87,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _finishTimer() {
-    _timer?.cancel(); // Safely cancel the timer if it's not null
+    _timer?.cancel();
     setState(() {
       _isRunning = false;
       _isFinished = true;
@@ -95,7 +107,9 @@ class _TimerScreenState extends State<TimerScreen> {
     prefs.setInt('totalSeconds', _totalSeconds);
     prefs.setInt('remainingSeconds', _remainingSeconds);
     prefs.setBool('isRunning', _isRunning);
+    prefs.setInt('lastUpdatedTimestamp', DateTime.now().millisecondsSinceEpoch);
   }
+
 
   @override
   void dispose() {
@@ -106,8 +120,7 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        _totalSeconds > 0 ? _remainingSeconds / _totalSeconds : 0.0;
+    final progress = _totalSeconds > 0 ? _remainingSeconds / _totalSeconds : 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -143,7 +156,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
-                        value: 0,
+                        value: progress, // 동적으로 계산된 progress 적용
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
@@ -209,7 +222,7 @@ class _TimerScreenState extends State<TimerScreen> {
                 const Stack(
                   alignment: Alignment.center,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
@@ -221,7 +234,7 @@ class _TimerScreenState extends State<TimerScreen> {
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "00:00",
                       style: TextStyle(
                         fontSize: 50,
@@ -253,26 +266,17 @@ class _TimerScreenState extends State<TimerScreen> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 1.0,
-                        end: progress,
+                    SizedBox(
+                      width: 300,
+                      height: 300,
+                      child: CircularProgressIndicator(
+                        value: progress, // 동적으로 계산된 progress 적용
+                        strokeWidth: 15,
+                        backgroundColor: Colors.grey[300],
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.black,
+                        ),
                       ),
-                      duration: const Duration(seconds: 1),
-                      builder: (context, value, child) {
-                        return SizedBox(
-                          width: 300,
-                          height: 300,
-                          child: CircularProgressIndicator(
-                            value: value,
-                            strokeWidth: 15,
-                            backgroundColor: Colors.grey[300],
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.black,
-                            ),
-                          ),
-                        );
-                      },
                     ),
                     Text(
                       _formatTime(_remainingSeconds),

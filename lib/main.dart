@@ -1,6 +1,7 @@
 import 'package:dingdong_flutter_teacher/firebase_options.dart';
 import 'package:dingdong_flutter_teacher/screen/home_screen.dart';
 import 'package:dingdong_flutter_teacher/screen/login_page.dart';
+import 'package:dingdong_flutter_teacher/screen/timer_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => TeacherProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TeacherProvider()),
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+      ],
       child: const MyApp(),
     ),
   );

@@ -24,7 +24,7 @@ class _VotingAlertState extends State<VotingAlert> {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.turned_in, color: Colors.deepOrange, size: 33),
+          Icon(Icons.turned_in, color: Color(0xff3CB371), size: 33),
           SizedBox(width: 10),
           Text(
             "투표 상황 보기",
@@ -41,7 +41,7 @@ class _VotingAlertState extends State<VotingAlert> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 30),
+              SizedBox(height: 21),
               Text(
                 widget.votingName,
                 style: TextStyle(
@@ -69,7 +69,7 @@ class _VotingAlertState extends State<VotingAlert> {
                         children: [
                           Icon(
                             Icons.check_circle_outline_sharp,
-                            color: Colors.deepOrangeAccent,
+                            color: Color(0xff3CB371),
                           ),
                           SizedBox(width: 13),
                           Text(
@@ -77,7 +77,7 @@ class _VotingAlertState extends State<VotingAlert> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
-                              color: Colors.deepOrangeAccent,
+                              color: Color(0xff3CB371),
                             ),
                           ),
                           Flexible(
@@ -146,13 +146,13 @@ class _VotingAlertState extends State<VotingAlert> {
           style: TextButton.styleFrom(
             shadowColor: Colors.black,
             elevation: 7.5,
-            backgroundColor: Colors.white60,
+            backgroundColor: Color(0xff3CB371),
             foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          child: const Text("닫기"),
+          child: const Text("닫기", style: TextStyle(color: Colors.white,  fontWeight: FontWeight.bold,),),
         ),
       ],
       backgroundColor: Colors.white,
