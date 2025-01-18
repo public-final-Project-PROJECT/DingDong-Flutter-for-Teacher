@@ -1,30 +1,35 @@
 import 'dart:math';
 
+import 'package:dingdong_flutter_teacher/screen/calendar_add.dart';
+import 'package:dingdong_flutter_teacher/screen/calendar_details.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../model/calendar_model.dart';
-import 'calendar_add.dart';
-import 'calendar_details.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({super.key});
+  const Calendar({
+    super.key,
+  });
 
   @override
   State<Calendar> createState() => _CalendarState();
 }
 
 class _CalendarState extends State<Calendar> {
+  List<dynamic> _calendarList = [];
   CalendarFormat format = CalendarFormat.month;
   final CalendarModel _calendarModel = CalendarModel();
-  DateTime? _selectedDay = DateTime.now();
-  DateTime? _focusedDay = DateTime.now();
+  DateTime? _selectedDay = DateTime.now(); // 선택된 날짜
+  DateTime? _focusedDay = DateTime.now(); // 현재 보이는 달력의 날짜
   DateTime? _rangeStart = DateTime.now();
   DateTime? _rangeEnd = DateTime.now();
   final Map<DateTime, List<dynamic>> _events = {};
-  final random = Random();
+  final random = Random(); // Random 객체 생성
   final List<Color> colors = [
     Colors.pink,
     Colors.blue,
@@ -51,6 +56,7 @@ class _CalendarState extends State<Calendar> {
   void _loadCalendar() async {
     List<dynamic> calendarData = await _calendarModel.calendarList();
     setState(() {
+      _calendarList = calendarData;
       _events.clear();
       for (var item in calendarData) {
         // 날짜 파싱
@@ -61,12 +67,14 @@ class _CalendarState extends State<Calendar> {
 
         DateTime currentDate = date;
         while (!currentDate.isAfter(endDate)) {
+          // 해당 날짜에 이벤트 추가
           if (_events[currentDate] != null) {
-            _events[currentDate]!.add(item);
+            _events[currentDate]!.add(item); // 기존 리스트에 추가
           } else {
-            _events[currentDate] = [item];
+            _events[currentDate] = [item]; // 새로운 리스트 생성 후 추가
           }
 
+          // 다음 날짜로 이동
           currentDate = currentDate.add(const Duration(days: 1));
         }
       }
@@ -75,10 +83,13 @@ class _CalendarState extends State<Calendar> {
 
   void _insertCalendar(dynamic eventData) async {
     try {
+      print('Inserting calendar event...');
       await _calendarModel.calendarInsert(eventData);
+      print('Event inserted successfully.');
     } catch (e) {
-      Exception(e);
+      print('Error during event insert: $e');
     } finally {
+      print('Calling _loadCalendar...');
       _loadCalendar();
     }
   }
@@ -87,7 +98,6 @@ class _CalendarState extends State<Calendar> {
     try {
       await _calendarModel.calendarDelete(id);
     } catch (e) {
-      Exception(e);
     } finally {
       _loadCalendar();
     }
@@ -97,7 +107,6 @@ class _CalendarState extends State<Calendar> {
     try {
       await _calendarModel.calendarUpdate(event);
     } catch (e) {
-      Exception(e);
     } finally {
       _loadCalendar();
     }
@@ -106,6 +115,8 @@ class _CalendarState extends State<Calendar> {
 // 이벤트 추가 메소드
   void _addEvent(DateTime date, dynamic event) {
     setState(() {
+      // Local 시간대 기준으로 이벤트 추가
+
       final startDate = event['start'] is String
           ? DateTime.parse(event['start']).add(const Duration(hours: 9)).toUtc()
           : event['start'] as DateTime;
@@ -115,15 +126,18 @@ class _CalendarState extends State<Calendar> {
 
       DateTime currentDate = startDate;
       while (!currentDate.isAfter(endDate)) {
+        // 해당 날짜에 이벤트 추가
         if (_events[currentDate] != null) {
-          _events[currentDate]!.add(event);
+          _events[currentDate]!.add(event); // 기존 리스트에 추가
         } else {
-          _events[currentDate] = [event];
+          _events[currentDate] = [event]; // 새로운 리스트 생성 후 추가
         }
 
+        // 다음 날짜로 이동
         currentDate = currentDate.add(const Duration(days: 1));
       }
     });
+    print(_events);
 
     final dynamic eventData = {
       'title': event['title'],
@@ -135,19 +149,22 @@ class _CalendarState extends State<Calendar> {
     _insertCalendar(eventData);
   }
 
+  // 범위 내 이벤트를 가져오는 메소드
   List<dynamic> _getEventsForRange(DateTime? start, DateTime? end) {
     if (start == null) return [];
 
+    // `end`가 null이면 `start`와 동일하게 설정
     end ??= start;
 
     final events = <dynamic>[];
 
+    // 범위 내의 날짜를 순회
     DateTime currentDate = start;
     while (!currentDate.isAfter(end)) {
       if (_events.containsKey(currentDate)) {
-        events.addAll(_events[currentDate]!);
+        events.addAll(_events[currentDate]!); // 해당 날짜의 이벤트 추가
       }
-      currentDate = currentDate.add(const Duration(days: 1));
+      currentDate = currentDate.add(const Duration(days: 1)); // 다음 날짜로 이동
     }
 
     return events;
@@ -182,6 +199,8 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
+  bool _showConvenienceItems = false; // Show/hide convenience features
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,6 +208,7 @@ class _CalendarState extends State<Calendar> {
         title: const Text("캘린더"),
         backgroundColor: const Color(0xffF4F4F4),
         shape: const Border(
+          // 앱바 하단 경계선 추가
           bottom: BorderSide(
             color: Colors.grey,
             width: 1,
@@ -196,33 +216,43 @@ class _CalendarState extends State<Calendar> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add), // 오른쪽 상단에 추가 버튼
             onPressed: () {
               showModalBottomSheet(
                 context: context,
                 isDismissible: false,
+
                 enableDrag: false,
+
                 isScrollControlled: true,
+                // 모달 창이 전체 화면에 가까워지도록 설정
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
+
                 builder: (context) {
                   return CalendarAdd(
                     initialDate: _selectedDay,
                     updateDate: 0,
                     onEventAdded:
                         (title, location, description, startDate, endDate) {
-                      final DateTime dateStart =
+                      // 이벤트 추가 로직
+
+                      final DateTime datestart =
                           startDate.add(const Duration(hours: 9)).toUtc();
-                      final DateTime dateEnd =
+                      final DateTime dateend =
                           endDate.add(const Duration(hours: 9)).toUtc();
                       final event = {
                         'title': title,
                         'description': description,
-                        'start': dateStart,
-                        'end': dateEnd,
+                        'start': datestart,
+                        'end': dateend,
                       };
-                      _addEvent(dateStart, event);
+
+                      // 시작 날짜 기준으로 이벤트 추가
+                      _addEvent(datestart, event);
+
+                      print('Event Added: $event');
                     },
                   );
                 },
@@ -231,21 +261,21 @@ class _CalendarState extends State<Calendar> {
           ),
         ],
       ),
-      body: body(),
+      body: Bodyy(),
       bottomNavigationBar: Container(
         height: 80.0,
         // 바텀바 높이
         decoration: BoxDecoration(
-          color: const Color(0xffF4F4F4),
+          color: const Color(0xffF4F4F4), // 바텀바 배경색
           border: Border(
             top: BorderSide(
-              color: Colors.grey,
-              width: 1.0,
+              color: Colors.grey.withOpacity(0.4), // 올바르게 호출
+              width: 1.0, // 경계선 두께
             ),
           ),
         ),
         child: BottomAppBar(
-          color: Colors.transparent,
+          color: Colors.transparent, // 배경색 투명 (Container에서 설정)
           child: GestureDetector(
             onTap: () {
               setState(() {
@@ -260,12 +290,14 @@ class _CalendarState extends State<Calendar> {
                     .toUtc();
               });
             },
-            child: const Center(
-              child: Text(
-                '오늘',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.red,
+            child: Container(
+              child: Center(
+                child: Text(
+                  '오늘',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.red,
+                  ),
                 ),
               ),
             ),
@@ -275,7 +307,7 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
-  Widget body() {
+  Widget Bodyy() {
     return Column(
       children: [
         TableCalendar(
@@ -296,6 +328,8 @@ class _CalendarState extends State<Calendar> {
           rangeEndDay: _rangeStart,
 
           selectedDayPredicate: (day) {
+            // 선택된 날짜를 확인하는 함수
+
             if (_rangeStart != null) {
               return isSameDay(_rangeStart, day);
             } else {
@@ -304,18 +338,19 @@ class _CalendarState extends State<Calendar> {
           },
           onPageChanged: (focusedDay) {
             setState(() {
-              _focusedDay = focusedDay;
+              _focusedDay = focusedDay; // 현재 포커스된 날짜 업데이트
             });
           },
           onDaySelected: (selectedDay, focusedDay) {
             setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-              _rangeStart = selectedDay;
-              _rangeEnd = selectedDay;
+              _selectedDay = selectedDay; // 클릭된 날짜
+              _focusedDay = focusedDay; // 포커스된 날짜
+              _rangeStart = selectedDay; // 범위 시작 초기화
+              _rangeEnd = selectedDay; // 범위 끝 초기화
             });
           },
           availableGestures: AvailableGestures.horizontalSwipe,
+          // 스와이프 허용
 
           headerStyle: HeaderStyle(
             formatButtonVisible: true,
@@ -330,7 +365,7 @@ class _CalendarState extends State<Calendar> {
                 const TextStyle(fontFamily: 'Raleway', color: Colors.white),
             titleTextStyle: const TextStyle(
               fontSize: 20.0,
-              color: Colors.black,
+              color: Colors.black, // 날짜 보여지는 것 검정으로 변경 (색 전부 탈바꿈 중 ,,)
             ),
             headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
             leftChevronIcon: const Icon(
@@ -348,42 +383,45 @@ class _CalendarState extends State<Calendar> {
               outsideDaysVisible: false,
               todayDecoration: BoxDecoration(
                 color: Colors.white,
+                // 오늘 날짜 배경색
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
                   color: Colors.redAccent, // Border color
                   width: 1.0, // Border width
-                ),
+                ), // 모서리 둥글기
               ),
-              todayTextStyle: const TextStyle(
-                color: Colors.redAccent,
+              todayTextStyle: TextStyle(
+                color: Colors.redAccent, // 텍스트 색상
               ),
               selectedTextStyle: TextStyle(
                 color: _selectedDay != null &&
                         isSameDay(_selectedDay, DateTime.now())
-                    ? Colors.redAccent
-                    : Colors.white,
+                    ? Colors.redAccent // 선택된 날짜가 오늘이면 빨간색
+                    : Colors.white, // 선택된 날짜가 오늘이 아니면 기본 색상
               ),
               selectedDecoration: BoxDecoration(
-                  color: const Color(0xff9E9E9E),
+                  color: Color(0xff9E9E9E),
                   shape: BoxShape.rectangle,
                   borderRadius: BorderRadius.circular(5.0)),
               weekendDecoration: BoxDecoration(
                 color: Colors.transparent,
+                // Transparent background
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Colors.amber,
-                  width: 2.0,
+                  color: Colors.amber, // Border color
+                  width: 2.0, // Border width
                 ),
               ),
               holidayDecoration: BoxDecoration(
                 color: Colors.transparent,
+                // Transparent background
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Colors.amber,
-                  width: 2.0,
+                  color: Colors.amber, // Border color
+                  width: 2.0, // Border width
                 ),
               ),
               defaultDecoration: BoxDecoration(
@@ -395,49 +433,47 @@ class _CalendarState extends State<Calendar> {
               if (events.isNotEmpty) {
                 return _buildEventsMarker(date, events);
               }
-              return null;
             },
-            selectedBuilder: (context, day, focusedDay) {
-              return null;
-            },
+            selectedBuilder: (context, day, focusedDay) {},
           ),
         ),
         Expanded(
           child: Builder(builder: (context) {
-            final getEvents = _getEventsForRange(_rangeStart, _rangeEnd);
-            return getEvents.isEmpty
+            final getevents = _getEventsForRange(_rangeStart, _rangeEnd);
+            return getevents.isEmpty
                 ? const Center(
                     child: Text(
                       "이벤트 없음",
                       style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                        color: Colors.grey, // 텍스트 색상 지정
                       ),
                     ),
                   )
                 : ListView.builder(
-                    itemCount: getEvents.length,
+                    itemCount: getevents.length,
                     itemBuilder: (context, index) {
-                      final events = getEvents;
+                      final events = getevents;
                       final event = events[index];
                       final randomColor = colors[random.nextInt(colors.length)];
                       return Container(
                         height: 60.0,
+                        // 타일 높이 설정
                         decoration: BoxDecoration(
                           color: randomColor,
-                          border: const Border(
+                          border: Border(
                             bottom: BorderSide(
                               color: Colors.white,
                               width: 0.1,
-                            ),
+                            ), // 구분선 스타일
                           ),
                         ),
                         child: Column(children: [
                           ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 0,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16.0, // 좌우 여백을 작게 설정
+                              vertical: 0, // 상하 여백을 작게 설정
                             ),
                             leading:
                                 const Icon(Icons.alarm, color: Colors.white),
@@ -449,7 +485,7 @@ class _CalendarState extends State<Calendar> {
                                 overflow: TextOverflow.ellipsis,
                                 fontSize: 24,
                               ),
-                              maxLines: 1,
+                              maxLines: 1, // 텍스트 줄 수 제한
                             ),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -472,6 +508,7 @@ class _CalendarState extends State<Calendar> {
                               ],
                             ),
                             onTap: () {
+                              print('Clicked Event: $event');
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
@@ -488,7 +525,7 @@ class _CalendarState extends State<Calendar> {
                                   transitionsBuilder: (context, animation,
                                       secondaryAnimation, child) {
                                     const begin =
-                                        Offset(1.0, 0.0);
+                                        Offset(1.0, 0.0); // 오른쪽에서 왼쪽으로
                                     const end = Offset.zero;
                                     const curve = Curves.easeInOut;
 
