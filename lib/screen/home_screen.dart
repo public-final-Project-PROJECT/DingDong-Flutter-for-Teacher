@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:dingdong_flutter_teacher/model/calendar_model.dart';
 import 'package:dingdong_flutter_teacher/screen/attendance.dart';
 import 'package:dingdong_flutter_teacher/screen/calendar.dart';
 import 'package:dingdong_flutter_teacher/screen/login_page.dart';
@@ -11,7 +14,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class TeacherProvider extends ChangeNotifier {
   static final TeacherProvider _instance = TeacherProvider._internal();
@@ -19,6 +24,12 @@ class TeacherProvider extends ChangeNotifier {
   factory TeacherProvider() => _instance;
 
   TeacherProvider._internal();
+
+  int _teacherId = 0;
+  int _latestClassId = 0;
+  bool _loading = true;
+  bool _teacherIdFetched = false;
+  bool _latestClassIdFetched = false;
 
   int get teacherId => _teacherId;
   int get latestClassId => _latestClassId;
@@ -29,12 +40,6 @@ class TeacherProvider extends ChangeNotifier {
         ? dotenv.env['FETCH_SERVER_URL2']!
         : dotenv.env['FETCH_SERVER_URL']!;
   }
-
-
-
-
-
-
 
   Future<void> fetchTeacherId(User user) async {
     if (_teacherIdFetched) return;
@@ -76,7 +81,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-        data is int ? data : int.tryParse(data.toString()) ?? 0;
+            data is int ? data : int.tryParse(data.toString()) ?? 0;
         _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
@@ -90,24 +95,28 @@ class TeacherProvider extends ChangeNotifier {
   }
 }
 
-class HomeScreen extends StatelessWidget {
-
+class HomeScreen extends StatefulWidget {
   final User user;
+
+  const HomeScreen({required this.user, super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final Map<DateTime, List<dynamic>> _events = {};
-  int _teacherId = 0;
-  int _latestClassId = 0;
-  bool _loading = true;
-  bool _teacherIdFetched = false;
-  bool _latestClassIdFetched = false;
   CalendarFormat format = CalendarFormat.month;
   final CalendarModel _calendarModel = CalendarModel();
   DateTime? _selectedDay = DateTime.now();
   DateTime? _focusedDay = DateTime.now();
   DateTime? _rangeStart = DateTime.now();
   DateTime? _rangeEnd = DateTime.now();
-  final Map<DateTime, List<dynamic>> _events = {};
+
   final random = Random();
+
   final List<Color> colors = [
     Colors.pink,
     Colors.blue,
@@ -116,18 +125,16 @@ class HomeScreen extends StatelessWidget {
     Colors.purple,
   ];
 
-  HomeScreen({
-    required this.user,
-    super.key,
-  });
-
   @override
   void initState() {
     super.initState();
+
+    final provider = Provider.of<TeacherProvider>(context, listen: false);
+    provider.fetchTeacherId(widget.user);
+    provider.fetchLatestClassId(widget.user);
+
     _loadCalendar();
     initializeDateFormatting();
-    _selectedDay = DateTime.now();
-    _focusedDay = DateTime.now();
     final DateTime date = DateTime.now();
     _rangeStart = DateTime(date.year, date.month, date.day)
         .add(const Duration(hours: 9))
@@ -141,15 +148,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<TeacherProvider>(context);
 
-    provider.fetchTeacherId(user);
-    provider.fetchLatestClassId(user);
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: _buildAppBar(context),
       backgroundColor: const Color(0xffF4F4F4),
-      drawer: HomeDrawer(user: user),
-      endDrawer: _buildSecondaryDrawer(user, context),
+      drawer: HomeDrawer(user: widget.user),
+      endDrawer: _buildSecondaryDrawer(widget.user, context),
       body: _buildBody(provider),
     );
   }
@@ -158,14 +162,13 @@ class HomeScreen extends StatelessWidget {
     return AppBar(
       title: const Text('홈'),
       backgroundColor: const Color(0xffF4F4F4),
-
       actions: [
         IconButton(
           icon: CircleAvatar(
             radius: 15,
             backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-            child: user.photoURL == null
+            widget.user.photoURL != null ? NetworkImage(widget.user.photoURL!) : null,
+            child: widget.user.photoURL == null
                 ? const Icon(Icons.person, size: 30)
                 : null,
           ),
@@ -182,7 +185,7 @@ class HomeScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         return HomeContent(
-          user: user,
+          user: widget.user,
           teacherId: provider.teacherId,
           latestClassId: provider.latestClassId,
         );
@@ -203,6 +206,7 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
   void _loadCalendar() async {
     List<dynamic> calendarData = await _calendarModel.calendarList();
     setState(() {
@@ -228,8 +232,6 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
-
-
   Widget _buildDrawerHeader(User user) {
     return DrawerHeader(
       decoration: const BoxDecoration(
@@ -241,7 +243,7 @@ class HomeScreen extends StatelessWidget {
           CircleAvatar(
             radius: 40,
             backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            user.photoURL != null ? NetworkImage(user.photoURL!) : null,
             child: user.photoURL == null
                 ? const Icon(Icons.person, size: 40)
                 : null,
@@ -362,8 +364,7 @@ class HomeDrawer extends StatelessWidget {
       title: const Text('편의기능'),
       children: [
         _buildDrawerItem(context,
-            title: '타이머',
-            onTap: () => _navigateTo(context, TimerScreen())),
+            title: '타이머', onTap: () => _navigateTo(context, const TimerScreen())),
         _buildDrawerItem(context,
             title: '자리배치',
             onTap: () => _navigateTo(
