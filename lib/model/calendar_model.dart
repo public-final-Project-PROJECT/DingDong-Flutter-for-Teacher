@@ -27,6 +27,34 @@ class CalendarModel {
     }
   }
 
+  Future<String?> getSchoolName(String? email) async {
+    if (email == null || email.isEmpty) {
+      throw Exception("유효하지 않은 이메일입니다.");
+    }
+
+    final dio = Dio();
+    final serverURL = getServerURL();
+
+    try {
+      final response = await dio.get("$serverURL/user/get/school/$email");
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          // JSON에서 "schoolName" 키를 추출
+          return data['schoolName'] as String?;
+        } else {
+          throw Exception("Unexpected response format");
+        }
+      } else {
+        throw Exception("Failed to load data: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error occurred: $e");
+    }
+  }
+
+
   Future<void> calendarInsert(dynamic event) async {
     final dio = Dio();
     final serverURL = getServerURL();
