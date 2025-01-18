@@ -621,6 +621,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         TableCalendar(
+          key: ValueKey(_focusedDay?.month),
           firstDay: DateTime(2021, 10, 16),
           lastDay: DateTime(2030, 3, 14),
           locale: 'ko_KR',
@@ -651,10 +652,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // 선택된 날짜 업데이트
               _selectedDay = selectedDay;
 
-              // 외부 날짜 클릭 시 focusedDay를 업데이트
-              if (selectedDay.month != _focusedDay?.month) {
                 _focusedDay = selectedDay;
-              }
+
 
               // 범위 선택 업데이트
               _rangeStart = selectedDay;
@@ -662,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen> {
             });
 
             // 상태 변경 이후 비동기 작업 실행
-            await Future.microtask(() => fetchSchoolMealInfo(apiKey, selectedDay));
+            fetchSchoolMealInfo(apiKey, selectedDay);
           },
           availableGestures: AvailableGestures.horizontalSwipe,
 
@@ -871,24 +870,73 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                Text(
-                  '$mealDate',
-                  style: const TextStyle(fontSize: 18),
-                ),
-                Text(
-                  '메뉴: ${cleanMealData(mealMenu!)}',
-                  style: const TextStyle(fontSize: 18),
+                Table(
+                  border: TableBorder.all(
+                    color: Colors.grey, // 테두리 색상
+                    width: 1.0, // 테두리 두께
+                  ),
+                  columnWidths: const {
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(2),
+                  },
+                  children: [
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '날짜',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            mealDate!,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '메뉴',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            cleanMealData(mealMenu!),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ] else ...[
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    '급식 쉬는날.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 50.0), // 텍스트를 아래로 이동
+                    child: Text(
+                      "급식 쉬는날",
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center, // 텍스트 중앙 정렬
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
@@ -901,39 +949,42 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '시간표',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+
+                const SizedBox(height: 16.0),
+                Table(
+                  border: TableBorder.all(
+                    color: Colors.grey, // 테두리 색상
+                    width: 1.0, // 테두리 두께
                   ),
-                ),
-                const SizedBox(height: 16.0), // 제목과 시간표 사이의 여백
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  columnWidths: Map.fromIterable(
+                    List.generate(6, (index) => index), // 6교시 기준
+                    key: (index) => index,
+                    value: (index) => const FlexColumnWidth(1),
+                  ),
                   children: [
-                    // 교시 번호를 가로로 나열
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(6, (index) { // 6교시까지 생성
-                        return Text(
-                          '${index + 1}교시',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                    TableRow(
+                      children: List.generate(6, (index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '${index + 1}교시',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         );
                       }),
                     ),
-                    const SizedBox(height: 16.0), // 교시 번호와 과목 간 간격
-                    // 교시에 해당하는 과목을 가로로 나열
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    TableRow(
                       children: List.generate(6, (index) {
-                        return Text(
-                          timetable.length > index ? timetable[index] : ' ',
-                          style: const TextStyle(
-                            fontSize: 18,
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            timetable.length > index ? timetable[index] : ' ',
+                            style: const TextStyle(fontSize: 18),
+                            textAlign: TextAlign.center,
                           ),
                         );
                       }),
