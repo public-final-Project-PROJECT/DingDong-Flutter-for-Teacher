@@ -199,8 +199,6 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
-  bool _showConvenienceItems = false; // Show/hide convenience features
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -238,19 +236,19 @@ class _CalendarState extends State<Calendar> {
                         (title, location, description, startDate, endDate) {
                       // 이벤트 추가 로직
 
-                      final DateTime datestart =
+                      final DateTime dateStart =
                           startDate.add(const Duration(hours: 9)).toUtc();
-                      final DateTime dateend =
+                      final DateTime dateEnd =
                           endDate.add(const Duration(hours: 9)).toUtc();
                       final event = {
                         'title': title,
                         'description': description,
-                        'start': datestart,
-                        'end': dateend,
+                        'start': dateStart,
+                        'end': dateEnd,
                       };
 
                       // 시작 날짜 기준으로 이벤트 추가
-                      _addEvent(datestart, event);
+                      _addEvent(dateStart, event);
 
                       print('Event Added: $event');
                     },
@@ -261,7 +259,7 @@ class _CalendarState extends State<Calendar> {
           ),
         ],
       ),
-      body: Bodyy(),
+      body: Body(),
       bottomNavigationBar: Container(
         height: 80.0,
         // 바텀바 높이
@@ -307,7 +305,7 @@ class _CalendarState extends State<Calendar> {
     );
   }
 
-  Widget Bodyy() {
+  Widget Body() {
     return Column(
       children: [
         TableCalendar(

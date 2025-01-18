@@ -354,7 +354,7 @@ class _HomeContentState extends State<HomeContent> {
   DateTime? _rangeStart = DateTime.now();
   DateTime? _rangeEnd = DateTime.now();
   String? schoolName;
-  String apiKey = 'c3b9a532d12d406d8809c851cafb6a05';
+  String apiKey = dotenv.get("FETCH_NEIS_API_KEY");
   String? atptOfcdcScCode;
   String? sdSchulCode;
   final Map<DateTime, List<dynamic>> _events = {};
@@ -383,7 +383,7 @@ class _HomeContentState extends State<HomeContent> {
     const String apiUrl = 'https://open.neis.go.kr/hub/schoolInfo';
 
     final Map<String, String?> params = {
-      'KEY': 'c3b9a532d12d406d8809c851cafb6a05',
+      'KEY': apiKey,
       'Type': 'json',
       'SCHUL_NM': schoolName,
     };
@@ -413,7 +413,7 @@ class _HomeContentState extends State<HomeContent> {
       throw Exception('Error fetching school codes: $error');
     }
 
-    fetchSchoolMealInfo('c3b9a532d12d406d8809c851cafb6a05', DateTime.now());
+    fetchSchoolMealInfo(apiKey, DateTime.now());
   }
 
   Future<void> fetchSchoolMealInfo(String apiKey, DateTime selectedDay) async {
@@ -494,15 +494,15 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
-  void _insertCalendar(dynamic eventData) async {
-    try {
-      await _calendarModel.calendarInsert(eventData);
-    } catch (e) {
-      Exception(e);
-    } finally {
-      _loadCalendar();
-    }
-  }
+  // void _insertCalendar(dynamic eventData) async {
+  //   try {
+  //     await _calendarModel.calendarInsert(eventData);
+  //   } catch (e) {
+  //     Exception(e);
+  //   } finally {
+  //     _loadCalendar();
+  //   }
+  // }
 
   void _getSchoolName() async {
     try {
@@ -534,36 +534,36 @@ class _HomeContentState extends State<HomeContent> {
     }
   }
 
-  void _addEvent(DateTime date, dynamic event) {
-    setState(() {
-      final startDate = event['start'] is String
-          ? DateTime.parse(event['start']).add(const Duration(hours: 9)).toUtc()
-          : event['start'] as DateTime;
-      final endDate = event['end'] is String
-          ? DateTime.parse(event['end']).add(const Duration(hours: 9)).toUtc()
-          : event['end'] as DateTime;
-
-      DateTime currentDate = startDate;
-      while (!currentDate.isAfter(endDate)) {
-        if (_events[currentDate] != null) {
-          _events[currentDate]!.add(event);
-        } else {
-          _events[currentDate] = [event];
-        }
-
-        currentDate = currentDate.add(const Duration(days: 1));
-      }
-    });
-
-    final dynamic eventData = {
-      'title': event['title'],
-      'description': event['description'],
-      'start': event['start'].toString().substring(0, 10),
-      'end': event['end'].toString().substring(0, 10),
-    };
-
-    _insertCalendar(eventData);
-  }
+  // void _addEvent(DateTime date, dynamic event) {
+  //   setState(() {
+  //     final startDate = event['start'] is String
+  //         ? DateTime.parse(event['start']).add(const Duration(hours: 9)).toUtc()
+  //         : event['start'] as DateTime;
+  //     final endDate = event['end'] is String
+  //         ? DateTime.parse(event['end']).add(const Duration(hours: 9)).toUtc()
+  //         : event['end'] as DateTime;
+  //
+  //     DateTime currentDate = startDate;
+  //     while (!currentDate.isAfter(endDate)) {
+  //       if (_events[currentDate] != null) {
+  //         _events[currentDate]!.add(event);
+  //       } else {
+  //         _events[currentDate] = [event];
+  //       }
+  //
+  //       currentDate = currentDate.add(const Duration(days: 1));
+  //     }
+  //   });
+  //
+  //   final dynamic eventData = {
+  //     'title': event['title'],
+  //     'description': event['description'],
+  //     'start': event['start'].toString().substring(0, 10),
+  //     'end': event['end'].toString().substring(0, 10),
+  //   };
+  //
+  //   _insertCalendar(eventData);
+  // }
 
   List<dynamic> _getEventsForRange(DateTime? start, DateTime? end) {
     if (start == null) return [];
