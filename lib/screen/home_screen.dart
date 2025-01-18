@@ -95,65 +95,28 @@ class TeacherProvider extends ChangeNotifier {
   }
 }
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   final User user;
-
-  const HomeScreen({required this.user, super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final Map<DateTime, List<dynamic>> _events = {};
-  CalendarFormat format = CalendarFormat.month;
-  final CalendarModel _calendarModel = CalendarModel();
-  DateTime? _selectedDay = DateTime.now();
-  DateTime? _focusedDay = DateTime.now();
-  DateTime? _rangeStart = DateTime.now();
-  DateTime? _rangeEnd = DateTime.now();
-
-  final random = Random();
-
-  final List<Color> colors = [
-    Colors.pink,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-
-    final provider = Provider.of<TeacherProvider>(context, listen: false);
-    provider.fetchTeacherId(widget.user);
-    provider.fetchLatestClassId(widget.user);
-
-    _loadCalendar();
-    initializeDateFormatting();
-    final DateTime date = DateTime.now();
-    _rangeStart = DateTime(date.year, date.month, date.day)
-        .add(const Duration(hours: 9))
-        .toUtc();
-    _rangeEnd = DateTime(date.year, date.month, date.day)
-        .add(const Duration(hours: 9))
-        .toUtc();
-  }
+  HomeScreen({
+    required this.user,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<TeacherProvider>(context);
 
+    provider.fetchTeacherId(user);
+    provider.fetchLatestClassId(user);
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: _buildAppBar(context),
       backgroundColor: const Color(0xffF4F4F4),
-      drawer: HomeDrawer(user: widget.user),
-      endDrawer: _buildSecondaryDrawer(widget.user, context),
+      drawer: HomeDrawer(user: user),
+      endDrawer: _buildSecondaryDrawer(user, context),
       body: _buildBody(provider),
     );
   }
@@ -167,8 +130,8 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: CircleAvatar(
             radius: 15,
             backgroundImage:
-            widget.user.photoURL != null ? NetworkImage(widget.user.photoURL!) : null,
-            child: widget.user.photoURL == null
+                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            child: user.photoURL == null
                 ? const Icon(Icons.person, size: 30)
                 : null,
           ),
@@ -185,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         return HomeContent(
-          user: widget.user,
+          user: user,
           teacherId: provider.teacherId,
           latestClassId: provider.latestClassId,
         );
@@ -207,31 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _loadCalendar() async {
-    List<dynamic> calendarData = await _calendarModel.calendarList();
-    setState(() {
-      _events.clear();
-      for (var item in calendarData) {
-        // 날짜 파싱
-        final DateTime date =
-        DateTime.parse(item['start']).add(const Duration(hours: 9)).toUtc();
-        final DateTime endDate =
-        DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
-
-        DateTime currentDate = date;
-        while (!currentDate.isAfter(endDate)) {
-          if (_events[currentDate] != null) {
-            _events[currentDate]!.add(item);
-          } else {
-            _events[currentDate] = [item];
-          }
-
-          currentDate = currentDate.add(const Duration(days: 1));
-        }
-      }
-    });
-  }
-
   Widget _buildDrawerHeader(User user) {
     return DrawerHeader(
       decoration: const BoxDecoration(
@@ -243,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
           CircleAvatar(
             radius: 40,
             backgroundImage:
-            user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
             child: user.photoURL == null
                 ? const Icon(Icons.person, size: 40)
                 : null,
@@ -364,7 +302,8 @@ class HomeDrawer extends StatelessWidget {
       title: const Text('편의기능'),
       children: [
         _buildDrawerItem(context,
-            title: '타이머', onTap: () => _navigateTo(context, const TimerScreen())),
+            title: '타이머',
+            onTap: () => _navigateTo(context, const TimerScreen())),
         _buildDrawerItem(context,
             title: '자리배치',
             onTap: () => _navigateTo(
@@ -393,7 +332,7 @@ class HomeDrawer extends StatelessWidget {
   }
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
   final User user;
   final int teacherId;
   final int latestClassId;
@@ -406,13 +345,75 @@ class HomeContent extends StatelessWidget {
   });
 
   @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  final Map<DateTime, List<dynamic>> _events = {};
+  CalendarFormat format = CalendarFormat.month;
+  final CalendarModel _calendarModel = CalendarModel();
+  DateTime? _selectedDay = DateTime.now();
+  DateTime? _focusedDay = DateTime.now();
+  DateTime? _rangeStart = DateTime.now();
+  DateTime? _rangeEnd = DateTime.now();
+
+  final random = Random();
+
+  final List<Color> colors = [
+    Colors.pink,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+  ];
+
+  void _loadCalendar() async {
+    List<dynamic> calendarData = await _calendarModel.calendarList();
+    setState(() {
+      _events.clear();
+      for (var item in calendarData) {
+        // 날짜 파싱
+        final DateTime date =
+            DateTime.parse(item['start']).add(const Duration(hours: 9)).toUtc();
+        final DateTime endDate =
+            DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
+
+        DateTime currentDate = date;
+        while (!currentDate.isAfter(endDate)) {
+          if (_events[currentDate] != null) {
+            _events[currentDate]!.add(item);
+          } else {
+            _events[currentDate] = [item];
+          }
+
+          currentDate = currentDate.add(const Duration(days: 1));
+        }
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCalendar();
+    initializeDateFormatting();
+    final DateTime date = DateTime.now();
+    _rangeStart = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+    _rangeEnd = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('교사 ID: $teacherId'),
-          Text('클래스 ID: $latestClassId'),
+          Text('교사 ID: ${widget.teacherId}'),
+          Text('클래스 ID: ${widget.latestClassId}'),
         ],
       ),
     );
