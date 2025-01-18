@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:dingdong_flutter_teacher/model/calendar_model.dart';
 import 'package:dingdong_flutter_teacher/screen/attendance.dart';
 import 'package:dingdong_flutter_teacher/screen/calendar.dart';
+import 'package:dingdong_flutter_teacher/screen/calendar_details.dart';
 import 'package:dingdong_flutter_teacher/screen/login_page.dart';
 import 'package:dingdong_flutter_teacher/screen/notice.dart';
 import 'package:dingdong_flutter_teacher/screen/seat.dart';
@@ -11,7 +16,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class TeacherProvider extends ChangeNotifier {
   static final TeacherProvider _instance = TeacherProvider._internal();
@@ -19,6 +28,12 @@ class TeacherProvider extends ChangeNotifier {
   factory TeacherProvider() => _instance;
 
   TeacherProvider._internal();
+
+  int _teacherId = 0;
+  int _latestClassId = 0;
+  bool _loading = true;
+  bool _teacherIdFetched = false;
+  bool _latestClassIdFetched = false;
 
   int get teacherId => _teacherId;
   int get latestClassId => _latestClassId;
@@ -29,12 +44,6 @@ class TeacherProvider extends ChangeNotifier {
         ? dotenv.env['FETCH_SERVER_URL2']!
         : dotenv.env['FETCH_SERVER_URL']!;
   }
-
-
-
-
-
-
 
   Future<void> fetchTeacherId(User user) async {
     if (_teacherIdFetched) return;
@@ -76,7 +85,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-        data is int ? data : int.tryParse(data.toString()) ?? 0;
+            data is int ? data : int.tryParse(data.toString()) ?? 0;
         _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
@@ -91,58 +100,14 @@ class TeacherProvider extends ChangeNotifier {
 }
 
 class HomeScreen extends StatelessWidget {
-
   final User user;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final Map<DateTime, List<dynamic>> _events = {};
-  int _teacherId = 0;
-  int _latestClassId = 0;
-  bool _loading = true;
-  bool _teacherIdFetched = false;
-  bool _latestClassIdFetched = false;
-  CalendarFormat format = CalendarFormat.month;
-  final CalendarModel _calendarModel = CalendarModel();
-  DateTime? _selectedDay = DateTime.now();
-  DateTime? _focusedDay = DateTime.now();
-  DateTime? _rangeStart = DateTime.now();
-  DateTime? _rangeEnd = DateTime.now();
-  final Map<DateTime, List<dynamic>> _events = {};
-  final random = Random();
-  final List<Color> colors = [
-    Colors.pink,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-  ];
 
-  HomeScreen({
-    required this.user,
-    super.key,
-  });
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCalendar();
-    initializeDateFormatting();
-    _selectedDay = DateTime.now();
-    _focusedDay = DateTime.now();
-    final DateTime date = DateTime.now();
-    _rangeStart = DateTime(date.year, date.month, date.day)
-        .add(const Duration(hours: 9))
-        .toUtc();
-    _rangeEnd = DateTime(date.year, date.month, date.day)
-        .add(const Duration(hours: 9))
-        .toUtc();
-  }
+  HomeScreen({required this.user, super.key});
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<TeacherProvider>(context);
-
-    provider.fetchTeacherId(user);
-    provider.fetchLatestClassId(user);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -158,7 +123,6 @@ class HomeScreen extends StatelessWidget {
     return AppBar(
       title: const Text('홈'),
       backgroundColor: const Color(0xffF4F4F4),
-
       actions: [
         IconButton(
           icon: CircleAvatar(
@@ -203,32 +167,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-  void _loadCalendar() async {
-    List<dynamic> calendarData = await _calendarModel.calendarList();
-    setState(() {
-      _events.clear();
-      for (var item in calendarData) {
-        // 날짜 파싱
-        final DateTime date =
-        DateTime.parse(item['start']).add(const Duration(hours: 9)).toUtc();
-        final DateTime endDate =
-        DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
-
-        DateTime currentDate = date;
-        while (!currentDate.isAfter(endDate)) {
-          if (_events[currentDate] != null) {
-            _events[currentDate]!.add(item);
-          } else {
-            _events[currentDate] = [item];
-          }
-
-          currentDate = currentDate.add(const Duration(days: 1));
-        }
-      }
-    });
-  }
-
-
 
   Widget _buildDrawerHeader(User user) {
     return DrawerHeader(
@@ -363,7 +301,7 @@ class HomeDrawer extends StatelessWidget {
       children: [
         _buildDrawerItem(context,
             title: '타이머',
-            onTap: () => _navigateTo(context, TimerScreen())),
+            onTap: () => _navigateTo(context, const TimerScreen())),
         _buildDrawerItem(context,
             title: '자리배치',
             onTap: () => _navigateTo(
@@ -392,7 +330,7 @@ class HomeDrawer extends StatelessWidget {
   }
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
   final User user;
   final int teacherId;
   final int latestClassId;
@@ -405,14 +343,508 @@ class HomeContent extends StatelessWidget {
   });
 
   @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  CalendarFormat format = CalendarFormat.month;
+  final CalendarModel _calendarModel = CalendarModel();
+  DateTime? _selectedDay = DateTime.now();
+  DateTime? _focusedDay = DateTime.now();
+  DateTime? _rangeStart = DateTime.now();
+  DateTime? _rangeEnd = DateTime.now();
+  String? schoolName;
+  String apiKey = dotenv.get("FETCH_NEIS_API_KEY");
+  String? atptOfcdcScCode;
+  String? sdSchulCode;
+  final Map<DateTime, List<dynamic>> _events = {};
+  final random = Random();
+  final List<Color> colors = [
+    Colors.pink,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+  ];
+  String? mealDate;
+  String? mealMenu;
+  final List<String> timetable = [
+    '국어',
+    '수학',
+    '영어',
+    '과학',
+    '체육',
+    '역사',
+    '음악',
+    '미술',
+  ];
+
+  Future<void> fetchSchoolCodes(String? schoolName) async {
+    const String apiUrl = 'https://open.neis.go.kr/hub/schoolInfo';
+
+    final params = {
+      'KEY': apiKey,
+      'Type': 'json',
+      'SCHUL_NM': schoolName,
+    };
+
+    try {
+      final uri = Uri.parse(apiUrl).replace(queryParameters: params);
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        final schoolData = data['schoolInfo']?[1]['row']?.first;
+        if (schoolData != null) {
+          atptOfcdcScCode = schoolData['ATPT_OFCDC_SC_CODE'];
+          sdSchulCode = schoolData['SD_SCHUL_CODE'];
+        } else {
+          throw Exception('School not found in response');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch school info: HTTP ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Error fetching school codes: $error');
+    }
+
+    await fetchSchoolMealInfo(apiKey, DateTime.now());
+  }
+
+  Future<void> fetchSchoolMealInfo(String apiKey, DateTime selectedDay) async {
+    const String apiUrl = 'https://open.neis.go.kr/hub/mealServiceDietInfo';
+    final targetDate = DateFormat('yyyyMMdd').format(selectedDay);
+    final params = {
+      'KEY': apiKey,
+      'Type': 'json',
+      'pIndex': '1',
+      'pSize': '100',
+      'ATPT_OFCDC_SC_CODE': atptOfcdcScCode!,
+      'SD_SCHUL_CODE': sdSchulCode!,
+      'MLSV_YMD': targetDate,
+      'MLSV_TO_YMD': targetDate,
+    };
+
+    try {
+      final uri = Uri.parse(apiUrl).replace(queryParameters: params);
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        final mealData = data['mealServiceDietInfo']?[1]['row']?.first;
+        setState(() {
+          mealDate = mealData != null ? mealData['MLSV_YMD'] : null;
+          mealMenu =
+              mealData != null ? cleanMealData(mealData['DDISH_NM']) : null;
+        });
+
+        if (mealData == null) {
+          throw Exception('Meal data not found');
+        }
+      } else {
+        throw Exception(
+            'Failed to fetch meal info: HTTP ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Error fetching meal info: $error');
+    }
+  }
+
+  String cleanMealData(String mealData) {
+    return mealData
+        .replaceAll('<br/>', ', ')
+        .replaceAll(RegExp(r'[^가-힣a-zA-Z, ]'), '');
+  }
+
+  Future<void> _loadCalendar() async {
+    try {
+      final calendarData = await _calendarModel.calendarList();
+      setState(() {
+        _events.clear();
+        for (final item in calendarData) {
+          final startDate = DateTime.parse(item['start'])
+              .add(const Duration(hours: 9))
+              .toUtc();
+          final endDate =
+              DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
+
+          for (var date = startDate;
+              !date.isAfter(endDate);
+              date = date.add(const Duration(days: 1))) {
+            _events.putIfAbsent(date, () => []).add(item);
+          }
+        }
+      });
+    } catch (error) {
+      throw Exception('Error loading calendar: $error');
+    }
+  }
+
+  Future<void> _getSchoolName() async {
+    try {
+      schoolName = await _calendarModel.getSchoolName(widget.user.email);
+      await fetchSchoolCodes(schoolName);
+    } catch (error) {
+      throw Exception('Error getting school name: $error');
+    }
+  }
+
+  Future<void> _deleteEvent(int id) async {
+    try {
+      await _calendarModel.calendarDelete(id);
+      await _loadCalendar();
+    } catch (error) {
+      throw Exception('Error deleting event: $error');
+    }
+  }
+
+  Future<void> _updateEvent(dynamic event) async {
+    try {
+      await _calendarModel.calendarUpdate(event);
+      await _loadCalendar();
+    } catch (error) {
+      throw Exception('Error updating event: $error');
+    }
+  }
+
+  List<dynamic> _getEventsForRange(DateTime? start, DateTime? end) {
+    if (start == null) return [];
+
+    end ??= start;
+    final events = <dynamic>[];
+
+    for (var date = start;
+        !date.isAfter(end);
+        date = date.add(const Duration(days: 1))) {
+      if (_events.containsKey(date)) {
+        events.addAll(_events[date]!);
+      }
+    }
+
+    return events;
+  }
+
+  List<dynamic> _getEventsForDay(DateTime day) {
+    return _events[day] ?? [];
+  }
+
+  Widget _buildEventsMarker(DateTime date, List events) {
+    return Positioned(
+      right: 3,
+      bottom: 3,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.grey,
+        ),
+        width: 12.0,
+        height: 12.0,
+        child: Center(
+          child: Text(
+            '${events.length}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 8.0,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget body() {
+    return Column(
+      children: [
+        TableCalendar(
+          key: ValueKey(_focusedDay?.month),
+          firstDay: DateTime(2021, 10, 16),
+          lastDay: DateTime(2030, 3, 14),
+          locale: 'ko_KR',
+          eventLoader: _getEventsForDay,
+          calendarFormat: CalendarFormat.week,
+          focusedDay: _focusedDay ?? DateTime.now(),
+          rangeStartDay: _rangeStart,
+          rangeEndDay: _rangeStart,
+          selectedDayPredicate: (day) =>
+              _selectedDay != null && isSameDay(_selectedDay, day),
+          onPageChanged: (focusedDay) {
+            setState(() {
+              _focusedDay = focusedDay;
+            });
+          },
+          onDaySelected: (selectedDay, focusedDay) {
+            setState(() {
+              _selectedDay = selectedDay;
+              _focusedDay = selectedDay;
+              _rangeStart = selectedDay;
+              _rangeEnd = selectedDay;
+            });
+            fetchSchoolMealInfo(apiKey, selectedDay);
+          },
+          availableGestures: AvailableGestures.horizontalSwipe,
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
+            titleTextFormatter: (date, locale) =>
+                DateFormat.yMMMMd(locale).format(date),
+            titleTextStyle:
+                const TextStyle(fontSize: 20.0, color: Colors.black),
+            headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
+          ),
+          calendarStyle: CalendarStyle(
+            isTodayHighlighted: true,
+            outsideDaysVisible: true,
+            todayDecoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: Colors.redAccent, width: 1.0),
+            ),
+            todayTextStyle: const TextStyle(color: Colors.redAccent),
+            selectedDecoration: BoxDecoration(
+              color: const Color(0xff9E9E9E),
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+            weekendDecoration: BoxDecoration(
+              border: Border.all(color: Colors.amber, width: 2.0),
+            ),
+            holidayDecoration: BoxDecoration(
+              border: Border.all(color: Colors.amber, width: 2.0),
+            ),
+            defaultDecoration: BoxDecoration(
+              color: Colors.grey[200],
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+          ),
+          calendarBuilders: CalendarBuilders(
+            markerBuilder: (context, date, events) =>
+                events.isNotEmpty ? _buildEventsMarker(date, events) : null,
+          ),
+        ),
+        Expanded(
+          child: Builder(
+            builder: (context) {
+              final events = _getEventsForRange(_rangeStart, _rangeEnd);
+              return events.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "이벤트 없음",
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        final event = events[index];
+                        final randomColor =
+                            colors[random.nextInt(colors.length)];
+                        return Container(
+                          height: 60.0,
+                          color: randomColor,
+                          child: ListTile(
+                            leading:
+                                const Icon(Icons.alarm, color: Colors.white),
+                            title: Text(
+                              event['title'],
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                    'Start: ${event['start'].substring(0, 10)}',
+                                    style: const TextStyle(
+                                        fontSize: 12.0, color: Colors.white70)),
+                                Text('End: ${event['end'].substring(0, 10)}',
+                                    style: const TextStyle(
+                                        fontSize: 12.0, color: Colors.white70)),
+                              ],
+                            ),
+                            onTap: () => Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        CalendarDetails(
+                                  event: event,
+                                  deleteEvent: _deleteEvent,
+                                  updateEvent: _updateEvent,
+                                ),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  return SlideTransition(
+                                    position: animation.drive(Tween(
+                                            begin: const Offset(1.0, 0.0),
+                                            end: Offset.zero)
+                                        .chain(CurveTween(
+                                            curve: Curves.easeInOut))),
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+            },
+          ),
+        ),
+        if (mealDate != null && mealMenu != null)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('급식 정보',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Table(
+                  border: TableBorder.all(color: Colors.grey, width: 1.0),
+                  columnWidths: const {
+                    0: FlexColumnWidth(1),
+                    1: FlexColumnWidth(2)
+                  },
+                  children: [
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('날짜',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(mealDate!,
+                              style: const TextStyle(fontSize: 18)),
+                        ),
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('메뉴',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(cleanMealData(mealMenu!),
+                              style: const TextStyle(fontSize: 18)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        else
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 50.0),
+              child: Text(
+                "급식 쉬는날",
+                style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey),
+              ),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Table(
+                border: TableBorder.all(color: Colors.grey, width: 1.0),
+                columnWidths: {
+                  for (var index in List.generate(6, (index) => index))
+                    index: const FlexColumnWidth(1)
+                },
+                children: [
+                  TableRow(
+                    children: List.generate(
+                        6,
+                        (index) => Text('${index + 1}교시',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold))),
+                  ),
+                  TableRow(
+                    children: List.generate(
+                        6,
+                        (index) => Text(
+                              timetable.length > index ? timetable[index] : ' ',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 18),
+                            )),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCalendar();
+    _getSchoolName();
+    initializeDateFormatting();
+
+    final DateTime now = DateTime.now();
+    _selectedDay = now;
+    _focusedDay = now;
+    _rangeStart = now.add(const Duration(hours: 9)).toUtc();
+    _rangeEnd = now.add(const Duration(hours: 9)).toUtc();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('교사 ID: $teacherId'),
-          Text('클래스 ID: $latestClassId'),
+    return Scaffold(
+      body: body(),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color(0xffF4F4F4),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.today, color: Colors.transparent),
+            label: '오늘',
+          ),
         ],
+        onTap: (_) {
+          setState(() {
+            final DateTime now = DateTime.now();
+            _selectedDay = now;
+            _focusedDay = now;
+            _rangeStart = now.add(const Duration(hours: 9)).toUtc();
+            _rangeEnd = now.add(const Duration(hours: 9)).toUtc();
+          });
+        },
+        selectedLabelStyle: const TextStyle(
+          fontSize: 20.0,
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+        ),
+        selectedItemColor: Colors.red,
       ),
     );
   }

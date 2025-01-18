@@ -6,9 +6,11 @@ class NoticeModel {
   Future<List<dynamic>> searchNotice(
       {String? category, required int classId}) async {
     final dio = Dio();
+    print("클래스아이디");
+    print(classId);
     try {
       final response = await dio.get(
-        "http://112.221.66.174:3013/api/notice/view",
+        "http://112.221.66.174:6892/api/notice/view",
         queryParameters: {
           'classId': classId,
           if (category != null) 'noticeCategory': category,
@@ -24,7 +26,7 @@ class NoticeModel {
     final dio = Dio();
     try {
       final response = await dio.get(
-        "http://112.221.66.174:3013/api/notice/insert",
+        "http://112.221.66.174:6892/api/notice/insert",
         queryParameters: {'classId': classId},
       );
       return response.data as List<dynamic>;
