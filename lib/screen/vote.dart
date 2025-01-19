@@ -250,7 +250,7 @@ class _VoteState extends State<Vote> {
                   style: TextButton.styleFrom(
                     backgroundColor: Color(0xff2C8C25),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   ),
@@ -262,7 +262,7 @@ class _VoteState extends State<Vote> {
                       Icon(Icons.how_to_vote, color: Colors.white),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ],
@@ -272,7 +272,9 @@ class _VoteState extends State<Vote> {
             color: Colors.grey,
           ),
         ),
+        backgroundColor: const Color(0xffF4F4F4),
       ),
+      backgroundColor: const Color(0xffF4F4F4),
       body: ListView.builder(
         itemCount: _voteList.length,
         itemBuilder: (context, index) {
