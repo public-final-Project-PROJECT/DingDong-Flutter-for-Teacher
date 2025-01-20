@@ -59,13 +59,13 @@ class _CalendarAddState extends State<CalendarAdd> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Colors.orange,
+              primary: Color(0xff3CB371),
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.orange,
+                foregroundColor: Color(0xff3CB371),
               ),
             ),
             dialogTheme: const DialogTheme(

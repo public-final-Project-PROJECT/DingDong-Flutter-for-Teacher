@@ -665,272 +665,342 @@ class _HomeContentState extends State<HomeContent> {
                   events.isNotEmpty ? _buildEventsMarker(date, events) : null,
             ),
           ),
-          Expanded(child:
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 63),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            child: _isMealLoaded && _isTimetableLoaded
-                ? Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Builder(
-                    builder: (context) {
-                      final events = _getEventsForRange(_rangeStart, _rangeEnd);
-                      return events.isEmpty
-                          ? const Center(
-                        child: Text(
-                          "이벤트 없음",
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                      )
-                          : ListView.builder(
-                        itemCount: events.length,
-                        itemBuilder: (context, index) {
-                          final event = events[index];
-                          final randomColor =
-                          colors[random.nextInt(colors.length)];
-                          return Container(
-                            height: 60.0,
-                            color: randomColor,
-                            child: ListTile(
-                              leading:
-                              const Icon(Icons.alarm, color: Colors.white),
-                              title: Text(
-                                event['title'],
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                      'Start: ${event['start'].substring(0, 10)}',
-                                      style: const TextStyle(
-                                          fontSize: 12.0,
-                                          color: Colors.white70)),
-                                  Text('End: ${event['end'].substring(0, 10)}',
-                                      style: const TextStyle(
-                                          fontSize: 12.0,
-                                          color: Colors.white70)),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 63),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              child: _isMealLoaded && _isTimetableLoaded
+                  ? Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                final events =
+                                    _getEventsForRange(_rangeStart, _rangeEnd);
+                                return events.isEmpty
+                                    ? const Center(
+                                        child: Text(
+                                          "이벤트 없음",
+                                          style: TextStyle(
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey),
+                                        ),
+                                      )
+                                    : ListView.builder(
+                                        itemCount: events.length,
+                                        itemBuilder: (context, index) {
+                                          final event = events[index];
+                                          final randomColor = colors[
+                                              random.nextInt(colors.length)];
+                                          return Container(
+                                            height: 60.0,
+                                            color: randomColor,
+                                            child: ListTile(
+                                              leading: const Icon(Icons.alarm,
+                                                  color: Colors.white),
+                                              title: Text(
+                                                event['title'],
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    overflow:
+                                                        TextOverflow.ellipsis),
+                                              ),
+                                              trailing: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                      'Start: ${event['start'].substring(0, 10)}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12.0,
+                                                          color:
+                                                              Colors.white70)),
+                                                  Text(
+                                                      'End: ${event['end'].substring(0, 10)}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12.0,
+                                                          color:
+                                                              Colors.white70)),
+                                                ],
+                                              ),
+                                              onTap: () => Navigator.push(
+                                                context,
+                                                PageRouteBuilder(
+                                                  pageBuilder: (context,
+                                                          animation,
+                                                          secondaryAnimation) =>
+                                                      CalendarDetails(
+                                                    event: event,
+                                                    deleteEvent: _deleteEvent,
+                                                    updateEvent: _updateEvent,
+                                                  ),
+                                                  transitionsBuilder: (context,
+                                                      animation,
+                                                      secondaryAnimation,
+                                                      child) {
+                                                    return SlideTransition(
+                                                      position: animation.drive(Tween(
+                                                              begin:
+                                                                  const Offset(
+                                                                      1.0, 0.0),
+                                                              end: Offset.zero)
+                                                          .chain(CurveTween(
+                                                              curve: Curves
+                                                                  .easeInOut))),
+                                                      child: child,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                              },
+                            ),
+                          ),
+
+                          Expanded(
+    child: Container(
+    margin: const EdgeInsets.all(0.0), // 외부 여백 추가
+    padding: const EdgeInsets.all(0.0), // 내부 여백 추가
+    decoration: BoxDecoration(
+    color: const Color(0xffE8F5E9), // 배경색 추가
+    borderRadius:
+    BorderRadius.circular(16.0), // 모서리 둥글게 처리
+    boxShadow: [
+    BoxShadow(
+    color: Colors.grey
+        .withOpacity(0.2), // 그림자 색상 및 투명도
+    blurRadius: 8, // 그림자 흐림 정도
+    offset: const Offset(0, 4), // 그림자 위치
+    ),
+    ],
+    ),
+    child:Expanded(
+                            child: mealDate != null && mealMenu != null
+                                ? Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      // 전체 가운데 정렬
+                                      children: [
+                                        const Text(
+                                          '급식 정보',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff205736), // 제목 색상
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(
+                                            height: 16), // 제목과 내용 간 간격
+                                        Container(
+                                          padding: const EdgeInsets.all(16.0),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff3CB371)
+                                                .withOpacity(0.5),
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                            border: Border.all(
+                                              color: const Color(0xff3CB371),
+                                              width: 1.0,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(0.1),
+                                                blurRadius: 5,
+                                                offset: const Offset(2, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            // 내부 내용 가운데 정렬
+                                            children: [
+                                              Text(
+                                                '$mealDate',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xff205736),
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                cleanMealData(mealMenu!),
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                softWrap: true,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 0.0),
+                                      child: Text(
+                                        "급식 쉬는날",
+                                        style: TextStyle(
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                                      ),
+    ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.all(0.0), // 외부 여백 추가
+                              padding: const EdgeInsets.all(0.0), // 내부 여백 추가
+                              decoration: BoxDecoration(
+                                color: const Color(0xffE8F5E9), // 배경색 추가
+                                borderRadius:
+                                    BorderRadius.circular(16.0), // 모서리 둥글게 처리
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey
+                                        .withOpacity(0.2), // 그림자 색상 및 투명도
+                                    blurRadius: 8, // 그림자 흐림 정도
+                                    offset: const Offset(0, 4), // 그림자 위치
+                                  ),
                                 ],
                               ),
-                              onTap: () => Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                  pageBuilder: (context, animation,
-                                      secondaryAnimation) =>
-                                      CalendarDetails(
-                                        event: event,
-                                        deleteEvent: _deleteEvent,
-                                        updateEvent: _updateEvent,
-                                      ),
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    return SlideTransition(
-                                      position: animation.drive(Tween(
-                                          begin: const Offset(1.0, 0.0),
-                                          end: Offset.zero)
-                                          .chain(CurveTween(
-                                          curve: Curves.easeInOut))),
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: mealDate != null && mealMenu != null
-                      ? Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            // 전체 가운데 정렬
-                            children: [
-                              const Text(
-                                '급식 정보',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xff205736), // 제목 색상
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16), // 제목과 내용 간 간격
-                              Container(
-                                padding: const EdgeInsets.all(16.0),
-                                decoration: BoxDecoration(
-                                  color:
-                                      const Color(0xff3CB371).withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(12.0),
-                                  border: Border.all(
-                                    color: const Color(0xff3CB371),
-                                    width: 1.0,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.1),
-                                      blurRadius: 5,
-                                      offset: const Offset(2, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  // 내부 내용 가운데 정렬
-                                  children: [
-                                    Text(
-                                      '$mealDate',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xff205736),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      cleanMealData(mealMenu!),
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                      softWrap: true,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const Center(
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 0.0),
-                            child: Text(
-                              "급식 쉬는날",
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 상단에 "시간표" 제목 추가
-                        const Center(
-                          child: Text(
-                            '시간표',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff3CB371),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16), // 제목과 박스 간 간격
-                        // 쉬는 날인지 체크
-                        if (_selectedDay!.weekday >= 6) // 6: 토요일, 7: 일요일
-                          const Center(
-                            child: Text(
-                              '오늘은 쉬는 날입니다.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          )
-                        else
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: List.generate(
-                              6,
-                              (index) => Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 4.0),
-                                  padding: const EdgeInsets.all(12.0),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xff3CB371)
-                                        .withOpacity(0.5),
-                                    borderRadius: BorderRadius.circular(12.0),
-                                    border: Border.all(
-                                        color: const Color(0xff3CB371),
-                                        width: 1),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        blurRadius: 5,
-                                        offset: const Offset(2, 2), // 그림자 위치
-                                      ),
-                                    ],
-                                  ),
+                              child: Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
                                   child: Column(
-                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        '${index + 1}교시', // 교시 표시
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff205736),
+                                      // 상단에 "시간표" 제목 추가
+                                      const Center(
+                                        child: Text(
+                                          '시간표',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff3CB371),
+                                          ),
                                         ),
-                                        textAlign: TextAlign.center,
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        timetable.length > index
-                                            ? timetable[index]
-                                            : '',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.black,
+                                      const SizedBox(height: 16), // 제목과 박스 간 간격
+                                      // 쉬는 날인지 체크
+                                      if (_selectedDay!.weekday >=
+                                          6) // 6: 토요일, 7: 일요일
+                                        const Center(
+                                          child: Text(
+                                            '오늘은 쉬는 날입니다.',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: List.generate(
+                                            6,
+                                            (index) => Expanded(
+                                              child: Container(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 4.0),
+                                                padding:
+                                                    const EdgeInsets.all(12.0),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xff3CB371)
+                                                      .withOpacity(0.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12.0),
+                                                  border: Border.all(
+                                                      color: const Color(
+                                                          0xff3CB371),
+                                                      width: 1),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.3),
+                                                      blurRadius: 5,
+                                                      offset: const Offset(
+                                                          2, 2), // 그림자 위치
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      '${index + 1}교시', // 교시 표시
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            Color(0xff205736),
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      timetable.length > index
+                                                          ? timetable[index]
+                                                          : '',
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: Colors.black,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        textAlign: TextAlign.center,
-                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                      ],
+                        ],
+                      ),
+                    )
+                  : const Center(
+                      child: Text(""), // 로딩 상태
                     ),
-                  ),
-                ),
-              ],
             ),
-          )
-                    : const Center(
-    child: Text(""), // 로딩 상태
-    ),
-          ),
           ),
         ],
-
       ),
     );
   }
