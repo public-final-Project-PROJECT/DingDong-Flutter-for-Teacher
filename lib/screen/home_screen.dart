@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -85,7 +86,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-            data is int ? data : int.tryParse(data.toString()) ?? 0;
+          data is int ? data : int.tryParse(data.toString()) ?? 0;
         _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
@@ -108,6 +109,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<TeacherProvider>(context);
+
+    provider.fetchTeacherId(user);
+    provider.fetchLatestClassId(user);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -828,6 +832,10 @@ class _HomeContentState extends State<HomeContent> {
           BottomNavigationBarItem(
             icon: Icon(Icons.today, color: Colors.transparent),
             label: '오늘',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.today, color: Colors.transparent),
+            label: '테스트',
           ),
         ],
         onTap: (_) {
