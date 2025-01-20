@@ -583,7 +583,7 @@ class _VoteState extends State<Vote> {
                                         child: Row(children: [
                                           Icon(
                                             Icons.notifications_active,
-                                            color: Color(0xff3CB371),
+                                            color: Colors.yellow,
                                           ),
                                           SizedBox(
                                             width: 10,
@@ -605,7 +605,7 @@ class _VoteState extends State<Vote> {
                                           backgroundColor: Color(0xff3CB371),
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
-                                                BorderRadius.circular(30),
+                                                BorderRadius.circular(8.0),
                                           ),
                                           padding: EdgeInsets.symmetric(
                                               vertical: 4, horizontal: 8),

@@ -32,7 +32,7 @@ class TeacherProvider extends ChangeNotifier {
   TeacherProvider._internal();
 
   int _teacherId = 0;
-  int _latestClassId = 0;.
+  int _latestClassId = 0;
   Map<String, dynamic>? _classDetails;
 
   bool _loading = true;
