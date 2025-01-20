@@ -39,13 +39,14 @@ class _TimerScreenState extends State<TimerScreen> {
       if (updatedRemainingSeconds > 0) {
         _remainingSeconds = updatedRemainingSeconds;
         _isRunning = true;
-        _totalSeconds = prefs.getInt('totalSeconds') ?? 0; // 복원된 전체 시간 설정
-      } else if (savedRemainingSeconds > 0) {
-        _finishTimer();
+        _totalSeconds = prefs.getInt('totalSeconds') ?? 0;
+        _startTimer(); // 타이머를 실행
+      } else {
+        _remainingSeconds = 0;
+        _isRunning = false;
+        _isFinished = false; // 처음 상태로 설정
       }
     });
-
-    _startTimer(); // 타이머 실행
   }
 
 
@@ -123,6 +124,7 @@ class _TimerScreenState extends State<TimerScreen> {
     final progress = _totalSeconds > 0 ? _remainingSeconds / _totalSeconds : 0.0;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("타이머"),
         leading: IconButton(
@@ -140,7 +142,7 @@ class _TimerScreenState extends State<TimerScreen> {
         ),
       ),
       backgroundColor: const Color(0xffF4F4F4),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Column(
@@ -148,7 +150,7 @@ class _TimerScreenState extends State<TimerScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 150),
-              if (!_isRunning && _remainingSeconds == 0 && !_isFinished) ...[
+              if (!_isRunning && !_isFinished && _remainingSeconds == 0) ...[
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -156,7 +158,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       width: 300,
                       height: 300,
                       child: CircularProgressIndicator(
-                        value: progress, // 동적으로 계산된 progress 적용
+                        value: 0.0, // 초기에는 진행되지 않음
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
@@ -174,7 +176,6 @@ class _TimerScreenState extends State<TimerScreen> {
                   ],
                 ),
                 const SizedBox(height: 50),
-                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -202,10 +203,10 @@ class _TimerScreenState extends State<TimerScreen> {
                           _startTimer();
                         }
                       },
-                      icon: const Icon(Icons.play_arrow),
+                      icon: const Icon(Icons.play_arrow, color: Colors.white),
                       label: const Text("실행"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xff309729),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -248,10 +249,10 @@ class _TimerScreenState extends State<TimerScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: _resetTimer,
-                  icon: const Icon(Icons.restart_alt),
+                  icon: const Icon(Icons.restart_alt, color: Colors.white),
                   label: const Text("다시 시작"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff515151),
+                    backgroundColor: const Color(0xffCE4339),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -274,7 +275,7 @@ class _TimerScreenState extends State<TimerScreen> {
                         strokeWidth: 15,
                         backgroundColor: Colors.grey[300],
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.black,
+                          Color(0xff309729),
                         ),
                       ),
                     ),
@@ -294,10 +295,10 @@ class _TimerScreenState extends State<TimerScreen> {
                   children: [
                     ElevatedButton.icon(
                       onPressed: _isRunning ? _pauseTimer : _startTimer,
-                      icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                      icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow, color: Colors.white),
                       label: Text(_isRunning ? "멈춤" : "계속"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xff309729),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -311,10 +312,10 @@ class _TimerScreenState extends State<TimerScreen> {
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
                       onPressed: _resetTimer,
-                      icon: const Icon(Icons.restart_alt),
+                      icon: const Icon(Icons.restart_alt, color: Colors.white),
                       label: const Text("초기화"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xffCE4339),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,

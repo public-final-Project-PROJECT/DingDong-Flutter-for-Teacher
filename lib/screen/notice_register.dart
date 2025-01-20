@@ -234,7 +234,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isFocusTransitioning
                               ? Colors.grey
-                              : const Color(0xff515151),
+                              : const Color(0xff309729),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 13),
@@ -260,7 +260,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isFocusTransitioning
                               ? Colors.grey
-                              : const Color(0xff515151),
+                              : const Color(0xff309729),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 13),
@@ -276,7 +276,7 @@ class _NoticeRegisterState extends State<NoticeRegister> {
                   ElevatedButton(
                     onPressed: _registerNotice,
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff515151),
+                        backgroundColor: const Color(0xff309729),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 13),
