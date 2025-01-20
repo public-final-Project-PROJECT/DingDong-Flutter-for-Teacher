@@ -35,6 +35,8 @@ class TeacherProvider extends ChangeNotifier {
   bool _loading = true;
   bool _teacherIdFetched = false;
   bool _latestClassIdFetched = false;
+  bool _classDetailsFetched = false;
+  Map<String, dynamic>? _classDetails;
 
   int get teacherId => _teacherId;
   int get latestClassId => _latestClassId;
@@ -86,7 +88,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-          data is int ? data : int.tryParse(data.toString()) ?? 0;
+            data is int ? data : int.tryParse(data.toString()) ?? 0;
         _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
@@ -98,6 +100,33 @@ class TeacherProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<Map<String, dynamic>> fetchClassDetails() async {
+    if (_classDetailsFetched) {
+      return _classDetails!;
+    }
+
+    final dio = Dio();
+    final serverURL = getServerURL();
+
+    try {
+      final response = await dio.get('$serverURL/class/$_latestClassId');
+      if (response.statusCode == 200) {
+        _classDetails = response.data as Map<String, dynamic>;
+        _classDetailsFetched = true;
+        _loading = false;
+        notifyListeners();
+        return _classDetails!;
+      } else {
+        throw Exception("Failed to fetch class details.");
+      }
+    } catch (e) {
+      _loading = false;
+      throw Exception("Error: ${e.toString()}");
+    }
+  }
+
+  bool get isClassDetailsFetched => _classDetailsFetched;
 }
 
 class HomeScreen extends StatelessWidget {
@@ -112,10 +141,31 @@ class HomeScreen extends StatelessWidget {
 
     provider.fetchTeacherId(user);
     provider.fetchLatestClassId(user);
+    provider.fetchClassDetails();
 
+    return FutureBuilder<Map<String, dynamic>>(
+      future: provider.fetchClassDetails(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text("오류: ${snapshot.error}"),
+          );
+        } else if (snapshot.hasData) {
+          return _buildScaffold(context, provider, snapshot.data!);
+        } else {
+          return const Center(child: Text("오류"));
+        }
+      },
+    );
+  }
+
+  Scaffold _buildScaffold(BuildContext context, TeacherProvider provider,
+      Map<String, dynamic> classDetails) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, classDetails),
       backgroundColor: const Color(0xffF4F4F4),
       drawer: HomeDrawer(user: user),
       endDrawer: _buildSecondaryDrawer(user, context),
@@ -123,9 +173,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context, Map<String, dynamic> classDetails) {
     return AppBar(
-      title: const Text('홈'),
+      title: Text(classDetails['classNickname'] ?? '홈'),
       backgroundColor: const Color(0xffF4F4F4),
       actions: [
         IconButton(
