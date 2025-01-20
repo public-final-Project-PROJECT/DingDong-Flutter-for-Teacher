@@ -89,7 +89,7 @@ class _StudentState extends State<Student> {
                  Text(
                    _students.isNotEmpty
                        ? '${_students[0]['schoolName']} ${_students[0]['grade']}학년 ${_students[0]['classNo']}반'
-                       : '학생 정보',style: TextStyle(fontSize: 25),
+                       : '학생 정보',style: TextStyle(fontSize: 23),
                  ),
                  const SizedBox(height: 10),
                  Expanded(child:
