@@ -56,7 +56,7 @@ class _CalendarDetailsState extends State<CalendarDetails> {
                       style: const TextStyle(
                         fontSize: 16, // 텍스트 크기 줄이기
 
-                        color: Colors.black87,
+                        color: Color(0xff3CB371),
                       ),
                       overflow: TextOverflow.ellipsis, // 텍스트 초과 시 "..."로 표시
                     ),
@@ -124,48 +124,104 @@ class _CalendarDetailsState extends State<CalendarDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 이벤트 제목
             Text(
               event2['title'],
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Color(0xff309729),
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              '시작일 : ${event2['start'].toString().substring(0, 10)}',
-              style: const TextStyle(fontSize: 16),
+
+            // 시작일
+            Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                const SizedBox(width: 8),
+                Text(
+                  '시작일 : ${event2['start'].toString().substring(0, 10)}',
+                  style: const TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            Text(
-              '종료일 : ${event2['end'].toString().substring(0, 10)}',
-              style: const TextStyle(fontSize: 16),
+
+            // 종료일
+            Row(
+              children: [
+                const Icon(Icons.event_available, size: 20, color: Colors.grey),
+                const SizedBox(width: 8),
+                Text(
+                  '종료일 : ${event2['end'].toString().substring(0, 10)}',
+                  style: const TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
-            const Divider(
-              height: 1, thickness: 1, color: Colors.grey, // Divider color
-            ),
-            Container(
-              height: 200, // 고정된 높이 설정
-              width: double.infinity, // 전체 너비 사용
-              padding: const EdgeInsets.only(top: 5, left: 5), // 위쪽 여백 최소화
 
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
-                  children: [
-                    const Text(
-                      '메모',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      '${event2['description']}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ]),
-            ),
+            // 구분선
             const Divider(
-              height: 1, thickness: 1, color: Colors.grey, // Divider color
+              height: 1,
+              thickness: 1,
+              color: Colors.grey,
             ),
+            const SizedBox(height: 20),
+
+            // 메모 영역
+            Container(
+              height: MediaQuery.of(context).size.height * 0.4, // 화면 높이의 30%로 설정
+              padding: const EdgeInsets.all(16),
+              width: double.infinity, // 전체 너비 사용
+
+
+
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 메모 제목
+                  Row(
+                    children: [
+                      const Icon(Icons.note, size: 20, color: Color(0xff309729)),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '메모',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 메모 내용
+                  Text(
+                    event2['description'] ?? '메모가 없습니다.',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+
           ],
         ),
       ),
+
+
+
       bottomNavigationBar: SafeArea(
         child: Container(
           width: double.infinity,
