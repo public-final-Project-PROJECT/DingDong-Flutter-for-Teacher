@@ -31,11 +31,7 @@ class _CalendarState extends State<Calendar> {
   final Map<DateTime, List<dynamic>> _events = {};
   final random = Random(); // Random 객체 생성
   final List<Color> colors = [
-    Colors.pink,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
+    Color(0xff3CB371),
   ];
   @override
   void initState() {
@@ -182,7 +178,7 @@ class _CalendarState extends State<Calendar> {
         duration: const Duration(milliseconds: 300),
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.grey,
+          color: Color(0xFF9BB8D5),
         ),
         width: 12.0,
         height: 12.0,
@@ -211,6 +207,14 @@ class _CalendarState extends State<Calendar> {
             color: Colors.grey,
             width: 1,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // 기본 뒤로가기 버튼
+          onPressed: () {
+            // 뒤로가기 동작 제어
+            Navigator.pop(context);
+
+          },
         ),
         actions: [
           IconButton(
@@ -357,7 +361,7 @@ class _CalendarState extends State<Calendar> {
                 DateFormat.yMMMMd(locale).format(date),
             formatButtonShowsNext: false,
             formatButtonDecoration: BoxDecoration(
-                color: Colors.orangeAccent,
+                color: Color(0xff3CB371),
                 borderRadius: BorderRadius.circular(5.0)),
             formatButtonTextStyle:
                 const TextStyle(fontFamily: 'Raleway', color: Colors.white),
@@ -385,21 +389,21 @@ class _CalendarState extends State<Calendar> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Colors.redAccent, // Border color
+                  color: Color(0xff309729), // Border color
                   width: 1.0, // Border width
                 ), // 모서리 둥글기
               ),
               todayTextStyle: TextStyle(
-                color: Colors.redAccent, // 텍스트 색상
+                color: Color(0xff309729), // 텍스트 색상
               ),
               selectedTextStyle: TextStyle(
                 color: _selectedDay != null &&
                         isSameDay(_selectedDay, DateTime.now())
-                    ? Colors.redAccent // 선택된 날짜가 오늘이면 빨간색
+                    ? Colors.white// 선택된 날짜가 오늘이면 빨간색
                     : Colors.white, // 선택된 날짜가 오늘이 아니면 기본 색상
               ),
               selectedDecoration: BoxDecoration(
-                  color: Color(0xff9E9E9E),
+                  color: Color(0xff3CB371),
                   shape: BoxShape.rectangle,
                   borderRadius: BorderRadius.circular(5.0)),
               weekendDecoration: BoxDecoration(
@@ -408,7 +412,7 @@ class _CalendarState extends State<Calendar> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Colors.amber, // Border color
+                  color: Color(0xff205736), // Border color
                   width: 2.0, // Border width
                 ),
               ),
@@ -418,14 +422,15 @@ class _CalendarState extends State<Calendar> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Colors.amber, // Border color
+                  color: Color(0xff205736), // Border color
                   width: 2.0, // Border width
                 ),
               ),
               defaultDecoration: BoxDecoration(
                   color: Colors.grey[200],
                   shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(5.0))),
+                  borderRadius: BorderRadius.circular(5.0))
+          ),
           calendarBuilders: CalendarBuilders(
             markerBuilder: (context, date, events) {
               if (events.isNotEmpty) {

@@ -22,6 +22,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter/widgets.dart';
 
 class TeacherProvider extends ChangeNotifier {
   static final TeacherProvider _instance = TeacherProvider._internal();
@@ -35,9 +36,11 @@ class TeacherProvider extends ChangeNotifier {
   bool _loading = true;
   bool _teacherIdFetched = false;
   bool _latestClassIdFetched = false;
-
+  bool _isCalendarLoaded = false; // 플래그 추가
   int get teacherId => _teacherId;
+
   int get latestClassId => _latestClassId;
+
   bool get loading => _loading;
 
   String getServerURL() {
@@ -86,7 +89,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-          data is int ? data : int.tryParse(data.toString()) ?? 0;
+            data is int ? data : int.tryParse(data.toString()) ?? 0;
         _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
@@ -97,6 +100,16 @@ class TeacherProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  void setCalendarLoaded(bool value) {
+    _isCalendarLoaded = value;
+    notifyListeners();
+  }
+
+  void refreshContent() {
+    _isCalendarLoaded = false; // 캘린더 플래그 초기화
+    notifyListeners();
   }
 }
 
@@ -330,7 +343,9 @@ class HomeDrawer extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
-    );
+    ).then((_) {
+      Provider.of<TeacherProvider>(context, listen: false).refreshContent();
+    });
   }
 }
 
@@ -364,15 +379,13 @@ class _HomeContentState extends State<HomeContent> {
   final Map<DateTime, List<dynamic>> _events = {};
   final random = Random();
   final List<Color> colors = [
-    Colors.pink,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
+    Color(0xff3CB371),
   ];
+  bool _isMealLoaded = true; // 급식 정보 로드 상태
+  bool _isTimetableLoaded = true; // 시간표 로드 상태
   String? mealDate;
   String? mealMenu;
-  final List<String> timetable = [
+  List<String> timetable = [
     '국어',
     '수학',
     '영어',
@@ -443,6 +456,7 @@ class _HomeContentState extends State<HomeContent> {
           mealDate = mealData != null ? mealData['MLSV_YMD'] : null;
           mealMenu =
               mealData != null ? cleanMealData(mealData['DDISH_NM']) : null;
+          _isMealLoaded = true; // 급식 정보 로드 완료
         });
 
         if (mealData == null) {
@@ -543,7 +557,7 @@ class _HomeContentState extends State<HomeContent> {
         duration: const Duration(milliseconds: 300),
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.grey,
+          color: Color(0xFF9BB8D5),
         ),
         width: 12.0,
         height: 12.0,
@@ -561,250 +575,363 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   Widget body() {
-    return Column(
-      children: [
-        TableCalendar(
-          key: ValueKey(_focusedDay?.month),
-          firstDay: DateTime(2021, 10, 16),
-          lastDay: DateTime(2030, 3, 14),
-          locale: 'ko_KR',
-          eventLoader: _getEventsForDay,
-          calendarFormat: CalendarFormat.week,
-          focusedDay: _focusedDay ?? DateTime.now(),
-          rangeStartDay: _rangeStart,
-          rangeEndDay: _rangeStart,
-          selectedDayPredicate: (day) =>
-              _selectedDay != null && isSameDay(_selectedDay, day),
-          onPageChanged: (focusedDay) {
-            setState(() {
-              _focusedDay = focusedDay;
-            });
-          },
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = selectedDay;
-              _rangeStart = selectedDay;
-              _rangeEnd = selectedDay;
-            });
-            fetchSchoolMealInfo(apiKey, selectedDay);
-          },
-          availableGestures: AvailableGestures.horizontalSwipe,
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-            titleTextFormatter: (date, locale) =>
-                DateFormat.yMMMMd(locale).format(date),
-            titleTextStyle:
-                const TextStyle(fontSize: 20.0, color: Colors.black),
-            headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
+    return Container(
+      constraints: const BoxConstraints.expand(), // 전체 화면 크기로 설정
+      child: Column(
+        children: [
+          TableCalendar(
+            key: ValueKey(_focusedDay?.month),
+            firstDay: DateTime(2021, 10, 16),
+            lastDay: DateTime(2030, 3, 14),
+            locale: 'ko_KR',
+            eventLoader: _getEventsForDay,
+            calendarFormat: CalendarFormat.week,
+            focusedDay: _focusedDay ?? DateTime.now(),
+            rangeStartDay: _rangeStart,
+            rangeEndDay: _rangeStart,
+            selectedDayPredicate: (day) =>
+                _selectedDay != null && isSameDay(_selectedDay, day),
+            onPageChanged: (focusedDay) {
+              setState(() {
+                _focusedDay = focusedDay;
+              });
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = selectedDay;
+                _rangeStart = selectedDay;
+                _rangeEnd = selectedDay;
+                _isMealLoaded = false; // 급식 정보 초기화
+                _isTimetableLoaded = false; // 시간표 초기화
+              });
+              fetchSchoolMealInfo(apiKey, selectedDay);
+              int weekday = selectedDay.weekday;
+              fetchWeekdayInfo(weekday);
+            },
+            availableGestures: AvailableGestures.horizontalSwipe,
+            headerStyle: HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+              titleTextFormatter: (date, locale) =>
+                  DateFormat.yMMMMd(locale).format(date),
+              titleTextStyle:
+                  const TextStyle(fontSize: 20.0, color: Colors.black),
+              headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
+            ),
+            calendarStyle: CalendarStyle(
+              isTodayHighlighted: true,
+              outsideDaysVisible: true,
+              todayDecoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: Color(0xff309729), width: 1.0),
+              ),
+              todayTextStyle: const TextStyle(color: Color(0xff309729)),
+              selectedDecoration: BoxDecoration(
+                color: const Color(0xff3CB371),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              weekendDecoration: BoxDecoration(
+                color: Colors.transparent,
+                // Transparent background
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(
+                  color: Color(0xff205736), // Border color
+                  width: 2.0, // Border width
+                ),
+              ),
+              holidayDecoration: BoxDecoration(
+                color: Colors.transparent,
+                // Transparent background
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(
+                  color: Color(0xff205736), // Border color
+                  width: 2.0, // Border width
+                ),
+              ),
+              defaultDecoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+            ),
+            calendarBuilders: CalendarBuilders(
+              markerBuilder: (context, date, events) =>
+                  events.isNotEmpty ? _buildEventsMarker(date, events) : null,
+            ),
           ),
-          calendarStyle: CalendarStyle(
-            isTodayHighlighted: true,
-            outsideDaysVisible: true,
-            todayDecoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: Colors.redAccent, width: 1.0),
-            ),
-            todayTextStyle: const TextStyle(color: Colors.redAccent),
-            selectedDecoration: BoxDecoration(
-              color: const Color(0xff9E9E9E),
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(5.0),
-            ),
-            weekendDecoration: BoxDecoration(
-              border: Border.all(color: Colors.amber, width: 2.0),
-            ),
-            holidayDecoration: BoxDecoration(
-              border: Border.all(color: Colors.amber, width: 2.0),
-            ),
-            defaultDecoration: BoxDecoration(
-              color: Colors.grey[200],
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(5.0),
-            ),
-          ),
-          calendarBuilders: CalendarBuilders(
-            markerBuilder: (context, date, events) =>
-                events.isNotEmpty ? _buildEventsMarker(date, events) : null,
-          ),
-        ),
-        Expanded(
-          child: Builder(
-            builder: (context) {
-              final events = _getEventsForRange(_rangeStart, _rangeEnd);
-              return events.isEmpty
-                  ? const Center(
-                      child: Text(
-                        "이벤트 없음",
-                        style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        final event = events[index];
-                        final randomColor =
-                            colors[random.nextInt(colors.length)];
-                        return Container(
-                          height: 60.0,
-                          color: randomColor,
-                          child: ListTile(
-                            leading:
-                                const Icon(Icons.alarm, color: Colors.white),
-                            title: Text(
-                              event['title'],
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                            trailing: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                    'Start: ${event['start'].substring(0, 10)}',
-                                    style: const TextStyle(
-                                        fontSize: 12.0, color: Colors.white70)),
-                                Text('End: ${event['end'].substring(0, 10)}',
-                                    style: const TextStyle(
-                                        fontSize: 12.0, color: Colors.white70)),
-                              ],
-                            ),
-                            onTap: () => Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        CalendarDetails(
-                                  event: event,
-                                  deleteEvent: _deleteEvent,
-                                  updateEvent: _updateEvent,
+          Expanded(child:
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 63),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: _isMealLoaded && _isTimetableLoaded
+                ? Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      final events = _getEventsForRange(_rangeStart, _rangeEnd);
+                      return events.isEmpty
+                          ? const Center(
+                        child: Text(
+                          "이벤트 없음",
+                          style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey),
+                        ),
+                      )
+                          : ListView.builder(
+                        itemCount: events.length,
+                        itemBuilder: (context, index) {
+                          final event = events[index];
+                          final randomColor =
+                          colors[random.nextInt(colors.length)];
+                          return Container(
+                            height: 60.0,
+                            color: randomColor,
+                            child: ListTile(
+                              leading:
+                              const Icon(Icons.alarm, color: Colors.white),
+                              title: Text(
+                                event['title'],
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                      'Start: ${event['start'].substring(0, 10)}',
+                                      style: const TextStyle(
+                                          fontSize: 12.0,
+                                          color: Colors.white70)),
+                                  Text('End: ${event['end'].substring(0, 10)}',
+                                      style: const TextStyle(
+                                          fontSize: 12.0,
+                                          color: Colors.white70)),
+                                ],
+                              ),
+                              onTap: () => Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                      secondaryAnimation) =>
+                                      CalendarDetails(
+                                        event: event,
+                                        deleteEvent: _deleteEvent,
+                                        updateEvent: _updateEvent,
+                                      ),
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    return SlideTransition(
+                                      position: animation.drive(Tween(
+                                          begin: const Offset(1.0, 0.0),
+                                          end: Offset.zero)
+                                          .chain(CurveTween(
+                                          curve: Curves.easeInOut))),
+                                      child: child,
+                                    );
+                                  },
                                 ),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  return SlideTransition(
-                                    position: animation.drive(Tween(
-                                            begin: const Offset(1.0, 0.0),
-                                            end: Offset.zero)
-                                        .chain(CurveTween(
-                                            curve: Curves.easeInOut))),
-                                    child: child,
-                                  );
-                                },
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: mealDate != null && mealMenu != null
+                      ? Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            // 전체 가운데 정렬
+                            children: [
+                              const Text(
+                                '급식 정보',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff205736), // 제목 색상
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16), // 제목과 내용 간 간격
+                              Container(
+                                padding: const EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color(0xff3CB371).withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  border: Border.all(
+                                    color: const Color(0xff3CB371),
+                                    width: 1.0,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      blurRadius: 5,
+                                      offset: const Offset(2, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  // 내부 내용 가운데 정렬
+                                  children: [
+                                    Text(
+                                      '$mealDate',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff205736),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      cleanMealData(mealMenu!),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.black,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      softWrap: true,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 0.0),
+                            child: Text(
+                              "급식 쉬는날",
+                              style: TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 상단에 "시간표" 제목 추가
+                        const Center(
+                          child: Text(
+                            '시간표',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff3CB371),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16), // 제목과 박스 간 간격
+                        // 쉬는 날인지 체크
+                        if (_selectedDay!.weekday >= 6) // 6: 토요일, 7: 일요일
+                          const Center(
+                            child: Text(
+                              '오늘은 쉬는 날입니다.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        else
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: List.generate(
+                              6,
+                              (index) => Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 4.0),
+                                  padding: const EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xff3CB371)
+                                        .withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    border: Border.all(
+                                        color: const Color(0xff3CB371),
+                                        width: 1),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        blurRadius: 5,
+                                        offset: const Offset(2, 2), // 그림자 위치
+                                      ),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '${index + 1}교시', // 교시 표시
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff205736),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        timetable.length > index
+                                            ? timetable[index]
+                                            : '',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        );
-                      },
-                    );
-            },
-          ),
-        ),
-        if (mealDate != null && mealMenu != null)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('급식 정보',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Table(
-                  border: TableBorder.all(color: Colors.grey, width: 1.0),
-                  columnWidths: const {
-                    0: FlexColumnWidth(1),
-                    1: FlexColumnWidth(2)
-                  },
-                  children: [
-                    TableRow(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('날짜',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(mealDate!,
-                              style: const TextStyle(fontSize: 18)),
-                        ),
                       ],
                     ),
-                    TableRow(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('메뉴',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(cleanMealData(mealMenu!),
-                              style: const TextStyle(fontSize: 18)),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
           )
-        else
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.only(top: 50.0),
-              child: Text(
-                "급식 쉬는날",
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey),
-              ),
-            ),
+                    : const Center(
+    child: Text(""), // 로딩 상태
+    ),
           ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Table(
-                border: TableBorder.all(color: Colors.grey, width: 1.0),
-                columnWidths: {
-                  for (var index in List.generate(6, (index) => index))
-                    index: const FlexColumnWidth(1)
-                },
-                children: [
-                  TableRow(
-                    children: List.generate(
-                        6,
-                        (index) => Text('${index + 1}교시',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold))),
-                  ),
-                  TableRow(
-                    children: List.generate(
-                        6,
-                        (index) => Text(
-                              timetable.length > index ? timetable[index] : ' ',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 18),
-                            )),
-                  ),
-                ],
-              ),
-            ],
           ),
-        ),
-      ],
+        ],
+
+      ),
     );
   }
 
@@ -822,38 +949,87 @@ class _HomeContentState extends State<HomeContent> {
     _rangeEnd = now.add(const Duration(hours: 9)).toUtc();
   }
 
+  // 상태를 갱신하는 함수
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: body(),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xffF4F4F4),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.today, color: Colors.transparent),
-            label: '오늘',
+    return Consumer<TeacherProvider>(
+      builder: (context, provider, child) {
+        if (!provider._isCalendarLoaded) {
+          _loadCalendar(); // 캘린더 데이터 로드
+          provider.setCalendarLoaded(true); // 플래그 설정
+        }
+
+        if (provider.loading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        // 정상적으로 데이터가 로드되었을 때
+        return Scaffold(
+          body: body(), // 기존 body() 함수 호출
+          bottomNavigationBar: BottomNavigationBar(
+            backgroundColor: const Color(0xffF4F4F4),
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.today, color: Colors.transparent),
+                label: '오늘',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.today, color: Colors.transparent),
+                label: '테스트',
+              ),
+            ],
+            onTap: (_) {
+              // BottomNavigationBar의 탭 동작 처리
+              setState(() {
+                final DateTime now = DateTime.now();
+                _selectedDay = now;
+                _focusedDay = now;
+                _rangeStart = now.add(const Duration(hours: 9)).toUtc();
+                _rangeEnd = now.add(const Duration(hours: 9)).toUtc();
+              });
+            },
+            selectedLabelStyle: const TextStyle(
+              fontSize: 20.0,
+              color: Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+            selectedItemColor: Colors.red,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.today, color: Colors.transparent),
-            label: '테스트',
-          ),
-        ],
-        onTap: (_) {
-          setState(() {
-            final DateTime now = DateTime.now();
-            _selectedDay = now;
-            _focusedDay = now;
-            _rangeStart = now.add(const Duration(hours: 9)).toUtc();
-            _rangeEnd = now.add(const Duration(hours: 9)).toUtc();
-          });
-        },
-        selectedLabelStyle: const TextStyle(
-          fontSize: 20.0,
-          color: Colors.red,
-          fontWeight: FontWeight.bold,
-        ),
-        selectedItemColor: Colors.red,
-      ),
+        );
+      },
     );
+  }
+
+  void fetchWeekdayInfo(int weekday) {
+    switch (weekday) {
+      case 1: // 월요일
+        timetable = ['국어', '수학', '수학', '영어', '과학', '체육'];
+        break;
+      case 2: // 화요일
+        timetable = ['음악', '미술', '국어', '체육', '체육', '체육'];
+        break;
+      case 3: // 수요일
+        timetable = ['영어', '역사', '과학', '음악', '미술', '마술'];
+        break;
+      case 4: // 목요일
+        timetable = ['국어', '체육', '영어', '수학', '과학', '과학'];
+        break;
+      case 5: // 금요일
+        timetable = ['역사', '음악', '체육', '미술', '국어', '수학'];
+        break;
+      case 6: // 토요일
+      case 7: // 일요일
+        timetable = [];
+        break;
+      default: // 잘못된 요일
+        timetable = [];
+    }
+    _isTimetableLoaded = true; // 시간표 정보 로드 완료
+
+    print(
+        "_isMealLoaded: $_isMealLoaded, _isTimetableLoaded: $_isTimetableLoaded");
   }
 }
