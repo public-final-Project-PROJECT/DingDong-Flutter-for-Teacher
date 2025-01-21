@@ -198,7 +198,7 @@ class _SeatState extends State<Seat> {
               size: 30,
             ),
             SizedBox(width: 10),
-            Text("좌석 랜덤돌리기"),
+            Text("좌석표"),
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
