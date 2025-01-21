@@ -223,7 +223,7 @@ class _SeatState extends State<Seat> {
                   backgroundColor:
                       isEditing ? Colors.grey :  Color(0xff309729),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                 ),
@@ -263,7 +263,7 @@ class _SeatState extends State<Seat> {
                   backgroundColor:
                       isEditing ? Colors.grey :  Color(0xff309729),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                 ),
@@ -288,7 +288,7 @@ class _SeatState extends State<Seat> {
                   style: TextButton.styleFrom(
                     backgroundColor:  Color(0xff309729),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                   ),
@@ -301,9 +301,9 @@ class _SeatState extends State<Seat> {
                     style: TextStyle(color: Colors.white, fontSize: 17),
                   ),
                   style: TextButton.styleFrom(
-                    backgroundColor: Color(0xff309729),
+                    backgroundColor: Color(0xffCE4339),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                   ),
@@ -346,12 +346,15 @@ class _SeatState extends State<Seat> {
               width: 170,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Color(0xff72C86B),
-                borderRadius: BorderRadius.circular(30),
+                color: Color(0xff205736),
+                borderRadius: BorderRadius.circular(0),
+                border: Border(
+                  bottom: BorderSide(color: Colors.brown, width: 5)
+                ),
               ),
               child: Text(
                 "칠판",
-                style: TextStyle(fontSize: 17, ),
+                style: TextStyle(fontSize: 16, color: Colors.white),
                 textAlign: TextAlign.center,
               ),
             ),

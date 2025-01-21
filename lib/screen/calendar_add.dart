@@ -59,13 +59,13 @@ class _CalendarAddState extends State<CalendarAdd> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Colors.orange,
+              primary: Color(0xff3CB371),
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.orange,
+                foregroundColor: Color(0xff3CB371),
               ),
             ),
             dialogTheme: const DialogTheme(
@@ -136,7 +136,7 @@ class _CalendarAddState extends State<CalendarAdd> {
                   ),
                 ),
                 const Text(
-                  'Add Event',
+                  '새로운 이벤트',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 TextButton(
@@ -161,7 +161,7 @@ class _CalendarAddState extends State<CalendarAdd> {
                   },
                   child: const Text(
                     '추가',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Color(0xff205736)),
                   ),
                 ),
               ],
@@ -172,7 +172,7 @@ class _CalendarAddState extends State<CalendarAdd> {
               controller: titleController,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                hintText: 'Enter event title',
+                hintText: '제목',
                 suffixIcon:
                     (focusNode.hasFocus && titleController.text.isNotEmpty)
                         ? IconButton(
@@ -195,7 +195,7 @@ class _CalendarAddState extends State<CalendarAdd> {
               maxLines: 3,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Enter description',
+                hintText: '메모',
               ),
             ),
             const SizedBox(height: 50),
@@ -204,54 +204,70 @@ class _CalendarAddState extends State<CalendarAdd> {
                 Expanded(
                   child: Column(
                     children: [
+
+
                       const Text(
                         'Start Date',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff205736)),
                       ),
                       const SizedBox(height: 8),
+
                       OutlinedButton(
-                        onPressed: () =>
-                            _pickDate(context, true, startDate, endDate),
+                        onPressed: () => _pickDate(context, true, startDate, endDate),
                         style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            )),
+                          foregroundColor: Colors.white, // 텍스트 색상
+                          backgroundColor: Color(0xff3CB371)
+                          , // 배경색
+                          side: BorderSide(color: Color(0xff309729), width: 0), // 테두리 색상 및 두께
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩
+                        ),
                         child: Text(
                           startDate == null
                               ? 'Select Start Date'
                               : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
+                          style: TextStyle(
+                            fontSize: 16, // 텍스트 크기
+                            fontWeight: FontWeight.bold, // 텍스트 굵기
+                          ),
                         ),
+
                       ),
                     ],
                   ),
                 ),
                 Expanded(
-                  child: Column(children: [
-                    const Text(
-                      'End Date',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton(
-                      onPressed: () =>
-                          _pickDate(context, false, startDate, endDate),
-                      style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          )),
-                      child: Text(
-                        endDate == null
-                            ? 'Select End Date'
-                            : (endDate!.isBefore(startDate!)
+                  child:
+                  Column(
+                      children: [
+
+                        const Text(
+                          'End Date',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff205736)),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: () => _pickDate(context, false, startDate, endDate),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white, // 텍스트 색상
+                            backgroundColor: Color(0xff3CB371)
+                            , // 배경색
+                            side: BorderSide(color: Color(0xff309729), width: 0), // 테두리 색상 및 두께
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩
+                          ),
+                          child: Text(
+                            endDate == null
+                                ? 'Select End Date'
+                                : (endDate!.isBefore(startDate!)
                                 ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}'
                                 : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
-                      ),
-                    ),
-                  ]),
+                            style: TextStyle(
+                              fontSize: 16, // 텍스트 크기
+                              fontWeight: FontWeight.bold, // 텍스트 굵기
+                            ),
+                          ),
+                        ),
+                      ]
+                  ),
                 ),
               ],
             ),
