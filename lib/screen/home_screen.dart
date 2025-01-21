@@ -825,93 +825,7 @@ class _HomeContentState extends State<HomeContent> {
                         constraints: const BoxConstraints(
                           maxHeight: 300, // 컨테이너 높이 제한
                         ),
-                        margin: const EdgeInsets.all(8.0),
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffE8F5E9),
-                          borderRadius: BorderRadius.circular(16.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: mealDate != null && mealMenu != null
-                            ? Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '급식 정보',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xff205736),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: const Color(0xff3CB371)
-                                    .withOpacity(0.5),
-                                borderRadius:
-                                BorderRadius.circular(12.0),
-                                border: Border.all(
-                                  color: const Color(0xff3CB371),
-                                  width: 1.0,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '$mealDate',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xff205736),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    cleanMealData(mealMenu!),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    softWrap: true,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-                            : const Center(
-                          child: Text(
-                            "급식 쉬는날",
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        constraints: const BoxConstraints(
-                          maxHeight: 300, // 컨테이너 높이 제한
-                        ),
-                        margin: const EdgeInsets.all(0.0),
+                        margin: const EdgeInsets.all(20.0),
                         padding: const EdgeInsets.all(0.0),
                         decoration: BoxDecoration(
                           color: const Color(0xffE8F5E9),
@@ -987,7 +901,7 @@ class _HomeContentState extends State<HomeContent> {
                                             Text(
                                               '${index + 1}교시',
                                               style: const TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 10,
                                                 fontWeight:
                                                 FontWeight.bold,
                                                 color: Color(0xff205736),
@@ -1000,7 +914,7 @@ class _HomeContentState extends State<HomeContent> {
                                                   ? timetable[index]
                                                   : '',
                                               style: const TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 15,
                                                 color: Colors.black,
                                               ),
                                               textAlign: TextAlign.center,
@@ -1016,6 +930,94 @@ class _HomeContentState extends State<HomeContent> {
                         ),
                       ),
                     ),
+                    Expanded(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          maxHeight: 300, // 컨테이너 높이 제한
+                        ),
+                        margin: const EdgeInsets.all(20.0),
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffE8F5E9),
+                          borderRadius: BorderRadius.circular(16.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: mealDate != null && mealMenu != null
+                            ? Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '급식 정보',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff205736),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              margin: const EdgeInsets.all(20.0),
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                color: const Color(0xff3CB371)
+                                    .withOpacity(0.5),
+                                borderRadius:
+                                BorderRadius.circular(12.0),
+                                border: Border.all(
+                                  color: const Color(0xff3CB371),
+                                  width: 1.0,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '$mealDate',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xff205736),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    cleanMealData(mealMenu!),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                            : const Center(
+                          child: Text(
+                            "급식 쉬는날",
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+
                   ],
                 ),
               )
