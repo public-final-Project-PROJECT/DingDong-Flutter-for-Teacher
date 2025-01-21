@@ -56,13 +56,13 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.orange, // 선택된 날짜 배경색
+              primary: Color(0xff3CB371), // 선택된 날짜 배경색
               onPrimary: Colors.white, // 선택된 날짜 텍스트 색상
               onSurface: Colors.black, // 기본 텍스트 색상
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.orange, // 확인 및 취소 버튼 색상
+                foregroundColor: Color(0xff3CB371), // 확인 및 취소 버튼 색상
               ),
             ),
             dialogTheme: DialogTheme(
@@ -165,7 +165,7 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
                   },
                   child: const Text(
                     '수정',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: TextStyle(fontSize: 16, color: Color(0xff205736)),
                   ),
                 ),
               ],
@@ -215,17 +215,29 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
 
                       const Text(
                         'Start Date',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff205736)),
                       ),
                       const SizedBox(height: 8),
 
                       OutlinedButton(
                         onPressed: () => _pickDate(context, true, startDate, endDate),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white, // 텍스트 색상
+                          backgroundColor: Color(0xff3CB371)
+                          , // 배경색
+                          side: BorderSide(color: Color(0xff309729), width: 0), // 테두리 색상 및 두께
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩
+                        ),
                         child: Text(
                           startDate == null
                               ? 'Select Start Date'
                               : '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}',
+                          style: TextStyle(
+                            fontSize: 16, // 텍스트 크기
+                            fontWeight: FontWeight.bold, // 텍스트 굵기
+                          ),
                         ),
+
                       ),
                     ],
                   ),
@@ -237,17 +249,28 @@ class _CalendarUpdateState extends State<CalendarUpdate> {
 
                         const Text(
                           'End Date',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff205736)),
                         ),
                         const SizedBox(height: 8),
                         OutlinedButton(
-                          onPressed: () => _pickDate(context, false, startDate,endDate),
+                          onPressed: () => _pickDate(context, false, startDate, endDate),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white, // 텍스트 색상
+                            backgroundColor: Color(0xff3CB371)
+                            , // 배경색
+                            side: BorderSide(color: Color(0xff309729), width: 0), // 테두리 색상 및 두께
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 패딩
+                          ),
                           child: Text(
                             endDate == null
                                 ? 'Select End Date'
                                 : (endDate!.isBefore(startDate!)
                                 ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}'
                                 : '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'),
+                            style: TextStyle(
+                              fontSize: 16, // 텍스트 크기
+                              fontWeight: FontWeight.bold, // 텍스트 굵기
+                            ),
                           ),
                         ),
                       ]
