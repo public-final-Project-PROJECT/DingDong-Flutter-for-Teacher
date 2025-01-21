@@ -93,7 +93,7 @@ class TeacherProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _latestClassId =
-            data is int ? data : int.tryParse(data.toString()) ?? 0;
+        data is int ? data : int.tryParse(data.toString()) ?? 0;
         _latestClassIdFetched = true;
       } else {
         throw Exception('Failed to fetch class ID: ${response.statusCode}');
@@ -161,7 +161,10 @@ class HomeScreen extends StatelessWidget {
       future: provider.fetchClassDetails(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Container(
+            color: Colors.white, // 배경을 흰색으로 설정
+
+          );
         } else if (snapshot.hasError) {
           return Center(
             child: Text("오류: ${snapshot.error}"),
@@ -196,7 +199,7 @@ class HomeScreen extends StatelessWidget {
           icon: CircleAvatar(
             radius: 15,
             backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            user.photoURL != null ? NetworkImage(user.photoURL!) : null,
             child: user.photoURL == null
                 ? const Icon(Icons.person, size: 30)
                 : null,
@@ -247,7 +250,7 @@ class HomeScreen extends StatelessWidget {
           CircleAvatar(
             radius: 40,
             backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
+            user.photoURL != null ? NetworkImage(user.photoURL!) : null,
             child: user.photoURL == null
                 ? const Icon(Icons.person, size: 40)
                 : null,
@@ -376,16 +379,16 @@ class HomeDrawer extends StatelessWidget {
                 context,
                 Seat(
                     classId:
-                        Provider.of<TeacherProvider>(context, listen: false)
-                            .latestClassId))),
+                    Provider.of<TeacherProvider>(context, listen: false)
+                        .latestClassId))),
         _buildDrawerItem(context,
             title: '투표',
             onTap: () => _navigateTo(
                 context,
                 Vote(
                     classId:
-                        Provider.of<TeacherProvider>(context, listen: false)
-                            .latestClassId))),
+                    Provider.of<TeacherProvider>(context, listen: false)
+                        .latestClassId))),
       ],
     );
   }
@@ -506,7 +509,7 @@ class _HomeContentState extends State<HomeContent> {
         setState(() {
           mealDate = mealData != null ? mealData['MLSV_YMD'] : null;
           mealMenu =
-              mealData != null ? cleanMealData(mealData['DDISH_NM']) : null;
+          mealData != null ? cleanMealData(mealData['DDISH_NM']) : null;
           _isMealLoaded = true; // 급식 정보 로드 완료
         });
 
@@ -538,11 +541,11 @@ class _HomeContentState extends State<HomeContent> {
               .add(const Duration(hours: 9))
               .toUtc();
           final endDate =
-              DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
+          DateTime.parse(item['end']).add(const Duration(hours: 9)).toUtc();
 
           for (var date = startDate;
-              !date.isAfter(endDate);
-              date = date.add(const Duration(days: 1))) {
+          !date.isAfter(endDate);
+          date = date.add(const Duration(days: 1))) {
             _events.putIfAbsent(date, () => []).add(item);
           }
         }
@@ -586,8 +589,8 @@ class _HomeContentState extends State<HomeContent> {
     final events = <dynamic>[];
 
     for (var date = start;
-        !date.isAfter(end);
-        date = date.add(const Duration(days: 1))) {
+    !date.isAfter(end);
+    date = date.add(const Duration(days: 1))) {
       if (_events.containsKey(date)) {
         events.addAll(_events[date]!);
       }
@@ -641,7 +644,7 @@ class _HomeContentState extends State<HomeContent> {
             rangeStartDay: _rangeStart,
             rangeEndDay: _rangeStart,
             selectedDayPredicate: (day) =>
-                _selectedDay != null && isSameDay(_selectedDay, day),
+            _selectedDay != null && isSameDay(_selectedDay, day),
             onPageChanged: (focusedDay) {
               setState(() {
                 _focusedDay = focusedDay;
@@ -667,7 +670,7 @@ class _HomeContentState extends State<HomeContent> {
               titleTextFormatter: (date, locale) =>
                   DateFormat.yMMMMd(locale).format(date),
               titleTextStyle:
-                  const TextStyle(fontSize: 20.0, color: Colors.black),
+              const TextStyle(fontSize: 20.0, color: Colors.black),
               headerPadding: const EdgeInsets.symmetric(vertical: 4.0),
             ),
             calendarStyle: CalendarStyle(
@@ -713,7 +716,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) =>
-                  events.isNotEmpty ? _buildEventsMarker(date, events) : null,
+              events.isNotEmpty ? _buildEventsMarker(date, events) : null,
             ),
           ),
           Expanded(
@@ -724,301 +727,301 @@ class _HomeContentState extends State<HomeContent> {
               },
               child: _isMealLoaded && _isTimetableLoaded
                   ? Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Builder(
-                              builder: (context) {
-                                final events =
-                                    _getEventsForRange(_rangeStart, _rangeEnd);
-                                return events.isEmpty
-                                    ? const Center(
-                                        child: Text(
-                                          "이벤트 없음",
-                                          style: TextStyle(
-                                              fontSize: 30,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.grey),
-                                        ),
-                                      )
-                                    : ListView.builder(
-                                        itemCount: events.length,
-                                        itemBuilder: (context, index) {
-                                          final event = events[index];
-                                          final randomColor = colors[
-                                              random.nextInt(colors.length)];
-                                          return Container(
-                                            height: 60.0,
-                                            color: randomColor,
-                                            child: ListTile(
-                                              leading: const Icon(Icons.alarm,
-                                                  color: Colors.white),
-                                              title: Text(
-                                                event['title'],
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18,
-                                                    overflow:
-                                                        TextOverflow.ellipsis),
-                                              ),
-                                              trailing: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                      'Start: ${event['start'].substring(0, 10)}',
-                                                      style: const TextStyle(
-                                                          fontSize: 12.0,
-                                                          color:
-                                                              Colors.white70)),
-                                                  Text(
-                                                      'End: ${event['end'].substring(0, 10)}',
-                                                      style: const TextStyle(
-                                                          fontSize: 12.0,
-                                                          color:
-                                                              Colors.white70)),
-                                                ],
-                                              ),
-                                              onTap: () => Navigator.push(
-                                                context,
-                                                PageRouteBuilder(
-                                                  pageBuilder: (context,
-                                                          animation,
-                                                          secondaryAnimation) =>
-                                                      CalendarDetails(
-                                                    event: event,
-                                                    deleteEvent: _deleteEvent,
-                                                    updateEvent: _updateEvent,
-                                                  ),
-                                                  transitionsBuilder: (context,
-                                                      animation,
-                                                      secondaryAnimation,
-                                                      child) {
-                                                    return SlideTransition(
-                                                      position: animation.drive(Tween(
-                                                              begin:
-                                                                  const Offset(
-                                                                      1.0, 0.0),
-                                                              end: Offset.zero)
-                                                          .chain(CurveTween(
-                                                              curve: Curves
-                                                                  .easeInOut))),
-                                                      child: child,
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                              },
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Builder(
+                        builder: (context) {
+                          final events =
+                          _getEventsForRange(_rangeStart, _rangeEnd);
+                          return events.isEmpty
+                              ? const Center(
+                            child: Text(
+                              "이벤트 없음",
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                maxHeight: 300, // 컨테이너 높이 제한
+                          )
+                              : ListView.builder(
+                            itemCount: events.length,
+                            itemBuilder: (context, index) {
+                              final event = events[index];
+                              final randomColor = colors[
+                              random.nextInt(colors.length)];
+                              return Container(
+                                height: 60.0,
+                                color: randomColor,
+                                child: ListTile(
+                                  leading: const Icon(Icons.alarm,
+                                      color: Colors.white),
+                                  title: Text(
+                                    event['title'],
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        overflow:
+                                        TextOverflow.ellipsis),
+                                  ),
+                                  trailing: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                          'Start: ${event['start'].substring(0, 10)}',
+                                          style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color:
+                                              Colors.white70)),
+                                      Text(
+                                          'End: ${event['end'].substring(0, 10)}',
+                                          style: const TextStyle(
+                                              fontSize: 12.0,
+                                              color:
+                                              Colors.white70)),
+                                    ],
+                                  ),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context,
+                                          animation,
+                                          secondaryAnimation) =>
+                                          CalendarDetails(
+                                            event: event,
+                                            deleteEvent: _deleteEvent,
+                                            updateEvent: _updateEvent,
+                                          ),
+                                      transitionsBuilder: (context,
+                                          animation,
+                                          secondaryAnimation,
+                                          child) {
+                                        return SlideTransition(
+                                          position: animation.drive(Tween(
+                                              begin:
+                                              const Offset(
+                                                  1.0, 0.0),
+                                              end: Offset.zero)
+                                              .chain(CurveTween(
+                                              curve: Curves
+                                                  .easeInOut))),
+                                          child: child,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          maxHeight: 300, // 컨테이너 높이 제한
+                        ),
+                        margin: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffE8F5E9),
+                          borderRadius: BorderRadius.circular(16.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: mealDate != null && mealMenu != null
+                            ? Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '급식 정보',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xff205736),
                               ),
-                              margin: const EdgeInsets.all(8.0),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
                               padding: const EdgeInsets.all(16.0),
                               decoration: BoxDecoration(
-                                color: const Color(0xffE8F5E9),
-                                borderRadius: BorderRadius.circular(16.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: mealDate != null && mealMenu != null
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Text(
-                                          '급식 정보',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xff205736),
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Container(
-                                          padding: const EdgeInsets.all(16.0),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xff3CB371)
-                                                .withOpacity(0.5),
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                            border: Border.all(
-                                              color: const Color(0xff3CB371),
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                '$mealDate',
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color(0xff205736),
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                cleanMealData(mealMenu!),
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.black,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                softWrap: true,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : const Center(
-                                      child: Text(
-                                        "급식 쉬는날",
-                                        style: TextStyle(
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                maxHeight: 300, // 컨테이너 높이 제한
-                              ),
-                              margin: const EdgeInsets.all(0.0),
-                              padding: const EdgeInsets.all(0.0),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffE8F5E9),
-                                borderRadius: BorderRadius.circular(16.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Center(
-                                      child: Text(
-                                        '시간표',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff3CB371),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    if (_selectedDay!.weekday >= 6)
-                                      const Center(
-                                        child: Text(
-                                          '오늘은 쉬는 날입니다.',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: List.generate(
-                                          6,
-                                          (index) => Expanded(
-                                            child: Container(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 4.0),
-                                              padding:
-                                                  const EdgeInsets.all(12.0),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xff3CB371)
-                                                    .withOpacity(0.5),
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                                border: Border.all(
-                                                    color:
-                                                        const Color(0xff3CB371),
-                                                    width: 1),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.grey
-                                                        .withOpacity(0.3),
-                                                    blurRadius: 5,
-                                                    offset: const Offset(2, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    '${index + 1}교시',
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Color(0xff205736),
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    timetable.length > index
-                                                        ? timetable[index]
-                                                        : '',
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.black,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
+                                color: const Color(0xff3CB371)
+                                    .withOpacity(0.5),
+                                borderRadius:
+                                BorderRadius.circular(12.0),
+                                border: Border.all(
+                                  color: const Color(0xff3CB371),
+                                  width: 1.0,
                                 ),
                               ),
+                              child: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '$mealDate',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xff205736),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    cleanMealData(mealMenu!),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                  ),
+                                ],
+                              ),
                             ),
+                          ],
+                        )
+                            : const Center(
+                          child: Text(
+                            "급식 쉬는날",
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
+                        ),
                       ),
-                    )
-                  : const Center(
-                      child: Text(""), // 로딩 상태
                     ),
+                    Expanded(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          maxHeight: 300, // 컨테이너 높이 제한
+                        ),
+                        margin: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.all(0.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffE8F5E9),
+                          borderRadius: BorderRadius.circular(16.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Center(
+                                child: Text(
+                                  '시간표',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xff3CB371),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              if (_selectedDay!.weekday >= 6)
+                                const Center(
+                                  child: Text(
+                                    '오늘은 쉬는 날입니다.',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                )
+                              else
+                                Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceAround,
+                                  children: List.generate(
+                                    6,
+                                        (index) => Expanded(
+                                      child: Container(
+                                        margin:
+                                        const EdgeInsets.symmetric(
+                                            horizontal: 4.0),
+                                        padding:
+                                        const EdgeInsets.all(12.0),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff3CB371)
+                                              .withOpacity(0.5),
+                                          borderRadius:
+                                          BorderRadius.circular(12.0),
+                                          border: Border.all(
+                                              color:
+                                              const Color(0xff3CB371),
+                                              width: 1),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.grey
+                                                  .withOpacity(0.3),
+                                              blurRadius: 5,
+                                              offset: const Offset(2, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              '${index + 1}교시',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight:
+                                                FontWeight.bold,
+                                                color: Color(0xff205736),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              timetable.length > index
+                                                  ? timetable[index]
+                                                  : '',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                  : const Center(
+                child: Text(""), // 로딩 상태
+              ),
             ),
           ),
         ],
