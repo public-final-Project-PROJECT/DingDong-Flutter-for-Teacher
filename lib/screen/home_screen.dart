@@ -41,7 +41,6 @@ class TeacherProvider extends ChangeNotifier {
   bool _classDetailsFetched = false;
   bool _isCalendarLoaded = false; // 플래그 추가
 
-
   int get teacherId => _teacherId;
 
   int get latestClassId => _latestClassId;
