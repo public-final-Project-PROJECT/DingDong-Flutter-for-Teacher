@@ -180,15 +180,26 @@ class HomeScreen extends StatelessWidget {
       key: _scaffoldKey,
       appBar: _buildAppBar(context, classDetails),
       backgroundColor: const Color(0xffF4F4F4),
-      drawer: HomeDrawer(user: user),
+      drawer: HomeDrawer(user: user, classDetails: classDetails),
       body: _buildBody(provider),
     );
   }
 
   AppBar _buildAppBar(BuildContext context, Map<String, dynamic> classDetails) {
     return AppBar(
-        title: Text(classDetails['classNickname'] ?? '홈'),
-        backgroundColor: const Color(0xffF4F4F4));
+      title: Text(classDetails['classNickname'] ?? '홈'),
+      backgroundColor: const Color(0xffF4F4F4),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_on_rounded),
+          onPressed: () => _notification(),
+        ),
+      ],
+    );
+  }
+
+  Widget _notification() {
+    return const Placeholder();
   }
 
   Widget _buildBody(TeacherProvider provider) {
@@ -209,8 +220,9 @@ class HomeScreen extends StatelessWidget {
 
 class HomeDrawer extends StatelessWidget {
   final User user;
+  final Map<String, dynamic> classDetails;
 
-  const HomeDrawer({required this.user, super.key});
+  const HomeDrawer({required this.user, super.key, required this.classDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -220,33 +232,45 @@ class HomeDrawer extends StatelessWidget {
         builder: (_, provider, __) => ListView(
           padding: EdgeInsets.zero,
           children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundImage:
-                  user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-              child: user.photoURL == null
-                  ? const Icon(Icons.person, size: 40)
-                  : null,
-            ),
-            const SizedBox(height: 10),
-            Flexible(
-              child: Text(
-                ('${user.displayName!} 선생님'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            const SizedBox(height: 50),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: user.photoURL != null
+                      ? NetworkImage(user.photoURL!)
+                      : null,
+                  child: user.photoURL == null
+                      ? const Icon(Icons.person, size: 40)
+                      : null,
                 ),
-                textAlign: TextAlign.center,
-              ),
+                const SizedBox(height: 10),
+                Text(
+                  '${user.displayName!} 선생님',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  user.email ?? '',
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  '${classDetails['schoolName']} ${classDetails['grade']}학년 ${classDetails['classNo']}반',
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 15),
+                _buildLogOutButton(context),
+              ],
             ),
-            Flexible(
-              child: Text(
-                user.email ?? '',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 80),
+            const Divider(height: 40, thickness: 1),
             _buildDrawerItem(context,
                 title: '홈', onTap: () => Navigator.pop(context)),
             _buildDrawerItem(context,
@@ -265,7 +289,6 @@ class HomeDrawer extends StatelessWidget {
                 title: '캘린더',
                 onTap: () => _navigateTo(context, const Calendar())),
             _buildConvenienceFunctions(context),
-            _buildLogOutButton(context),
           ],
         ),
       ),
@@ -320,7 +343,7 @@ class HomeDrawer extends StatelessWidget {
         );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff205736),
+        backgroundColor: const Color(0xffff0000),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
@@ -1074,6 +1097,5 @@ class _HomeContentState extends State<HomeContent> {
         timetable = [];
     }
     _isTimetableLoaded = true; // 시간표 정보 로드 완료
-
   }
 }
