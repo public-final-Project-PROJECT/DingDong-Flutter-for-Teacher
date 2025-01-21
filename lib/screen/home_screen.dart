@@ -22,7 +22,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter/widgets.dart';
 
 class TeacherProvider extends ChangeNotifier {
   static final TeacherProvider _instance = TeacherProvider._internal();
@@ -433,7 +432,7 @@ class _HomeContentState extends State<HomeContent> {
   final Map<DateTime, List<dynamic>> _events = {};
   final random = Random();
   final List<Color> colors = [
-    Color(0xff3CB371),
+    const Color(0xff3CB371),
   ];
   bool _isMealLoaded = true; // 급식 정보 로드 상태
   bool _isTimetableLoaded = true; // 시간표 로드 상태
@@ -680,7 +679,7 @@ class _HomeContentState extends State<HomeContent> {
                 color: Colors.white,
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(color: Color(0xff309729), width: 1.0),
+                border: Border.all(color: const Color(0xff309729), width: 1.0),
               ),
               todayTextStyle: const TextStyle(color: Color(0xff309729)),
               selectedDecoration: BoxDecoration(
@@ -694,7 +693,7 @@ class _HomeContentState extends State<HomeContent> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Color(0xff205736), // Border color
+                  color: const Color(0xff205736), // Border color
                   width: 2.0, // Border width
                 ),
               ),
@@ -704,7 +703,7 @@ class _HomeContentState extends State<HomeContent> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Color(0xff205736), // Border color
+                  color: const Color(0xff205736), // Border color
                   width: 2.0, // Border width
                 ),
               ),
@@ -726,7 +725,7 @@ class _HomeContentState extends State<HomeContent> {
                 return FadeTransition(opacity: animation, child: child);
               },
               child: _isMealLoaded && _isTimetableLoaded
-                  ? Container(
+                  ? SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
                 child: Column(
@@ -1096,14 +1095,12 @@ class _HomeContentState extends State<HomeContent> {
                     fetchWeekdayInfo(weekday!);
                   });
                 },
-                child: Container(
-                  child: Center(
-                    child: Text(
-                      '오늘',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.red,
-                      ),
+                child: Center(
+                  child: Text(
+                    '오늘',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.red,
                     ),
                   ),
                 ),
