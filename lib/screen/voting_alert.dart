@@ -5,6 +5,8 @@ class VotingAlert extends StatefulWidget {
   final List<dynamic> votingContents;
   final Map<int, List<dynamic>> studentsVotedForContents;
   final List<Map<String, dynamic>> studentsInfo;
+  final bool anonymousVote;
+
 
   const VotingAlert({
     super.key,
@@ -12,6 +14,7 @@ class VotingAlert extends StatefulWidget {
     required this.votingContents,
     required this.studentsVotedForContents,
     required this.studentsInfo,
+    required this.anonymousVote,
   });
 
   @override
@@ -19,6 +22,8 @@ class VotingAlert extends StatefulWidget {
 }
 
 class _VotingAlertState extends State<VotingAlert> {
+  get anonymousVote => null;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -33,6 +38,23 @@ class _VotingAlertState extends State<VotingAlert> {
               fontWeight: FontWeight.bold,
             ),
           ),
+            if(anonymousVote == true)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: BoxDecoration(
+                color:
+                     Color(0xff2C8C25),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Text(
+                "비밀 투표",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
         ],
       ),
       content: SingleChildScrollView(

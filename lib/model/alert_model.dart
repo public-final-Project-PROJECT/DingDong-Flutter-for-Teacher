@@ -19,9 +19,6 @@ class AlertModel {
 
   Future<List<dynamic>> votingUserAlertSave(int studentId, int classId, int votingId) async {
     final dio = Dio();
-    print(studentId);
-    print(classId);
-    print(votingId);
     try {
       final response = await dio.post(
           "http://112.221.66.174:3013/api/alert/votingUserAlertSave",
