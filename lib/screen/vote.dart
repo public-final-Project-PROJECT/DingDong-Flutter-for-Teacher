@@ -261,7 +261,7 @@ class _VoteState extends State<Vote> {
                     children: [
                       Icon(Icons.add, color: Colors.white),
                       SizedBox(width: 6),
-                      Icon(Icons.how_to_vote, color: Colors.white),
+                      Text("작성하기", style: TextStyle(color: Colors.white),)
                     ],
                   ),
                 ),
