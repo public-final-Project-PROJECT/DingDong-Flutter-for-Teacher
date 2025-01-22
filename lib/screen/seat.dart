@@ -1,5 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:path_provider/path_provider.dart';
 import '../model/seat_model.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'dart:io';
 
 class Seat extends StatefulWidget {
   final int classId;
@@ -23,6 +30,7 @@ class _SeatState extends State<Seat> {
   List<dynamic> originalSeats = [];
   List<Map<String, dynamic>> newSeats = [];
   List<dynamic> insertSeats = [];
+  final GlobalKey _repaintBoundaryKey = GlobalKey();
 
   @override
   void initState() {
@@ -138,6 +146,37 @@ class _SeatState extends State<Seat> {
     loadSeatTable(widget.classId);
   }
 
+  Future<void> _captureAndSaveScreen() async {
+    try {
+
+      RenderRepaintBoundary boundary =
+      _repaintBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+
+      if (boundary != null) {
+        ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+
+
+        ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/screenshot.png';
+        final file = File(filePath);
+        await file.writeAsBytes(pngBytes);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Screenshot saved to $filePath')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error capturing screenshot: $e')),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     int maxColumn = loadedSeats.isNotEmpty
@@ -159,7 +198,7 @@ class _SeatState extends State<Seat> {
               size: 30,
             ),
             SizedBox(width: 10),
-            Text("좌석 랜덤돌리기"),
+            Text("좌석표"),
           ],
         ),
         backgroundColor: const Color(0xffF4F4F4),
@@ -209,8 +248,17 @@ class _SeatState extends State<Seat> {
               SizedBox(
                 width: 30,
               ),
+              RepaintBoundary(
+                key: _repaintBoundaryKey,
+                child: Center(
+                  child: Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: _captureAndSaveScreen,
                 style: TextButton.styleFrom(
                   backgroundColor:
                       isEditing ? Colors.grey :  Color(0xff309729),
@@ -220,7 +268,7 @@ class _SeatState extends State<Seat> {
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                 ),
                 child: Icon(
-                  Icons.save,
+                  Icons.camera_alt,
                   color: Colors.white,
                 ),
               ),
@@ -343,7 +391,7 @@ class _SeatState extends State<Seat> {
                     return Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color:  Color(0xff72BF6C),
+                        color:  Color(0xffc7eac5),
                       ),
                       child: Text(
                         student['studentName'],
@@ -354,6 +402,15 @@ class _SeatState extends State<Seat> {
                 }),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          children: [
+            Icon(Icons.info, color:Colors.grey, size: 20,),
+            SizedBox(width: 5,),
+            Text("좌석 랜덤돌리기는 DingDong 사이트를 이용해주세요 !", style: TextStyle(color:Colors.grey,),)
+          ],
+        ),
       ),
     );
   }
@@ -377,7 +434,7 @@ class _SeatState extends State<Seat> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25),
-          color:  Color(0xff82e87c),
+          color:  Color(0xffc7eac5),
           border: Border.all(
             color: (firstSelectedSeat == seat) ? Colors.red : Colors.white70,
           ),

@@ -22,7 +22,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:flutter/widgets.dart';
 
 class TeacherProvider extends ChangeNotifier {
   static final TeacherProvider _instance = TeacherProvider._internal();
@@ -134,12 +133,10 @@ class TeacherProvider extends ChangeNotifier {
   bool get isClassDetailsFetched => _classDetailsFetched;
   void setCalendarLoaded(bool value) {
     _isCalendarLoaded = value;
-    notifyListeners();
   }
 
   void refreshContent() {
     _isCalendarLoaded = false; // 캘린더 플래그 초기화
-    notifyListeners();
   }
 }
 
@@ -161,7 +158,9 @@ class HomeScreen extends StatelessWidget {
       future: provider.fetchClassDetails(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Container(
+            color: Colors.white, // 배경을 흰색으로 설정
+          );
         } else if (snapshot.hasError) {
           return Center(
             child: Text("오류: ${snapshot.error}"),
@@ -181,8 +180,7 @@ class HomeScreen extends StatelessWidget {
       key: _scaffoldKey,
       appBar: _buildAppBar(context, classDetails),
       backgroundColor: const Color(0xffF4F4F4),
-      drawer: HomeDrawer(user: user),
-      endDrawer: _buildSecondaryDrawer(user, context),
+      drawer: HomeDrawer(user: user, classDetails: classDetails),
       body: _buildBody(provider),
     );
   }
@@ -193,18 +191,15 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: const Color(0xffF4F4F4),
       actions: [
         IconButton(
-          icon: CircleAvatar(
-            radius: 15,
-            backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-            child: user.photoURL == null
-                ? const Icon(Icons.person, size: 30)
-                : null,
-          ),
-          onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+          icon: const Icon(Icons.notifications_on_rounded),
+          onPressed: () => _notification(),
         ),
       ],
     );
+  }
+
+  Widget _notification() {
+    return const Placeholder();
   }
 
   Widget _buildBody(TeacherProvider provider) {
@@ -221,105 +216,13 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
-
-  Widget _buildSecondaryDrawer(User user, BuildContext context) {
-    return Drawer(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildDrawerHeader(user),
-            _buildDrawerItems(context),
-            _buildLogOutButton(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerHeader(User user) {
-    return DrawerHeader(
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundImage:
-                user.photoURL != null ? NetworkImage(user.photoURL!) : null,
-            child: user.photoURL == null
-                ? const Icon(Icons.person, size: 40)
-                : null,
-          ),
-          const SizedBox(height: 10),
-          Flexible(
-            child: Text(
-              ('${user.displayName!} 선생님'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Flexible(
-            child: Text(
-              user.email ?? '',
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDrawerItems(BuildContext context) {
-    return Column(
-      children: [
-        _buildDrawerItem(context, title: 'Settings', onTap: () {}),
-        _buildDrawerItem(context, title: 'Help', onTap: () {}),
-      ],
-    );
-  }
-
-  Widget _buildDrawerItem(BuildContext context,
-      {required String title, required VoidCallback onTap}) {
-    return ListTile(
-      leading: const Icon(Icons.settings),
-      title: Text(title),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildLogOutButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        await FirebaseAuth.instance.signOut();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const LoginPage(),
-          ),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff205736),
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      child: const Text('로그아웃'),
-    );
-  }
 }
 
 class HomeDrawer extends StatelessWidget {
   final User user;
+  final Map<String, dynamic> classDetails;
 
-  const HomeDrawer({required this.user, super.key});
+  const HomeDrawer({required this.user, super.key, required this.classDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +232,45 @@ class HomeDrawer extends StatelessWidget {
         builder: (_, provider, __) => ListView(
           padding: EdgeInsets.zero,
           children: [
-            const SizedBox(height: 80),
+            const SizedBox(height: 50),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: user.photoURL != null
+                      ? NetworkImage(user.photoURL!)
+                      : null,
+                  child: user.photoURL == null
+                      ? const Icon(Icons.person, size: 40)
+                      : null,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${user.displayName!} 선생님',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  user.email ?? '',
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  '${classDetails['schoolName']} ${classDetails['grade']}학년 ${classDetails['classNo']}반',
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 15),
+                _buildLogOutButton(context),
+              ],
+            ),
+            const Divider(height: 40, thickness: 1),
             _buildDrawerItem(context,
                 title: '홈', onTap: () => Navigator.pop(context)),
             _buildDrawerItem(context,
@@ -390,6 +331,28 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
+  Widget _buildLogOutButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        await FirebaseAuth.instance.signOut();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LoginPage(),
+          ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xffff0000),
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+      child: const Text('로그아웃'),
+    );
+  }
+
   void _navigateTo(BuildContext context, Widget page) {
     Navigator.push(
       context,
@@ -430,7 +393,7 @@ class _HomeContentState extends State<HomeContent> {
   final Map<DateTime, List<dynamic>> _events = {};
   final random = Random();
   final List<Color> colors = [
-    Color(0xff3CB371),
+    const Color(0xff3CB371),
   ];
   bool _isMealLoaded = true; // 급식 정보 로드 상태
   bool _isTimetableLoaded = true; // 시간표 로드 상태
@@ -518,7 +481,7 @@ class _HomeContentState extends State<HomeContent> {
             'Failed to fetch meal info: HTTP ${response.statusCode}');
       }
     } catch (error) {
-      throw Exception('오늘 급식쉬는날이라 이래 : $error');
+      throw Exception('오늘 급식 쉬는 날이라 이래 : $error');
     }
   }
 
@@ -677,7 +640,7 @@ class _HomeContentState extends State<HomeContent> {
                 color: Colors.white,
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(color: Color(0xff309729), width: 1.0),
+                border: Border.all(color: const Color(0xff309729), width: 1.0),
               ),
               todayTextStyle: const TextStyle(color: Color(0xff309729)),
               selectedDecoration: BoxDecoration(
@@ -691,7 +654,7 @@ class _HomeContentState extends State<HomeContent> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Color(0xff205736), // Border color
+                  color: const Color(0xff205736), // Border color
                   width: 2.0, // Border width
                 ),
               ),
@@ -701,7 +664,7 @@ class _HomeContentState extends State<HomeContent> {
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: Color(0xff205736), // Border color
+                  color: const Color(0xff205736), // Border color
                   width: 2.0, // Border width
                 ),
               ),
@@ -723,7 +686,7 @@ class _HomeContentState extends State<HomeContent> {
                 return FadeTransition(opacity: animation, child: child);
               },
               child: _isMealLoaded && _isTimetableLoaded
-                  ? Container(
+                  ? SizedBox(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
                       child: Column(
@@ -822,93 +785,7 @@ class _HomeContentState extends State<HomeContent> {
                               constraints: const BoxConstraints(
                                 maxHeight: 300, // 컨테이너 높이 제한
                               ),
-                              margin: const EdgeInsets.all(8.0),
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: const Color(0xffE8F5E9),
-                                borderRadius: BorderRadius.circular(16.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: mealDate != null && mealMenu != null
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Text(
-                                          '급식 정보',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xff205736),
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Container(
-                                          padding: const EdgeInsets.all(16.0),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xff3CB371)
-                                                .withOpacity(0.5),
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                            border: Border.all(
-                                              color: const Color(0xff3CB371),
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                '$mealDate',
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color(0xff205736),
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                cleanMealData(mealMenu!),
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.black,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                softWrap: true,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : const Center(
-                                      child: Text(
-                                        "급식 쉬는날",
-                                        style: TextStyle(
-                                          fontSize: 30,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                maxHeight: 300, // 컨테이너 높이 제한
-                              ),
-                              margin: const EdgeInsets.all(0.0),
+                              margin: const EdgeInsets.all(20.0),
                               padding: const EdgeInsets.all(0.0),
                               decoration: BoxDecoration(
                                 color: const Color(0xffE8F5E9),
@@ -984,7 +861,7 @@ class _HomeContentState extends State<HomeContent> {
                                                   Text(
                                                     '${index + 1}교시',
                                                     style: const TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 10,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       color: Color(0xff205736),
@@ -997,7 +874,7 @@ class _HomeContentState extends State<HomeContent> {
                                                         ? timetable[index]
                                                         : '',
                                                     style: const TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 15,
                                                       color: Colors.black,
                                                     ),
                                                     textAlign: TextAlign.center,
@@ -1011,6 +888,93 @@ class _HomeContentState extends State<HomeContent> {
                                   ],
                                 ),
                               ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                maxHeight: 300, // 컨테이너 높이 제한
+                              ),
+                              margin: const EdgeInsets.all(20.0),
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                color: const Color(0xffE8F5E9),
+                                borderRadius: BorderRadius.circular(16.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: mealDate != null && mealMenu != null
+                                  ? Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          '급식 정보',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff205736),
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Container(
+                                          margin: const EdgeInsets.all(20.0),
+                                          padding: const EdgeInsets.all(16.0),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xff3CB371)
+                                                .withOpacity(0.5),
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                            border: Border.all(
+                                              color: const Color(0xff3CB371),
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                '$mealDate',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xff205736),
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                cleanMealData(mealMenu!),
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.black,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                softWrap: true,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const Center(
+                                      child: Text(
+                                        "급식 쉬는날",
+                                        style: TextStyle(
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
@@ -1091,14 +1055,12 @@ class _HomeContentState extends State<HomeContent> {
                     fetchWeekdayInfo(weekday!);
                   });
                 },
-                child: Container(
-                  child: Center(
-                    child: Text(
-                      '오늘',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.red,
-                      ),
+                child: const Center(
+                  child: Text(
+                    '오늘',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.red,
                     ),
                   ),
                 ),
@@ -1135,8 +1097,5 @@ class _HomeContentState extends State<HomeContent> {
         timetable = [];
     }
     _isTimetableLoaded = true; // 시간표 정보 로드 완료
-
-    print(
-        "_isMealLoaded: $_isMealLoaded, _isTimetableLoaded: $_isTimetableLoaded");
   }
 }

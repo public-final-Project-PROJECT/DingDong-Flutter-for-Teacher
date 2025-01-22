@@ -158,7 +158,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
                 ),
                 const Text(
                   "항목 추가",
-                  style: TextStyle(color: Color(0xff72BF6C)),
+                  style: TextStyle(color: Color(0xff72BF6C), fontWeight: FontWeight.bold,),
                 ),
               ],
             ),
@@ -228,7 +228,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 50),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -272,50 +272,7 @@ class _AddVotingPageState extends State<AddVotingPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.check_box_outlined,
-                        color: Color(0xff3CB371), size: 28),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    const Text("중복투표 설정",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xff3CB371),
-                            fontSize: 15)),
-                  ],
-                ),
-                ListTile(
-                  title: const Text("중복 투표"),
-                  leading: Radio<String>(
-                    value: "double",
-                    groupValue: selectedDoubleVoting,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedDoubleVoting = value!;
-                      });
-                    },
-                  ),
-                ),
-                ListTile(
-                  title: const Text("단일 투표"),
-                  leading: Radio<String>(
-                    value: "one",
-                    groupValue: selectedDoubleVoting,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedDoubleVoting = value!;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
+
           ],
         ),
       ),

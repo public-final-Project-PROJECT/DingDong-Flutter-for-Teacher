@@ -30,6 +30,8 @@ class _VoteState extends State<Vote> {
 
   get inputDataList => null;
 
+  get anonymousVote => null;
+
   @override
   void initState() {
     super.initState();
@@ -309,6 +311,8 @@ class _VoteState extends State<Vote> {
                   votingContents: votingContents,
                   studentsVotedForContents: studentsVotedForContents,
                   studentsInfo: _studentsInfo,
+                  anonymousVote:  voting["anonymousVote"] ?? false
+
                 ),
               );
             },
@@ -344,7 +348,8 @@ class _VoteState extends State<Vote> {
                                     ? Colors.red
                                     : Colors.grey,
                               ),
-                            ),
+                            ), 
+
                             SizedBox(width: 20),
                             if (voting["votingEnd"] != null &&
                                 voting["vote"] == true)
@@ -564,6 +569,7 @@ class _VoteState extends State<Vote> {
                                     height: 20,
                                     width: 10,
                                   ),
+                                  
                                   Row(
                                     children: [
                                       TextButton(
