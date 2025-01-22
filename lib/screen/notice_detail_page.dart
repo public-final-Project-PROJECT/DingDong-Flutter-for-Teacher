@@ -83,7 +83,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                         style: TextStyle(fontSize: 11),
                       ),
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff515151),
+                          backgroundColor: const Color(0xff3CB371),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 5),

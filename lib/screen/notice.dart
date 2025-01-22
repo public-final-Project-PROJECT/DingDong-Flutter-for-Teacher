@@ -172,9 +172,9 @@ class _NoticeState extends State<Notice> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "카테고리: ${notice['noticeCategory']}",
+                          "${notice['noticeCategory']}",
                           style: const TextStyle(
-                              fontSize: 14, color: Colors.grey),
+                              fontSize: 14, color:  Color(0xff3CB371)),
                         ),
                         const SizedBox(height: 8),
                         Text(

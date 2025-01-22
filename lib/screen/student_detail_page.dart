@@ -110,13 +110,13 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
                   if( student['studentImg'] != null )
                     Image.network(
                       "http://112.221.66.174:6892${student['studentImg']}",
-                      width: 100,
-                      height: 100,
+                      width: 150,
+                      height: 150,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          width: 100,
-                          height: 100,
+                          width: 150,
+                          height: 150,
                           color: Colors.grey[300],
                           child: Icon(Icons.image, color: Colors.grey[700]),
                         );
