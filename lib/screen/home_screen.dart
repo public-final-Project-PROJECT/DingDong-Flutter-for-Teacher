@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:dingdong_flutter_teacher/model/alert_model.dart';
 import 'package:dingdong_flutter_teacher/model/calendar_model.dart';
 import 'package:dingdong_flutter_teacher/screen/attendance.dart';
 import 'package:dingdong_flutter_teacher/screen/calendar.dart';
@@ -45,6 +46,8 @@ class TeacherProvider extends ChangeNotifier {
   int get latestClassId => _latestClassId;
 
   bool get loading => _loading;
+
+  AlertModel _alertModel = AlertModel();
 
   String getServerURL() {
     return kIsWeb
@@ -192,15 +195,26 @@ class HomeScreen extends StatelessWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.notifications_on_rounded),
-          onPressed: () => _notification(),
+          onPressed: () async {
+            await bell();
+          },
         ),
       ],
     );
   }
 
-  Widget _notification() {
-    return const Placeholder();
+
+  Future<void> bell(int classId) async {
+    final dio = Dio();
+    try {
+      await dio.post("http://112.221.66.174:6892/api/alert/bell",
+          data: {'classId': classId});
+      print("벨 알림 전송 성공");
+    } catch (e) {
+      print("벨 알림 전송 실패: $e");
+    }
   }
+
 
   Widget _buildBody(TeacherProvider provider) {
     return Consumer<TeacherProvider>(

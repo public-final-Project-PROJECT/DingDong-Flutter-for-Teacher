@@ -32,4 +32,14 @@ class AlertModel {
       throw Exception(e);
     }
   }
+
+  Future<void> bell(int classId) async {
+    final dio = Dio();
+    try {
+      await dio.post("http://112.221.66.174:6892/api/alert/bell",
+        data : {'classId' : classId});
+    } catch (e) {
+      Exception (e);
+    }
+  }
 }
