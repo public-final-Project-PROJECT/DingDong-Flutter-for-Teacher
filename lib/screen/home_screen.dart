@@ -133,10 +133,12 @@ class TeacherProvider extends ChangeNotifier {
   bool get isClassDetailsFetched => _classDetailsFetched;
   void setCalendarLoaded(bool value) {
     _isCalendarLoaded = value;
+    notifyListeners();
   }
 
   void refreshContent() {
     _isCalendarLoaded = false; // 캘린더 플래그 초기화
+    notifyListeners();
   }
 }
 
@@ -331,8 +333,17 @@ class _HomeContentState extends State<HomeContent> {
   final CalendarModel _calendarModel = CalendarModel();
   DateTime? _selectedDay = DateTime.now();
   DateTime? _focusedDay = DateTime.now();
-  DateTime? _rangeStart = DateTime.now();
-  DateTime? _rangeEnd = DateTime.now();
+  DateTime? _rangeStart = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
+
+  DateTime? _rangeEnd = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
   String? schoolName;
   String apiKey = dotenv.get("FETCH_NEIS_API_KEY");
   String? atptOfcdcScCode;
@@ -747,8 +758,13 @@ class _HomeContentState extends State<HomeContent> {
     final DateTime now = DateTime.now();
     _selectedDay = now;
     _focusedDay = now;
-    _rangeStart = now.add(const Duration(hours: 9)).toUtc();
-    _rangeEnd = now.add(const Duration(hours: 9)).toUtc();
+    final DateTime date = DateTime.now();
+    _rangeStart = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
+    _rangeEnd = DateTime(date.year, date.month, date.day)
+        .add(const Duration(hours: 9))
+        .toUtc();
   }
 
   // 상태를 갱신하는 함수
@@ -758,6 +774,7 @@ class _HomeContentState extends State<HomeContent> {
     return Consumer<TeacherProvider>(builder: (context, provider, child) {
       if (!provider._isCalendarLoaded) {
         _loadCalendar(); // 캘린더 데이터 로드
+        _getEventsForRange(_rangeStart,_rangeEnd);
         provider.setCalendarLoaded(true); // 플래그 설정
       }
 
