@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage>
       backgroundColor: const Color(0xffF4F4F4),
       body: Center(
         child:  Padding(
-    padding: const EdgeInsets.only(top: 50),
+    padding: const EdgeInsets.only(top: 320),
     child: Column(
 
           children: [
@@ -149,11 +149,8 @@ class _LoginPageState extends State<LoginPage>
             ),
 
 
-            const SizedBox(height: 35),
-
-
           Padding(
-            padding: const EdgeInsets.only(top: 265),
+            padding: const EdgeInsets.only(top: 230),
             child:ElevatedButton(
               onPressed: handleGoogleSignIn,
               style: ElevatedButton.styleFrom(
@@ -169,10 +166,10 @@ class _LoginPageState extends State<LoginPage>
                 children: [
                   Image.asset('assets/google.png'),
                   const Text(
-                    'Sign in with Google',
+                    '구글 계정으로 계속하기',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14.0,
+                      fontSize: 16.0,
                     ),
                   ),
                   Opacity(

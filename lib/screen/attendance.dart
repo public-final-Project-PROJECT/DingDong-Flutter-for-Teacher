@@ -259,7 +259,7 @@ class _AttendanceState extends State<Attendance> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('학번: ${student['studentId']}번' ,style: const TextStyle(fontSize: 13)),
+                              Text('학번: ${student['studentNo']}번' ,style: const TextStyle(fontSize: 13)),
                               Text('출석 상태: $attendanceState',style: const  TextStyle(fontSize: 13)),
                             ],
                           ),

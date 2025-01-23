@@ -6,7 +6,7 @@ class AttendanceModel {
     final dio = Dio();
     try {
       final response = await dio.get(
-        "http://112.221.66.174:3013/api/attendance/view/$classId",
+        "http://112.221.66.174:6892/api/attendance/view/$classId",
         queryParameters: {
           'attendanceDate': attendanceDate,
         },
@@ -27,7 +27,7 @@ class AttendanceModel {
 
     try {
       await dio.post(
-          "http://112.221.66.174:3013/api/attendance/register",
+          "http://112.221.66.174:6892/api/attendance/register",
           data: attendance);
     } catch (e) {
       throw Exception("Error : $e");

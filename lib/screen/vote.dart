@@ -434,7 +434,7 @@ class _VoteState extends State<Vote> {
                         Flexible(
                           child: Text(
                             voting["votingName"] ?? '',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
