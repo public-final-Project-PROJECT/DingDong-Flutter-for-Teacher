@@ -15,7 +15,8 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final Dio dio = Dio();
 
   String getServerURL() {
@@ -88,18 +89,69 @@ class _LoginPageState extends State<LoginPage> {
       _showErrorDialog('로그인 실패', '에러가 발생했습니다: $e');
     }
   }
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // AnimationController 설정
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    // -10 ~ 10 구간으로 좌우 흔들림 설정 (Curves.easeInOut)
+    _shakeAnimation = Tween<double>(begin: -10, end: 10)
+        .chain(CurveTween(curve: Curves.easeInOut))
+        .animate(_shakeController);
+
+    // 애니메이션을 반복(왕복)하도록 설정
+    _shakeController.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    // 꼭 dispose에서 해제해주어야 메모리 누수가 발생하지 않습니다.
+    _shakeController.dispose();
+    super.dispose();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF4F4F4),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child:  Padding(
+    padding: const EdgeInsets.only(top: 320),
+    child: Column(
+
           children: [
-            const Text('로고는 여기 위에'),
-            const SizedBox(height: 100),
-            ElevatedButton(
+    AnimatedBuilder(
+              animation: _shakeAnimation,
+              builder: (context, child) {
+                // 흔들림(Shake)을 표현하기 위해 좌우 이동(translate)
+                return Transform.translate(
+                  offset: Offset(_shakeAnimation.value, 0),
+                  child: child,
+                );
+              },
+              // 흔들리는 대상만 child로 두면, builder에서는 흔들림 처리만 해주면 됨
+              child: Image.asset(
+                'assets/logo.png',
+                width: 350,
+                height: 150,
+                fit: BoxFit.contain,
+              ),
+            ),
+
+
+          Padding(
+            padding: const EdgeInsets.only(top: 230),
+            child:ElevatedButton(
               onPressed: handleGoogleSignIn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -114,10 +166,10 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   Image.asset('assets/google.png'),
                   const Text(
-                    'Sign in with Google',
+                    '구글 계정으로 계속하기',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14.0,
+                      fontSize: 16.0,
                     ),
                   ),
                   Opacity(
@@ -127,9 +179,12 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ),
+          ),
           ],
         ),
       ),
+    ),
     );
+
   }
 }
