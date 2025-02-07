@@ -106,7 +106,7 @@
 
 <br/>
 
-||** 캘린더 페이지 |
+| 캘린더 페이지 | |
 |---------|---------|
 |![image](https://github.com/user-attachments/assets/fc27180e-9c56-45d3-ab0a-cdf1ec619fad)|![image](https://github.com/user-attachments/assets/44b52b14-9b59-473b-a60d-f7ba386e326a)
 
