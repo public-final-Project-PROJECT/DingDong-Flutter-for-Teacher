@@ -13,6 +13,7 @@
 5. [개발 기간](#createDate)
 6. [화면 구성](#screen)
 7. [기술 스택](#stack)
+8. [개발 환경](#environment)
 <br/>
 
 ## 👨‍🏫 1. <span id="intro"> 프로젝트 소개  </span>
@@ -143,5 +144,20 @@ DataBase : Mysql, JPQL
 📝 ERD 다이어그램
 ![image](https://github.com/user-attachments/assets/8bcc6a8a-c48c-4bb4-a95d-85d849f10551)
 
+<br/>
+
+## 💻 8. <span id = "environment" > 개발환경 <span/>
+
+
+Version : Java 17
+
+IDE : IntelliJ
+
+Framework : SpringBoot 3.3.5
+
+ORM : JPA
+
+<br/>
+<br/>
 <br/>
 <br/>
